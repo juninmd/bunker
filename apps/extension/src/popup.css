@@ -1,0 +1,97 @@
+:root {
+  font-family: Inter, system-ui, sans-serif;
+}
+
+body {
+  margin: 0;
+  width: 360px;
+  background: #0b1220;
+  color: #e2e8f0;
+}
+
+.container {
+  padding: 16px;
+}
+
+h1 {
+  margin: 0;
+  font-size: 20px;
+}
+
+.subtitle {
+  margin-top: 4px;
+  color: #94a3b8;
+  font-size: 12px;
+}
+
+label,
+input,
+button {
+  display: block;
+  width: 100%;
+}
+
+input,
+button {
+  margin-top: 8px;
+  box-sizing: border-box;
+  border-radius: 8px;
+  border: 1px solid #334155;
+  padding: 10px;
+}
+
+input {
+  background: #0f172a;
+  color: #e2e8f0;
+}
+
+button {
+  background: #2563eb;
+  color: #f8fafc;
+  cursor: pointer;
+}
+
+button.secondary {
+  background: #1e293b;
+}
+
+button.danger {
+  background: #7f1d1d;
+  border-color: #991b1b;
+  margin-top: 6px;
+}
+
+.hidden {
+  display: none;
+}
+
+#credentialList {
+  margin: 12px 0;
+  padding: 0;
+  list-style: none;
+  max-height: 180px;
+  overflow: auto;
+}
+
+#credentialList li {
+  border: 1px solid #334155;
+  border-radius: 8px;
+  padding: 10px;
+  margin-bottom: 8px;
+}
+
+.item-site {
+  font-weight: 700;
+}
+
+.item-user {
+  color: #94a3b8;
+  font-size: 12px;
+}
+
+#status {
+  min-height: 16px;
+  margin-top: 8px;
+  color: #a5b4fc;
+  font-size: 12px;
+}

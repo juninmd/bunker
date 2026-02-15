@@ -17,3 +17,16 @@ jobs:
         uses: gaurav-nelson/github-action-markdown-link-check@v1
         with:
           use-quiet-mode: 'yes'
+
+  extension-validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate extension manifest and sources
+        run: |
+          python -m json.tool apps/extension/manifest.json > /dev/null
+          test -f apps/extension/src/popup.html
+          test -f apps/extension/src/popup.js
+          test -f apps/extension/src/popup.css
