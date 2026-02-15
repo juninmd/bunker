@@ -133,6 +133,17 @@
   - gerador de senha
 - Cache offline criptografado.
 - Sync manual com Google Drive + CSV.
+  - **Fluxo de Sincronização Detalhado:**
+    1. Autenticação via `chrome.identity`.
+    2. Verificação de existência do arquivo `vault.enc` no Google Drive.
+    3. Se existir:
+       - Download do conteúdo criptografado.
+       - Decriptografia local.
+       - Merge com o cofre local (união de registros, preferência por data de atualização mais recente).
+    4. Geração de arquivo CSV (`passwords.csv`) com os dados do cofre (para visibilidade do usuário).
+    5. Criptografia do cofre mergeado.
+    6. Upload do novo `vault.enc` e `passwords.csv` para o Google Drive.
+    7. Atualização do cache local.
 
 **Critério de saída**
 - Usuário consegue migrar CSV, usar offline e sincronizar manualmente.
