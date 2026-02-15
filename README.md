@@ -33,13 +33,13 @@ O roadmap completo de funcionalidades está em [`docs/ROADMAP.md`](docs/ROADMAP.
   - fallback para `localStorage` em ambiente de teste
 - Pipeline para empacotar artefato `.zip` da extensão.
 - Workflow de release orientado a tags (`vX.Y.Z`) com anexos automáticos.
+- Módulo de sincronização inicial com Google Drive (arquivo `vault.enc` + CSV).
 
 ### 🔜 Próximas entregas (curto prazo)
 
 1. Content script para detecção de formulários e autofill básico.
 2. Modelo de dados versionado do cofre (`vault schema v1`).
-3. Módulo de sincronização inicial com Google Drive (arquivo `vault.enc` + índice Sheets).
-4. Importador CSV (LastPass) para migração assistida.
+3. Importador CSV (LastPass) para migração assistida.
 
 ## Arquitetura em alto nível
 
