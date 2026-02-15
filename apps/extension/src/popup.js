@@ -1,3 +1,5 @@
+import { GoogleDriveService } from './services/google-drive.js';
+
 const STORAGE_KEY = 'bunkerpass.vault.v1';
 const SALT_KEY = 'bunkerpass.salt.v1';
 const VAULT_SCHEMA_VERSION = 1;
@@ -7,6 +9,7 @@ const vaultSection = document.getElementById('vault-section');
 const statusEl = document.getElementById('status');
 const unlockButton = document.getElementById('unlockButton');
 const lockButton = document.getElementById('lockButton');
+const syncButton = document.getElementById('syncButton');
 const masterPasswordInput = document.getElementById('masterPassword');
 const form = document.getElementById('credentialForm');
 const credentialList = document.getElementById('credentialList');
@@ -17,7 +20,112 @@ let cachedVault = [];
 
 unlockButton.addEventListener('click', handleUnlock);
 lockButton.addEventListener('click', handleLock);
+syncButton.addEventListener('click', handleSync);
 form.addEventListener('submit', handleSaveCredential);
+
+async function handleSync() {
+  if (!unlocked) {
+    setStatus('Desbloqueie o cofre antes de sincronizar.');
+    return;
+  }
+
+  setStatus('Iniciando sincronização...');
+  try {
+    const driveService = new GoogleDriveService();
+    await driveService.authorize();
+    await syncVault(driveService);
+  } catch (error) {
+    console.error(error);
+    setStatus(`Erro na sincronização: ${error.message}`);
+  }
+}
+
+async function syncVault(driveService) {
+  setStatus('Verificando cofre no Google Drive...');
+  const vaultFile = await driveService.findFile('vault.enc');
+  let mergedVault = [...cachedVault];
+
+  const storedSalt = await getStorage(SALT_KEY);
+  const salt = base64ToBytes(storedSalt);
+
+  if (vaultFile) {
+    setStatus('Cofre remoto encontrado. Baixando...');
+    try {
+      const remoteContent = await driveService.getFileContent(vaultFile.id);
+      const remoteVaultData = await decryptPayload(remoteContent, activeMasterPassword, salt);
+      const remoteCredentials = sanitizeVault(remoteVaultData);
+      mergedVault = mergeVaults(cachedVault, remoteCredentials);
+      setStatus('Cofre mesclado. Atualizando remoto...');
+    } catch (e) {
+      console.error('Falha ao processar remoto', e);
+      setStatus('Falha na criptografia/sync. Verifique a senha.');
+      return;
+    }
+  } else {
+    setStatus('Cofre remoto não encontrado. Criando...');
+  }
+
+  // 1. Encrypt and Upload Vault
+  const payload = {
+    schemaVersion: VAULT_SCHEMA_VERSION,
+    credentials: mergedVault
+  };
+  const encrypted = await encryptPayload(payload, activeMasterPassword, salt);
+
+  if (vaultFile) {
+    await driveService.updateFile(vaultFile.id, encrypted, 'text/plain');
+  } else {
+    await driveService.createFile('vault.enc', encrypted, 'text/plain');
+  }
+
+  // 2. Generate and Upload CSV (Plain text for user visibility as requested)
+  const csvContent = generateCSV(mergedVault);
+  const csvFile = await driveService.findFile('passwords.csv');
+
+  if (csvFile) {
+    await driveService.updateFile(csvFile.id, csvContent, 'text/csv');
+  } else {
+    await driveService.createFile('passwords.csv', csvContent, 'text/csv');
+  }
+
+  // 3. Update Local
+  cachedVault = mergedVault;
+  await saveVault(activeMasterPassword, cachedVault);
+  renderVault();
+  setStatus('Sincronização concluída!');
+}
+
+function mergeVaults(local, remote) {
+  const map = new Map();
+  local.forEach((item) => map.set(item.id, item));
+
+  remote.forEach((remoteItem) => {
+    const localItem = map.get(remoteItem.id);
+    if (!localItem) {
+      map.set(remoteItem.id, remoteItem);
+    } else {
+      const localDate = new Date(localItem.updatedAt).getTime();
+      const remoteDate = new Date(remoteItem.updatedAt).getTime();
+      if (remoteDate > localDate) {
+        map.set(remoteItem.id, remoteItem);
+      }
+    }
+  });
+
+  return Array.from(map.values());
+}
+
+function generateCSV(vault) {
+  const headers = ['url', 'username', 'password', 'grouping', 'fav'];
+  const rows = vault.map((item) => {
+    const site = `"${(item.site || '').replace(/"/g, '""')}"`;
+    const user = `"${(item.username || '').replace(/"/g, '""')}"`;
+    const pass = `"${(item.password || '').replace(/"/g, '""')}"`;
+    const extra = `""`;
+    return `${site},${user},${pass},${extra},0`;
+  });
+  return [headers.join(','), ...rows].join('\n');
+}
 
 async function handleUnlock() {
   const masterPassword = masterPasswordInput.value.trim();
