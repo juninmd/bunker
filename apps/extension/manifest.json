@@ -1,0 +1,18 @@
+{
+  "manifest_version": 3,
+  "name": "BunkerPass",
+  "description": "Gerenciador de senhas offline-first com sincronização Google Drive.",
+  "version": "0.1.0",
+  "action": {
+    "default_title": "BunkerPass",
+    "default_popup": "src/popup.html"
+  },
+  "permissions": [
+    "storage",
+    "activeTab",
+    "scripting"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ]
+}

@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BunkerPass</title>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <main class="container">
+      <h1>BunkerPass</h1>
+      <p class="subtitle">MVP de cofre local criptografado (offline-first)</p>
+
+      <section id="unlock-section">
+        <label for="masterPassword">Senha mestra</label>
+        <input id="masterPassword" type="password" autocomplete="off" />
+        <button id="unlockButton">Desbloquear</button>
+      </section>
+
+      <section id="vault-section" class="hidden">
+        <h2>Novo login</h2>
+        <form id="credentialForm">
+          <input id="site" placeholder="Site (ex: github.com)" required />
+          <input id="username" placeholder="Usuário" required />
+          <input id="password" type="password" placeholder="Senha" required />
+          <button type="submit">Salvar</button>
+        </form>
+
+        <h2>Credenciais</h2>
+        <ul id="credentialList"></ul>
+        <button id="lockButton" class="secondary">Bloquear</button>
+      </section>
+
+      <p id="status" role="status" aria-live="polite"></p>
+    </main>
+
+    <script src="popup.js" type="module"></script>
+  </body>
+</html>
