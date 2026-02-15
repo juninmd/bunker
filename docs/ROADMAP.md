@@ -97,7 +97,20 @@
 - Logs de segurança auditáveis localmente.
 - Relatórios de incidente e trilha de eventos.
 
-## 3) Roadmap por fases
+## 3) Matriz de priorização (MVP → paridade LastPass)
+
+| Feature | MVP Extensão | Desktop | Android | Paridade avançada |
+|---|---:|---:|---:|---:|
+| Cofre local criptografado | ✅ | ✅ | ✅ | ✅ |
+| Gerador de senha | ✅ | ✅ | ✅ | ✅ |
+| Autofill básico | ✅ | ✅ | ✅ | ✅ |
+| Sync Google Drive (`vault.enc`) | ✅ | ✅ | ✅ | ✅ |
+| Índice no Google Sheets | ⚠️ parcial | ✅ | ✅ | ✅ |
+| Snapshot CSV | ✅ | ✅ | ✅ | ✅ |
+| Segurança (MFA/WebAuthn) | ❌ | ❌ | ❌ | ✅ |
+| Compartilhamento de cofre | ❌ | ❌ | ❌ | ✅ |
+
+## 4) Roadmap por fases
 
 ## Fase 0 — Fundação (Semanas 1–3)
 
@@ -164,7 +177,7 @@
 **Critério de saída**
 - Produto competitivo para famílias e pequenos times.
 
-## 4) Backlog técnico prioritário
+## 5) Backlog técnico prioritário
 
 - Motor de matching de domínio/subdomínio para autofill.
 - Criptografia de campos sensíveis por registro.
@@ -172,7 +185,14 @@
 - Módulo de importadores (LastPass/1Password/Bitwarden CSV).
 - Testes de compatibilidade Manifest V3 em Chrome/Firefox.
 
-## 5) KPIs de sucesso
+## 6) Início da implementação (status)
+
+- ✅ `apps/extension`: popup funcional para unlock e CRUD local criptografado.
+- ✅ `scripts/package-extension.sh`: geração de `.zip` para release.
+- ✅ `build-and-publish.yml`: publicação automática de artefatos por tag.
+- ⏳ Próximo passo técnico: `content_scripts` para detecção de formulário e autofill.
+
+## 7) KPIs de sucesso
 
 - Tempo médio de desbloqueio local.
 - Taxa de sucesso de autofill.
@@ -180,7 +200,7 @@
 - Taxa de conflitos por 1.000 operações.
 - Taxa de erro de release e rollback.
 
-## 6) Riscos e mitigação
+## 8) Riscos e mitigação
 
 - **Limites de API Google** → cache agressivo + retries exponenciais.
 - **Conflitos de sync** → modelo de versão por item + UI de merge.
