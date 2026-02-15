@@ -1,0 +1,41 @@
+name: Build and Publish Artifacts
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: write
+
+jobs:
+  build-extension:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build placeholder package
+        run: |
+          mkdir -p dist
+          echo "Placeholder para build da extensão Chrome/Firefox" > dist/extension.txt
+
+      - name: Upload extension artifact
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/extension.txt
+
+  build-android:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build placeholder apk
+        run: |
+          mkdir -p dist
+          echo "Placeholder para APK Android" > dist/app-release.apk
+
+      - name: Upload APK artifact
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/app-release.apk
