@@ -14,6 +14,7 @@ const statusEl = document.getElementById('status') as HTMLElement;
 const unlockButton = document.getElementById('unlockButton') as HTMLButtonElement;
 const lockButton = document.getElementById('lockButton') as HTMLButtonElement;
 const syncButton = document.getElementById('syncButton') as HTMLButtonElement;
+const importCsvButton = document.getElementById('importCsvButton') as HTMLButtonElement;
 const masterPasswordInput = document.getElementById('masterPassword') as HTMLInputElement;
 const form = document.getElementById('credentialForm') as HTMLFormElement;
 const credentialList = document.getElementById('credentialList') as HTMLElement;
@@ -59,6 +60,10 @@ if (syncButton) {
   syncButton.addEventListener('click', handleSync);
 }
 
+if (importCsvButton) {
+  importCsvButton.addEventListener('click', handleImportCSV);
+}
+
 // Check if vault is already present
 getStorage(STORAGE_KEY).then((data: any) => {
   if (data) {
@@ -67,6 +72,77 @@ getStorage(STORAGE_KEY).then((data: any) => {
     setStatus('Novo cofre será criado com a senha informada.');
   }
 });
+
+async function handleImportCSV() {
+  if (!unlocked) {
+    setStatus('Desbloqueie o cofre antes de importar.');
+    return;
+  }
+
+  setStatus('Buscando CSV no Google Drive...');
+  try {
+    const driveService = new GoogleDriveService();
+    await driveService.authorize();
+
+    // 1. Find CSV
+    const csvFile = await driveService.findFile('passwords.csv');
+    if (!csvFile) {
+      setStatus('Arquivo passwords.csv não encontrado no Drive.');
+      return;
+    }
+
+    // 2. Download Content
+    const content = await driveService.getFileContent(csvFile.id);
+    const importedCredentials = parseCSV(content);
+
+    if (importedCredentials.length === 0) {
+      setStatus('Nenhuma credencial válida encontrada no CSV.');
+      return;
+    }
+
+    // 3. Merge
+    cachedVault = mergeVaults(cachedVault, importedCredentials);
+
+    // 4. Save and Render
+    await saveVault(activeMasterPassword, cachedVault);
+    renderVault();
+    setStatus(`Importação concluída: ${importedCredentials.length} itens processados.`);
+
+  } catch (error: any) {
+    console.error(error);
+    setStatus(`Erro na importação: ${error.message}`);
+  }
+}
+
+function parseCSV(content: string): VaultItem[] {
+  const lines = content.split(/\r?\n/);
+  const credentials: VaultItem[] = [];
+  const now = new Date().toISOString();
+
+  lines.forEach((line) => {
+    // Simple CSV parser (naive implementation for MVP)
+    // format: url,username,password,extra,name,grouping,fav
+    // Be careful with commas inside quotes.
+    // For MVP, assuming no commas in fields or correctly quoted.
+
+    // Regex to split by comma but ignore commas inside quotes
+    const regex = /,(?=(?:(?:[^"]*"){2})*[^"]*$)/;
+    const parts = line.split(regex).map(p => p.replace(/^"|"$/g, '').replace(/""/g, '"'));
+
+    if (parts.length >= 3 && parts[0] !== 'url') { // Skip header if present
+       credentials.push({
+        id: crypto.randomUUID(),
+        site: normalizeSite(parts[0]),
+        username: parts[1],
+        password: parts[2],
+        createdAt: now,
+        updatedAt: now
+      });
+    }
+  });
+
+  return credentials;
+}
 
 async function handleSync() {
   if (!unlocked) {
@@ -153,8 +229,8 @@ function mergeVaults(local: VaultItem[], remote: VaultItem[]): VaultItem[] {
     if (!localItem) {
       map.set(remoteItem.id, remoteItem);
     } else {
-      const localDate = new Date(localItem.updatedAt).getTime();
-      const remoteDate = new Date(remoteItem.updatedAt).getTime();
+      const localDate = new Date(localItem.updatedAt || 0).getTime();
+      const remoteDate = new Date(remoteItem.updatedAt || 0).getTime();
       if (remoteDate > localDate) {
         map.set(remoteItem.id, remoteItem);
       }
@@ -251,19 +327,28 @@ async function handleSaveCredential(event: Event) {
   }
 
   const now = new Date().toISOString();
-  cachedVault.push({
-    id: crypto.randomUUID(),
-    site,
-    username,
-    password,
-    createdAt: now,
-    updatedAt: now
-  });
+  // Check if item already exists (simple check by site+username for MVP)
+  const existing = cachedVault.find(i => i.site === site && i.username === username);
+
+  if (existing) {
+     existing.password = password;
+     existing.updatedAt = now;
+     setStatus('Credencial atualizada localmente.');
+  } else {
+    cachedVault.push({
+      id: crypto.randomUUID(),
+      site,
+      username,
+      password,
+      createdAt: now,
+      updatedAt: now
+    });
+    setStatus('Credencial salva localmente.');
+  }
 
   await saveVault(activeMasterPassword, cachedVault);
   form.reset();
   renderVault();
-  setStatus('Credencial salva localmente e criptografada.');
 }
 
 async function handleDeleteCredential(credentialId: string) {
