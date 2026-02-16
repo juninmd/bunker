@@ -86,7 +86,8 @@
 
 ## 2.10 UX e produtividade
 
-- Quick search (`Ctrl/Cmd + Shift + K`).
+- **Acesso Rápido (Quick Access):** Atalho de teclado (`Ctrl/Cmd + Shift + Y`) para abrir o cofre instantaneamente.
+- Quick search dentro do popup.
 - Atalhos globais no desktop.
 - Tema dark/light e acessibilidade (WCAG AA).
 - Onboarding guiado com checklist de migração.
@@ -132,7 +133,7 @@
   - autofill básico
   - gerador de senha
 - Cache offline criptografado.
-- Sync manual com Google Drive + CSV.
+- **Sync Manual com Google Drive e CSV (Diferencial):**
   - **Fluxo de Sincronização Detalhado:**
     1. Autenticação via `chrome.identity`.
     2. Verificação de existência do arquivo `vault.enc` no Google Drive.
