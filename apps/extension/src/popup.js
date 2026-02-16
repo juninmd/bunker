@@ -2,6 +2,7 @@ import { GoogleDriveService } from './services/google-drive.js';
 
 const STORAGE_KEY = 'bunkerpass.vault.v1';
 const SALT_KEY = 'bunkerpass.salt.v1';
+const LAST_SYNC_KEY = 'bunkerpass.last_sync';
 const VAULT_SCHEMA_VERSION = 1;
 
 const unlockSection = document.getElementById('unlock-section');
@@ -10,6 +11,7 @@ const statusEl = document.getElementById('status');
 const unlockButton = document.getElementById('unlockButton');
 const lockButton = document.getElementById('lockButton');
 const syncButton = document.getElementById('syncButton');
+const lastSyncEl = document.getElementById('last-sync');
 const masterPasswordInput = document.getElementById('masterPassword');
 const form = document.getElementById('credentialForm');
 const credentialList = document.getElementById('credentialList');
@@ -34,6 +36,9 @@ async function handleSync() {
     const driveService = new GoogleDriveService();
     await driveService.authorize();
     await syncVault(driveService);
+    const now = new Date().toLocaleString();
+    lastSyncEl.textContent = `Última sincronização: ${now}`;
+    await setStorage(LAST_SYNC_KEY, now);
   } catch (error) {
     console.error(error);
     setStatus(`Erro na sincronização: ${error.message}`);
@@ -104,8 +109,8 @@ function mergeVaults(local, remote) {
     if (!localItem) {
       map.set(remoteItem.id, remoteItem);
     } else {
-      const localDate = new Date(localItem.updatedAt).getTime();
-      const remoteDate = new Date(remoteItem.updatedAt).getTime();
+      const localDate = new Date(localItem.updatedAt || 0).getTime();
+      const remoteDate = new Date(remoteItem.updatedAt || 0).getTime();
       if (remoteDate > localDate) {
         map.set(remoteItem.id, remoteItem);
       }
@@ -116,13 +121,17 @@ function mergeVaults(local, remote) {
 }
 
 function generateCSV(vault) {
-  const headers = ['url', 'username', 'password', 'grouping', 'fav'];
+  // LastPass CSV format: url,username,password,extra,name,grouping,fav
+  const headers = ['url', 'username', 'password', 'extra', 'name', 'grouping', 'fav'];
   const rows = vault.map((item) => {
-    const site = `"${(item.site || '').replace(/"/g, '""')}"`;
+    const url = `"${(item.site || '').replace(/"/g, '""')}"`;
     const user = `"${(item.username || '').replace(/"/g, '""')}"`;
     const pass = `"${(item.password || '').replace(/"/g, '""')}"`;
     const extra = `""`;
-    return `${site},${user},${pass},${extra},0`;
+    const name = `"${(item.site || '').replace(/"/g, '""')}"`; // Use site as name for now
+    const grouping = `""`;
+    const fav = `0`;
+    return `${url},${user},${pass},${extra},${name},${grouping},${fav}`;
   });
   return [headers.join(','), ...rows].join('\n');
 }
@@ -140,6 +149,13 @@ async function handleUnlock() {
     cachedVault = vault;
     unlocked = true;
     renderVault();
+
+    // Load last sync time
+    const lastSync = await getStorage(LAST_SYNC_KEY);
+    if (lastSync) {
+      lastSyncEl.textContent = `Última sincronização: ${lastSync}`;
+    }
+
     unlockSection.classList.add('hidden');
     vaultSection.classList.remove('hidden');
     setStatus('Cofre desbloqueado (modo offline).');
@@ -157,6 +173,7 @@ function handleLock() {
   vaultSection.classList.add('hidden');
   unlockSection.classList.remove('hidden');
   setStatus('Cofre bloqueado.');
+  lastSyncEl.textContent = '';
 }
 
 async function handleSaveCredential(event) {
@@ -176,19 +193,28 @@ async function handleSaveCredential(event) {
   }
 
   const now = new Date().toISOString();
-  cachedVault.push({
-    id: crypto.randomUUID(),
-    site,
-    username,
-    password,
-    createdAt: now,
-    updatedAt: now
-  });
+  // Check if item already exists (simple check by site+username for MVP)
+  const existing = cachedVault.find(i => i.site === site && i.username === username);
+
+  if (existing) {
+     existing.password = password;
+     existing.updatedAt = now;
+     setStatus('Credencial atualizada localmente.');
+  } else {
+    cachedVault.push({
+      id: crypto.randomUUID(),
+      site,
+      username,
+      password,
+      createdAt: now,
+      updatedAt: now
+    });
+    setStatus('Credencial salva localmente.');
+  }
 
   await saveVault(activeMasterPassword, cachedVault);
   form.reset();
   renderVault();
-  setStatus('Credencial salva localmente e criptografada.');
 }
 
 async function handleDeleteCredential(credentialId) {
