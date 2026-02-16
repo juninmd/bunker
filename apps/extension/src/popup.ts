@@ -4,6 +4,7 @@ declare const browser: any;
 
 const STORAGE_KEY = 'bunkerpass.vault.v1';
 const SALT_KEY = 'bunkerpass.salt.v1';
+const LAST_SYNC_KEY = 'bunkerpass.last_sync';
 const VAULT_SCHEMA_VERSION = 1;
 
 const unlockSection = document.getElementById('unlock-section') as HTMLElement;
@@ -15,6 +16,7 @@ const syncButton = document.getElementById('syncButton') as HTMLButtonElement;
 const masterPasswordInput = document.getElementById('masterPassword') as HTMLInputElement;
 const form = document.getElementById('credentialForm') as HTMLFormElement;
 const credentialList = document.getElementById('credentialList') as HTMLElement;
+const lastSyncEl = document.getElementById('last-sync') as HTMLElement;
 
 interface VaultItem {
   id: string;
@@ -76,6 +78,10 @@ async function handleSync() {
     const driveService = new GoogleDriveService();
     await driveService.authorize();
     await syncVault(driveService);
+
+    const now = new Date().toLocaleString();
+    if (lastSyncEl) lastSyncEl.textContent = `Última sincronização: ${now}`;
+    await setStorage(LAST_SYNC_KEY, now);
   } catch (error: any) {
     console.error(error);
     setStatus(`Erro na sincronização: ${error.message}`);
@@ -158,13 +164,17 @@ function mergeVaults(local: VaultItem[], remote: VaultItem[]): VaultItem[] {
 }
 
 function generateCSV(vault: VaultItem[]) {
-  const headers = ['url', 'username', 'password', 'grouping', 'fav'];
+  // LastPass CSV format: url,username,password,extra,name,grouping,fav
+  const headers = ['url', 'username', 'password', 'extra', 'name', 'grouping', 'fav'];
   const rows = vault.map((item) => {
-    const site = `"${(item.site || '').replace(/"/g, '""')}"`;
+    const url = `"${(item.site || '').replace(/"/g, '""')}"`;
     const user = `"${(item.username || '').replace(/"/g, '""')}"`;
     const pass = `"${(item.password || '').replace(/"/g, '""')}"`;
     const extra = `""`;
-    return `${site},${user},${pass},${extra},0`;
+    const name = `"${(item.site || '').replace(/"/g, '""')}"`; // Use site as name for now
+    const grouping = `""`;
+    const fav = `0`;
+    return `${url},${user},${pass},${extra},${name},${grouping},${fav}`;
   });
   return [headers.join(','), ...rows].join('\n');
 }
@@ -182,6 +192,12 @@ async function handleUnlock() {
     cachedVault = vault;
     unlocked = true;
     renderVault();
+
+    const lastSync = await getStorage(LAST_SYNC_KEY);
+    if (lastSync && lastSyncEl) {
+      lastSyncEl.textContent = `Última sincronização: ${lastSync}`;
+    }
+
     unlockSection.classList.add('hidden');
     vaultSection.classList.remove('hidden');
     setStatus('Cofre desbloqueado (modo offline).');
@@ -199,6 +215,7 @@ function handleLock() {
   vaultSection.classList.add('hidden');
   unlockSection.classList.remove('hidden');
   setStatus('Cofre bloqueado.');
+  if (lastSyncEl) lastSyncEl.textContent = '';
 }
 
 async function handleSaveCredential(event: Event) {

@@ -5,7 +5,10 @@
     ".": {
       "component": "bunkerpass",
       "include-component-in-tag": false,
-      "changelog-path": "CHANGELOG.md"
+      "changelog-path": "CHANGELOG.md",
+      "extra-files": [
+        "apps/extension/manifest.json"
+      ]
     }
   }
 }

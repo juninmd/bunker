@@ -22,6 +22,7 @@ export class GoogleDriveService {
 
   async findFile(name: string): Promise<any> {
     if (!this.accessToken) await this.authorize();
+    // Ensure we don't find trashed files
     const query = `name = '${name}' and trashed = false`;
     const url = `https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(query)}&fields=files(id, name, mimeType, modifiedTime)`;
 
@@ -47,9 +48,18 @@ export class GoogleDriveService {
       mimeType,
     };
 
-    const form = new FormData();
-    form.append('metadata', new Blob([JSON.stringify(metadata)], { type: 'application/json' }));
-    form.append('file', new Blob([content], { type: mimeType }));
+    const boundary = '-------314159265358979323846';
+    const delimiter = `\r\n--${boundary}\r\n`;
+    const closeDelim = `\r\n--${boundary}--`;
+
+    const body =
+      delimiter +
+      'Content-Type: application/json\r\n\r\n' +
+      JSON.stringify(metadata) +
+      delimiter +
+      `Content-Type: ${mimeType}\r\n\r\n` +
+      content +
+      closeDelim;
 
     const url = 'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id';
 
@@ -57,8 +67,9 @@ export class GoogleDriveService {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${this.accessToken}`,
+        'Content-Type': `multipart/related; boundary=${boundary}`,
       },
-      body: form,
+      body: body,
     });
 
     if (!response.ok) {
@@ -71,6 +82,7 @@ export class GoogleDriveService {
   async updateFile(fileId: string, content: string | Blob, mimeType: string): Promise<any> {
     if (!this.accessToken) await this.authorize();
 
+    // Using uploadType=media for simple content update
     const url = `https://www.googleapis.com/upload/drive/v3/files/${fileId}?uploadType=media`;
 
     const response = await fetch(url, {
