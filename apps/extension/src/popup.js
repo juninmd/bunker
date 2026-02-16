@@ -1,4 +1,5 @@
 import { GoogleDriveService } from './services/google-drive.js';
+import { deriveKey, encryptPayload, decryptPayload, base64ToBytes, bytesToBase64 } from './utils/crypto.js';
 
 const STORAGE_KEY = 'bunkerpass.vault.v1';
 const SALT_KEY = 'bunkerpass.salt.v1';
@@ -11,6 +12,7 @@ const statusEl = document.getElementById('status');
 const unlockButton = document.getElementById('unlockButton');
 const lockButton = document.getElementById('lockButton');
 const syncButton = document.getElementById('syncButton');
+const importCsvButton = document.getElementById('importCsvButton');
 const lastSyncEl = document.getElementById('last-sync');
 const masterPasswordInput = document.getElementById('masterPassword');
 const form = document.getElementById('credentialForm');
@@ -23,7 +25,117 @@ let cachedVault = [];
 unlockButton.addEventListener('click', handleUnlock);
 lockButton.addEventListener('click', handleLock);
 syncButton.addEventListener('click', handleSync);
+importCsvButton.addEventListener('click', handleImportCSV);
 form.addEventListener('submit', handleSaveCredential);
+
+async function handleImportCSV() {
+  if (!unlocked) {
+    setStatus('Desbloqueie o cofre antes de importar.');
+    return;
+  }
+
+  setStatus('Buscando passwords.csv no Drive...');
+  try {
+    const driveService = new GoogleDriveService();
+    await driveService.authorize();
+
+    const csvFile = await driveService.findFile('passwords.csv');
+    if (!csvFile) {
+      setStatus('Arquivo passwords.csv não encontrado no Drive.');
+      return;
+    }
+
+    setStatus('Baixando CSV...');
+    const csvContent = await driveService.getFileContent(csvFile.id);
+
+    const parsedCredentials = parseCSV(csvContent);
+    if (parsedCredentials.length === 0) {
+      setStatus('Nenhuma credencial válida encontrada no CSV.');
+      return;
+    }
+
+    setStatus(`Mesclando ${parsedCredentials.length} credenciais...`);
+
+    let addedCount = 0;
+    let updatedCount = 0;
+    const now = new Date().toISOString();
+
+    parsedCredentials.forEach((newItem) => {
+      const existing = cachedVault.find(
+        (i) => i.site === newItem.site && i.username === newItem.username
+      );
+      if (existing) {
+        if (existing.password !== newItem.password) {
+          existing.password = newItem.password;
+          existing.updatedAt = now;
+          updatedCount++;
+        }
+      } else {
+        cachedVault.push({
+          ...newItem,
+          id: crypto.randomUUID(),
+          createdAt: now,
+          updatedAt: now,
+        });
+        addedCount++;
+      }
+    });
+
+    await saveVault(activeMasterPassword, cachedVault);
+    renderVault();
+    setStatus(
+      `Importação concluída: ${addedCount} adicionados, ${updatedCount} atualizados.`
+    );
+  } catch (error) {
+    console.error(error);
+    setStatus(`Erro na importação: ${error.message}`);
+  }
+}
+
+function parseCSV(content) {
+  const credentials = [];
+  const lines = content.split(/\r?\n/);
+
+  if (lines.length > 0 && lines[0].toLowerCase().startsWith('url,username')) {
+    lines.shift();
+  }
+
+  lines.forEach((line) => {
+    if (!line.trim()) return;
+
+    const parts = [];
+    let current = '';
+    let inQuotes = false;
+
+    for (let i = 0; i < line.length; i++) {
+      const char = line[i];
+      if (char === '"') {
+        if (inQuotes && line[i + 1] === '"') {
+          current += '"';
+          i++;
+        } else {
+          inQuotes = !inQuotes;
+        }
+      } else if (char === ',' && !inQuotes) {
+        parts.push(current);
+        current = '';
+      } else {
+        current += char;
+      }
+    }
+    parts.push(current);
+
+    if (parts.length >= 3) {
+      credentials.push({
+        site: normalizeSite(parts[0]),
+        username: parts[1],
+        password: parts[2],
+      });
+    }
+  });
+
+  return credentials;
+}
 
 async function handleSync() {
   if (!unlocked) {
@@ -156,10 +268,17 @@ async function handleUnlock() {
       lastSyncEl.textContent = `Última sincronização: ${lastSync}`;
     }
 
+    // Store session key for background script
+    const salt = base64ToBytes(await getStorage(SALT_KEY));
+    const key = await deriveKey(masterPassword, salt);
+    const exported = await crypto.subtle.exportKey('raw', key);
+    await chrome.storage.session.set({ sessionKey: bytesToBase64(new Uint8Array(exported)) });
+
     unlockSection.classList.add('hidden');
     vaultSection.classList.remove('hidden');
     setStatus('Cofre desbloqueado (modo offline).');
-  } catch {
+  } catch (e) {
+    console.error(e);
     setStatus('Senha mestra inválida ou cofre corrompido.');
   }
 }
@@ -170,6 +289,7 @@ function handleLock() {
   cachedVault = [];
   masterPasswordInput.value = '';
   credentialList.textContent = '';
+  chrome.storage.session.remove('sessionKey');
   vaultSection.classList.add('hidden');
   unlockSection.classList.remove('hidden');
   setStatus('Cofre bloqueado.');
@@ -295,41 +415,6 @@ async function saveVault(masterPassword, vault) {
   await setStorage(STORAGE_KEY, encrypted);
 }
 
-async function encryptPayload(vaultPayload, masterPassword, salt) {
-  const iv = crypto.getRandomValues(new Uint8Array(12));
-  const key = await deriveKey(masterPassword, salt);
-  const plaintext = new TextEncoder().encode(JSON.stringify(vaultPayload));
-  const ciphertext = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, plaintext);
-  return `${bytesToBase64(iv)}.${bytesToBase64(new Uint8Array(ciphertext))}`;
-}
-
-async function decryptPayload(payload, masterPassword, salt) {
-  const [ivB64, cipherB64] = payload.split('.');
-  const iv = base64ToBytes(ivB64);
-  const cipher = base64ToBytes(cipherB64);
-  const key = await deriveKey(masterPassword, salt);
-  const plaintext = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, cipher);
-  return JSON.parse(new TextDecoder().decode(plaintext));
-}
-
-async function deriveKey(masterPassword, salt) {
-  const material = await crypto.subtle.importKey('raw', new TextEncoder().encode(masterPassword), 'PBKDF2', false, ['deriveKey']);
-  return crypto.subtle.deriveKey(
-    {
-      name: 'PBKDF2',
-      salt,
-      iterations: 250000,
-      hash: 'SHA-256'
-    },
-    material,
-    {
-      name: 'AES-GCM',
-      length: 256
-    },
-    false,
-    ['encrypt', 'decrypt']
-  );
-}
 
 function sanitizeVault(data) {
   if (!data) {
@@ -361,13 +446,6 @@ function setStatus(message) {
   statusEl.textContent = message;
 }
 
-function bytesToBase64(bytes) {
-  return btoa(String.fromCharCode(...bytes));
-}
-
-function base64ToBytes(base64) {
-  return Uint8Array.from(atob(base64), (char) => char.charCodeAt(0));
-}
 
 async function getStorage(key) {
   const api = getExtensionStorage();
