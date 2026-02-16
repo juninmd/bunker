@@ -8,6 +8,10 @@ VERSION="${1:-dev}"
 mkdir -p "${DIST_DIR}"
 
 cd "${ROOT_DIR}/apps/extension"
-zip -r "${DIST_DIR}/bunkerpass-extension-${VERSION}.zip" manifest.json src > /dev/null
+npm install
+npm run build
+
+cd dist
+zip -r "${DIST_DIR}/bunkerpass-extension-${VERSION}.zip" . > /dev/null
 
 echo "Extension packed at dist/bunkerpass-extension-${VERSION}.zip"

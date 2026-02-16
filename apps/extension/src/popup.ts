@@ -1,27 +1,69 @@
-import { GoogleDriveService } from './services/google-drive.js';
+import { GoogleDriveService } from './services/google-drive';
+
+declare const browser: any;
 
 const STORAGE_KEY = 'bunkerpass.vault.v1';
 const SALT_KEY = 'bunkerpass.salt.v1';
 const VAULT_SCHEMA_VERSION = 1;
 
-const unlockSection = document.getElementById('unlock-section');
-const vaultSection = document.getElementById('vault-section');
-const statusEl = document.getElementById('status');
-const unlockButton = document.getElementById('unlockButton');
-const lockButton = document.getElementById('lockButton');
-const syncButton = document.getElementById('syncButton');
-const masterPasswordInput = document.getElementById('masterPassword');
-const form = document.getElementById('credentialForm');
-const credentialList = document.getElementById('credentialList');
+const unlockSection = document.getElementById('unlock-section') as HTMLElement;
+const vaultSection = document.getElementById('vault-section') as HTMLElement;
+const statusEl = document.getElementById('status') as HTMLElement;
+const unlockButton = document.getElementById('unlockButton') as HTMLButtonElement;
+const lockButton = document.getElementById('lockButton') as HTMLButtonElement;
+const syncButton = document.getElementById('syncButton') as HTMLButtonElement;
+const masterPasswordInput = document.getElementById('masterPassword') as HTMLInputElement;
+const form = document.getElementById('credentialForm') as HTMLFormElement;
+const credentialList = document.getElementById('credentialList') as HTMLElement;
+
+interface VaultItem {
+  id: string;
+  site: string;
+  username: string;
+  password?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface VaultPayload {
+  schemaVersion: number;
+  credentials: VaultItem[];
+}
 
 let unlocked = false;
 let activeMasterPassword = '';
-let cachedVault = [];
+let cachedVault: VaultItem[] = [];
 
-unlockButton.addEventListener('click', handleUnlock);
-lockButton.addEventListener('click', handleLock);
-syncButton.addEventListener('click', handleSync);
-form.addEventListener('submit', handleSaveCredential);
+if (unlockButton) {
+  unlockButton.addEventListener('click', handleUnlock);
+}
+
+if (masterPasswordInput) {
+  masterPasswordInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') handleUnlock();
+  });
+}
+
+if (lockButton) {
+  lockButton.addEventListener('click', handleLock);
+}
+
+if (form) {
+  form.addEventListener('submit', handleSaveCredential);
+}
+
+if (syncButton) {
+  syncButton.addEventListener('click', handleSync);
+}
+
+// Check if vault is already present
+getStorage(STORAGE_KEY).then((data: any) => {
+  if (data) {
+    setStatus('Cofre encontrado. Insira a senha mestra.');
+  } else {
+    setStatus('Novo cofre será criado com a senha informada.');
+  }
+});
 
 async function handleSync() {
   if (!unlocked) {
@@ -34,13 +76,13 @@ async function handleSync() {
     const driveService = new GoogleDriveService();
     await driveService.authorize();
     await syncVault(driveService);
-  } catch (error) {
+  } catch (error: any) {
     console.error(error);
     setStatus(`Erro na sincronização: ${error.message}`);
   }
 }
 
-async function syncVault(driveService) {
+async function syncVault(driveService: GoogleDriveService) {
   setStatus('Verificando cofre no Google Drive...');
   const vaultFile = await driveService.findFile('vault.enc');
   let mergedVault = [...cachedVault];
@@ -66,7 +108,7 @@ async function syncVault(driveService) {
   }
 
   // 1. Encrypt and Upload Vault
-  const payload = {
+  const payload: VaultPayload = {
     schemaVersion: VAULT_SCHEMA_VERSION,
     credentials: mergedVault
   };
@@ -95,8 +137,8 @@ async function syncVault(driveService) {
   setStatus('Sincronização concluída!');
 }
 
-function mergeVaults(local, remote) {
-  const map = new Map();
+function mergeVaults(local: VaultItem[], remote: VaultItem[]): VaultItem[] {
+  const map = new Map<string, VaultItem>();
   local.forEach((item) => map.set(item.id, item));
 
   remote.forEach((remoteItem) => {
@@ -115,7 +157,7 @@ function mergeVaults(local, remote) {
   return Array.from(map.values());
 }
 
-function generateCSV(vault) {
+function generateCSV(vault: VaultItem[]) {
   const headers = ['url', 'username', 'password', 'grouping', 'fav'];
   const rows = vault.map((item) => {
     const site = `"${(item.site || '').replace(/"/g, '""')}"`;
@@ -159,16 +201,20 @@ function handleLock() {
   setStatus('Cofre bloqueado.');
 }
 
-async function handleSaveCredential(event) {
+async function handleSaveCredential(event: Event) {
   event.preventDefault();
   if (!unlocked) {
     setStatus('Desbloqueie o cofre antes de salvar.');
     return;
   }
 
-  const site = normalizeSite(document.getElementById('site').value);
-  const username = document.getElementById('username').value.trim();
-  const password = document.getElementById('password').value;
+  const siteInput = document.getElementById('site') as HTMLInputElement;
+  const usernameInput = document.getElementById('username') as HTMLInputElement;
+  const passwordInput = document.getElementById('password') as HTMLInputElement;
+
+  const site = normalizeSite(siteInput.value);
+  const username = usernameInput.value.trim();
+  const password = passwordInput.value;
 
   if (!site || !username || !password) {
     setStatus('Preencha todos os campos.');
@@ -191,7 +237,7 @@ async function handleSaveCredential(event) {
   setStatus('Credencial salva localmente e criptografada.');
 }
 
-async function handleDeleteCredential(credentialId) {
+async function handleDeleteCredential(credentialId: string) {
   if (!unlocked) {
     setStatus('Desbloqueie o cofre antes de remover.');
     return;
@@ -239,7 +285,7 @@ function renderVault() {
     });
 }
 
-async function loadVault(masterPassword) {
+async function loadVault(masterPassword: string): Promise<VaultItem[]> {
   const storedSalt = await getStorage(SALT_KEY);
   const salt = storedSalt ? base64ToBytes(storedSalt) : crypto.getRandomValues(new Uint8Array(16));
 
@@ -258,10 +304,10 @@ async function loadVault(masterPassword) {
   return sanitizeVault(data);
 }
 
-async function saveVault(masterPassword, vault) {
+async function saveVault(masterPassword: string, vault: VaultItem[]) {
   const storedSalt = await getStorage(SALT_KEY);
   const salt = base64ToBytes(storedSalt);
-  const payload = {
+  const payload: VaultPayload = {
     schemaVersion: VAULT_SCHEMA_VERSION,
     credentials: vault
   };
@@ -269,29 +315,29 @@ async function saveVault(masterPassword, vault) {
   await setStorage(STORAGE_KEY, encrypted);
 }
 
-async function encryptPayload(vaultPayload, masterPassword, salt) {
+async function encryptPayload(vaultPayload: VaultPayload, masterPassword: string, salt: Uint8Array) {
   const iv = crypto.getRandomValues(new Uint8Array(12));
   const key = await deriveKey(masterPassword, salt);
   const plaintext = new TextEncoder().encode(JSON.stringify(vaultPayload));
-  const ciphertext = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, plaintext);
+  const ciphertext = await crypto.subtle.encrypt({ name: 'AES-GCM', iv: iv as any }, key, plaintext);
   return `${bytesToBase64(iv)}.${bytesToBase64(new Uint8Array(ciphertext))}`;
 }
 
-async function decryptPayload(payload, masterPassword, salt) {
+async function decryptPayload(payload: string, masterPassword: string, salt: Uint8Array) {
   const [ivB64, cipherB64] = payload.split('.');
   const iv = base64ToBytes(ivB64);
   const cipher = base64ToBytes(cipherB64);
   const key = await deriveKey(masterPassword, salt);
-  const plaintext = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, cipher);
+  const plaintext = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: iv as any }, key, cipher);
   return JSON.parse(new TextDecoder().decode(plaintext));
 }
 
-async function deriveKey(masterPassword, salt) {
+async function deriveKey(masterPassword: string, salt: Uint8Array) {
   const material = await crypto.subtle.importKey('raw', new TextEncoder().encode(masterPassword), 'PBKDF2', false, ['deriveKey']);
   return crypto.subtle.deriveKey(
     {
       name: 'PBKDF2',
-      salt,
+      salt: salt as any,
       iterations: 250000,
       hash: 'SHA-256'
     },
@@ -305,7 +351,7 @@ async function deriveKey(masterPassword, salt) {
   );
 }
 
-function sanitizeVault(data) {
+function sanitizeVault(data: any): VaultItem[] {
   if (!data) {
     return [];
   }
@@ -321,7 +367,7 @@ function sanitizeVault(data) {
   return [];
 }
 
-function normalizeSite(siteInput) {
+function normalizeSite(siteInput: string) {
   const trimmed = siteInput.trim();
   if (!trimmed) {
     return '';
@@ -331,30 +377,35 @@ function normalizeSite(siteInput) {
   return withoutProtocol.replace(/\/+$/, '').toLowerCase();
 }
 
-function setStatus(message) {
-  statusEl.textContent = message;
+function setStatus(message: string) {
+  if (statusEl) {
+    statusEl.textContent = message;
+  }
 }
 
-function bytesToBase64(bytes) {
+function bytesToBase64(bytes: Uint8Array) {
   return btoa(String.fromCharCode(...bytes));
 }
 
-function base64ToBytes(base64) {
+function base64ToBytes(base64: string) {
   return Uint8Array.from(atob(base64), (char) => char.charCodeAt(0));
 }
 
-async function getStorage(key) {
+async function getStorage(key: string) {
   const api = getExtensionStorage();
   if (api) {
+    // @ts-ignore
     const data = await api.get(key);
+    // @ts-ignore
     return data[key];
   }
   return localStorage.getItem(key);
 }
 
-async function setStorage(key, value) {
+async function setStorage(key: string, value: any) {
   const api = getExtensionStorage();
   if (api) {
+    // @ts-ignore
     await api.set({ [key]: value });
     return;
   }
@@ -367,13 +418,13 @@ function getExtensionStorage() {
   }
   if (typeof chrome !== 'undefined' && chrome.storage?.local) {
     return {
-      get: (key) =>
+      get: (key: string) =>
         new Promise((resolve) => {
           chrome.storage.local.get([key], resolve);
         }),
-      set: (value) =>
-        new Promise((resolve) => {
-          chrome.storage.local.set(value, resolve);
+      set: (value: any) =>
+        new Promise<void>((resolve) => {
+          chrome.storage.local.set(value, () => resolve());
         })
     };
   }
