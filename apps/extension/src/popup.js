@@ -1,5 +1,6 @@
 import { VaultService } from './services/vault-service.js';
 import { SyncService } from './services/sync-service.js';
+import { generatePassword } from './utils/password-generator.js';
 
 const vaultService = new VaultService();
 const syncService = new SyncService(vaultService);
@@ -16,11 +17,45 @@ const masterPasswordInput = document.getElementById('masterPassword');
 const form = document.getElementById('credentialForm');
 const credentialList = document.getElementById('credentialList');
 
+const generateBtn = document.getElementById('generateBtn');
+const generatorOptions = document.getElementById('generatorOptions');
+const lengthRange = document.getElementById('lengthRange');
+const lengthVal = document.getElementById('lengthVal');
+const useUppercase = document.getElementById('useUppercase');
+const useNumbers = document.getElementById('useNumbers');
+const useSymbols = document.getElementById('useSymbols');
+const passwordInput = document.getElementById('password');
+
 unlockButton.addEventListener('click', handleUnlock);
 lockButton.addEventListener('click', handleLock);
 syncButton.addEventListener('click', handleSync);
 importCsvButton.addEventListener('click', handleImportCSV);
 form.addEventListener('submit', handleSaveCredential);
+
+generateBtn.addEventListener('click', () => {
+  if (generatorOptions.classList.contains('hidden')) {
+    generatorOptions.classList.remove('hidden');
+  }
+  runGenerate();
+});
+
+[lengthRange, useUppercase, useNumbers, useSymbols].forEach(el => {
+  el.addEventListener('input', () => {
+    if (el === lengthRange) lengthVal.textContent = lengthRange.value;
+    runGenerate();
+  });
+});
+
+function runGenerate() {
+  const password = generatePassword(
+    parseInt(lengthRange.value, 10),
+    useUppercase.checked,
+    useNumbers.checked,
+    useSymbols.checked
+  );
+  passwordInput.value = password;
+  passwordInput.dispatchEvent(new Event('input'));
+}
 
 async function handleUnlock() {
   const masterPassword = masterPasswordInput.value.trim();

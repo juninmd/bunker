@@ -95,3 +95,63 @@ button.danger {
   color: #a5b4fc;
   font-size: 12px;
 }
+
+/* Password Generator Styles */
+.password-wrapper {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.password-wrapper input {
+  flex: 1;
+}
+
+.icon-btn {
+  margin-top: 8px;
+  padding: 10px;
+  width: auto;
+  min-width: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 16px;
+}
+
+.generator-options {
+  background: #1e293b;
+  padding: 12px;
+  border-radius: 8px;
+  margin-top: 8px;
+  border: 1px solid #334155;
+}
+
+.slider-row {
+  margin-bottom: 8px;
+}
+
+.slider-row label {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 4px;
+  font-size: 13px;
+}
+
+.checkbox-row {
+  display: flex;
+  gap: 12px;
+}
+
+.checkbox-row label {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  width: auto;
+  cursor: pointer;
+}
+
+.checkbox-row input {
+  margin: 0;
+  width: auto;
+}
