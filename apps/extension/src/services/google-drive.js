@@ -49,7 +49,7 @@ export class GoogleDriveService {
     const closeDelim = `\r\n--${boundary}--`;
 
     const body =
-      delimiter +
+      `--${boundary}\r\n` +
       'Content-Type: application/json\r\n\r\n' +
       JSON.stringify(metadata) +
       delimiter +
