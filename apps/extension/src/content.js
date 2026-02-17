@@ -3,6 +3,9 @@ console.log('BunkerPass: Content script loaded');
 async function init() {
   const domain = window.location.hostname;
 
+  // Listen for form submissions
+  document.addEventListener('submit', handleFormSubmit, true);
+
   // Attempt to get credentials from background
   try {
     const response = await chrome.runtime.sendMessage({ type: 'GET_CREDENTIALS', domain });
@@ -62,7 +65,21 @@ function findUsernameInput(passwordInput) {
     const inputs = Array.from(passwordInput.form.querySelectorAll('input'));
     const index = inputs.indexOf(passwordInput);
     if (index > 0) {
-       // Look backwards
+       // Look backwards for likely username fields
+       for (let i = index - 1; i >= 0; i--) {
+           const input = inputs[i];
+           if (input.type === 'text' || input.type === 'email') {
+               const name = (input.name || '').toLowerCase();
+               const id = (input.id || '').toLowerCase();
+               if (
+                   name.includes('user') || name.includes('login') || name.includes('email') ||
+                   id.includes('user') || id.includes('login') || id.includes('email')
+               ) {
+                   return input;
+               }
+           }
+       }
+       // Fallback: return the nearest text/email input
        for (let i = index - 1; i >= 0; i--) {
            const input = inputs[i];
            if (input.type === 'text' || input.type === 'email') {
@@ -72,6 +89,23 @@ function findUsernameInput(passwordInput) {
     }
   }
   return null;
+}
+
+function handleFormSubmit(event) {
+    // Basic heuristic to detect login submission
+    const form = event.target;
+    const passwordInput = form.querySelector('input[type="password"]');
+
+    if (passwordInput && passwordInput.value) {
+        const usernameInput = findUsernameInput(passwordInput);
+        if (usernameInput && usernameInput.value) {
+            console.log('BunkerPass: Detected form submission', {
+                site: window.location.hostname,
+                username: usernameInput.value
+            });
+            // Future: chrome.runtime.sendMessage({ type: 'CAPTURE_CREDENTIAL', ... });
+        }
+    }
 }
 
 function dispatchEvents(element) {

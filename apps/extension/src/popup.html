@@ -22,7 +22,21 @@
         <form id="credentialForm">
           <input id="site" placeholder="Site (ex: github.com)" required />
           <input id="username" placeholder="Usuário" required />
-          <input id="password" type="password" placeholder="Senha" required />
+          <div class="password-wrapper">
+            <input id="password" type="password" placeholder="Senha" required />
+            <button type="button" id="generateBtn" class="icon-btn" title="Gerar senha segura">⚡</button>
+          </div>
+          <div id="generatorOptions" class="generator-options hidden">
+            <div class="slider-row">
+              <label for="lengthRange">Tamanho: <span id="lengthVal">16</span></label>
+              <input type="range" id="lengthRange" min="8" max="64" value="16">
+            </div>
+            <div class="checkbox-row">
+              <label><input type="checkbox" id="useUppercase" checked> A-Z</label>
+              <label><input type="checkbox" id="useNumbers" checked> 0-9</label>
+              <label><input type="checkbox" id="useSymbols" checked> !@#</label>
+            </div>
+          </div>
           <button type="submit">Salvar</button>
         </form>
 
