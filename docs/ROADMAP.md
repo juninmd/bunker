@@ -36,8 +36,8 @@
 ## 2.4 Segurança e autenticação
 
 - Senha mestra obrigatória.
-- Argon2id para derivação de chave.
-- Cofre criptografado com XChaCha20-Poly1305.
+- PBKDF2 (MVP) → Argon2id (Futuro) para derivação de chave.
+- Cofre criptografado com AES-GCM (MVP) → XChaCha20-Poly1305 (Futuro).
 - Bloqueio automático por tempo/inatividade.
 - Biometria no desktop/mobile (quando disponível).
 - MFA para desbloqueio de conta (TOTP/WebAuthn).
@@ -200,6 +200,7 @@
 ## 6) Início da implementação (status)
 
 - ✅ `apps/extension`: popup funcional para unlock e CRUD local criptografado.
+- ✅ `apps/extension`: Sincronização básica com Google Drive (vault.enc + passwords.csv).
 - ✅ `scripts/package-extension.sh`: geração de `.zip` para release.
 - ✅ `build-and-publish.yml`: publicação automática de artefatos por tag.
 - ⏳ Próximo passo técnico: `content_scripts` para detecção de formulário e autofill.
