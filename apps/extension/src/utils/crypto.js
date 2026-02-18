@@ -42,6 +42,13 @@ export async function decryptPayload(payload, masterPassword, salt) {
   return JSON.parse(new TextDecoder().decode(plaintext));
 }
 
+export async function encryptWithKey(data, key) {
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const plaintext = new TextEncoder().encode(JSON.stringify(data));
+  const ciphertext = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, plaintext);
+  return `${bytesToBase64(iv)}.${bytesToBase64(new Uint8Array(ciphertext))}`;
+}
+
 export async function decryptWithKey(payload, key) {
   const [ivB64, cipherB64] = payload.split('.');
   const iv = base64ToBytes(ivB64);
