@@ -203,7 +203,8 @@
 - ✅ `apps/extension`: Sincronização básica com Google Drive (vault.enc + passwords.csv).
 - ✅ `scripts/package-extension.sh`: geração de `.zip` para release.
 - ✅ `build-and-publish.yml`: publicação automática de artefatos por tag.
-- ⏳ Próximo passo técnico: `content_scripts` para detecção de formulário e autofill.
+- ✅ `content_scripts`: detecção de formulário e captura de credenciais (save flow).
+- ⏳ Próximo passo técnico: Melhorar autofill e implementar sync automático.
 
 ## 7) KPIs de sucesso
 

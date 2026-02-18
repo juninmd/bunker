@@ -99,11 +99,22 @@ function handleFormSubmit(event) {
     if (passwordInput && passwordInput.value) {
         const usernameInput = findUsernameInput(passwordInput);
         if (usernameInput && usernameInput.value) {
-            console.log('BunkerPass: Detected form submission', {
-                site: window.location.hostname,
-                username: usernameInput.value
+            const site = window.location.hostname;
+            const username = usernameInput.value;
+            const password = passwordInput.value;
+
+            console.log('BunkerPass: Detected form submission', { site, username });
+
+            chrome.runtime.sendMessage({
+                type: 'SAVE_CREDENTIAL',
+                data: { site, username, password }
+            }, (response) => {
+                if (chrome.runtime.lastError) {
+                    console.error('BunkerPass: Failed to save credential', chrome.runtime.lastError);
+                } else {
+                    console.log('BunkerPass: Save response', response);
+                }
             });
-            // Future: chrome.runtime.sendMessage({ type: 'CAPTURE_CREDENTIAL', ... });
         }
     }
 }
