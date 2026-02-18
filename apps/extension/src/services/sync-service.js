@@ -34,7 +34,7 @@ export class SyncService {
 
     // 2. Merge
     const localVault = this.vaultService.getVault();
-    const mergedVault = this.mergeVaults(localVault, remoteVault);
+    const { vault: mergedVault, stats } = this.mergeVaults(localVault, remoteVault);
 
     // 3. Update Local
     await this.vaultService.save(mergedVault);
@@ -62,7 +62,7 @@ export class SyncService {
       await this.driveService.createFile(this.CSV_FILE, csvContent, 'text/csv');
     }
 
-    return mergedVault;
+    return { vault: mergedVault, stats };
   }
 
   async importCSV() {
@@ -113,22 +113,27 @@ export class SyncService {
 
   mergeVaults(local, remote) {
     const map = new Map();
+    let added = 0;
+    let updated = 0;
+
     local.forEach((item) => map.set(item.id, item));
 
     remote.forEach((remoteItem) => {
       const localItem = map.get(remoteItem.id);
       if (!localItem) {
         map.set(remoteItem.id, remoteItem);
+        added++;
       } else {
         const localDate = new Date(localItem.updatedAt || 0).getTime();
         const remoteDate = new Date(remoteItem.updatedAt || 0).getTime();
         if (remoteDate > localDate) {
           map.set(remoteItem.id, remoteItem);
+          updated++;
         }
       }
     });
 
-    return Array.from(map.values());
+    return { vault: Array.from(map.values()), stats: { added, updated } };
   }
 
   generateCSVContent(vault) {
