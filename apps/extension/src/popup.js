@@ -101,14 +101,18 @@ function handleLock() {
 async function handleSync() {
   setStatus('Iniciando sincronização...');
   try {
-    const mergedVault = await syncService.sync();
+    const { vault: mergedVault, stats } = await syncService.sync();
     renderVault(mergedVault);
 
     const now = new Date().toLocaleString();
     lastSyncEl.textContent = `Última sincronização: ${now}`;
     await vaultService.setStorage('bunkerpass.last_sync', now);
 
-    setStatus('Sincronização concluída!');
+    if (stats.added > 0 || stats.updated > 0) {
+      setStatus(`Sincronização: +${stats.added} novos, ^${stats.updated} atualizados.`);
+    } else {
+      setStatus('Sincronização concluída (sem alterações remotas).');
+    }
   } catch (error) {
     console.error(error);
     setStatus(`Erro na sincronização: ${error.message}`);
