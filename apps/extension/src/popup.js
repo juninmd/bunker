@@ -16,6 +16,7 @@ const lastSyncEl = document.getElementById('last-sync');
 const masterPasswordInput = document.getElementById('masterPassword');
 const form = document.getElementById('credentialForm');
 const credentialList = document.getElementById('credentialList');
+const searchInput = document.getElementById('searchInput');
 
 const generateBtn = document.getElementById('generateBtn');
 const generatorOptions = document.getElementById('generatorOptions');
@@ -31,6 +32,8 @@ lockButton.addEventListener('click', handleLock);
 syncButton.addEventListener('click', handleSync);
 importCsvButton.addEventListener('click', handleImportCSV);
 form.addEventListener('submit', handleSaveCredential);
+
+searchInput.addEventListener('input', handleSearch);
 
 generateBtn.addEventListener('click', () => {
   if (generatorOptions.classList.contains('hidden')) {
@@ -57,6 +60,22 @@ function runGenerate() {
   passwordInput.dispatchEvent(new Event('input'));
 }
 
+function handleSearch() {
+  const query = searchInput.value.trim().toLowerCase();
+  const vault = vaultService.getVault();
+
+  if (!query) {
+    renderVault(vault);
+    return;
+  }
+
+  const filtered = vault.filter((item) =>
+    (item.site || '').toLowerCase().includes(query) ||
+    (item.username || '').toLowerCase().includes(query)
+  );
+  renderVault(filtered);
+}
+
 async function handleUnlock() {
   const masterPassword = masterPasswordInput.value.trim();
   if (!masterPassword) {
@@ -65,8 +84,8 @@ async function handleUnlock() {
   }
 
   try {
-    const vault = await vaultService.unlock(masterPassword);
-    renderVault(vault);
+    await vaultService.unlock(masterPassword);
+    handleSearch();
 
     try {
         await vaultService.exportSessionKey();
@@ -101,8 +120,8 @@ function handleLock() {
 async function handleSync() {
   setStatus('Iniciando sincronização...');
   try {
-    const { vault: mergedVault, stats } = await syncService.sync();
-    renderVault(mergedVault);
+    const { stats } = await syncService.sync();
+    handleSearch();
 
     const now = new Date().toLocaleString();
     lastSyncEl.textContent = `Última sincronização: ${now}`;
@@ -123,7 +142,7 @@ async function handleImportCSV() {
   setStatus('Buscando passwords.csv no Drive...');
   try {
     const result = await syncService.importCSV();
-    renderVault(vaultService.getVault());
+    handleSearch();
     setStatus(`Importação concluída: ${result.added} adicionados, ${result.updated} atualizados.`);
   } catch (error) {
     console.error(error);
@@ -168,14 +187,14 @@ async function handleSaveCredential(event) {
 
   await vaultService.save(newVault);
   form.reset();
-  renderVault(newVault);
+  handleSearch();
 }
 
 async function handleDeleteCredential(credentialId) {
   const vault = vaultService.getVault();
   const newVault = vault.filter((item) => item.id !== credentialId);
   await vaultService.save(newVault);
-  renderVault(newVault);
+  handleSearch();
   setStatus('Credencial removida.');
 }
 

@@ -44,38 +44,46 @@ function parseCSVLines(str) {
     let quote = false;
     let row = [];
     let col = '';
-    let c = '';
+
+    // Normalize newlines to simplify parsing
+    str = str.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
 
     for (let cIndex = 0; cIndex < str.length; cIndex++) {
-        c = str[cIndex];
+        let c = str[cIndex];
         let cc = str[cIndex + 1];
 
         if (c === '"') {
-            if (quote && cc === '"') { // escaped quote
+            if (quote && cc === '"') {
+                // Escaped quote: "" inside a quoted field -> literal "
                 col += '"';
                 cIndex++;
             } else {
+                // Toggle quote state
                 quote = !quote;
             }
         } else if (c === ',' && !quote) {
+            // End of field
             row.push(col);
             col = '';
-        } else if ((c === '\r' || c === '\n') && !quote) {
-             if (c === '\r' && cc === '\n') {
-                 cIndex++;
-             }
-             row.push(col);
-             col = '';
-             arr.push(row);
-             row = [];
+        } else if (c === '\n' && !quote) {
+            // End of row
+            row.push(col);
+            col = '';
+            arr.push(row);
+            row = [];
         } else {
+            // Regular character
             col += c;
         }
     }
 
-    if (row.length > 0 || col.length > 0) {
-        row.push(col);
-        arr.push(row);
+    // Handle last field/row if not empty or if explicitly ended with comma (though uncommon without newline)
+    // If the string ends with a comma, we should push an empty col.
+    // If str ends with \n, the last loop iteration handled the push.
+    // But if str ends without \n, we need to push the last collected col and row.
+    if (col.length > 0 || row.length > 0) {
+         row.push(col);
+         arr.push(row);
     }
 
     return arr;
@@ -88,6 +96,7 @@ function parseCSVLines(str) {
  * @returns {Array<Object>}
  */
 export function parseCSV(content) {
+  if (!content) return [];
   const lines = parseCSVLines(content);
   if (lines.length < 2) return [];
 
@@ -96,10 +105,12 @@ export function parseCSV(content) {
 
   for (let i = 1; i < lines.length; i++) {
     const currentLine = lines[i];
+    // Skip empty lines
     if (currentLine.length === 0 || (currentLine.length === 1 && currentLine[0] === '')) continue;
 
     const obj = {};
     headers.forEach((header, index) => {
+      // If the row has fewer columns than headers, use empty string
       obj[header] = currentLine[index] !== undefined ? currentLine[index] : '';
     });
     result.push(obj);
