@@ -71,6 +71,19 @@ Fluxo resumido:
 3. Ao merge do PR de release, a action cria tag `vX.Y.Z` e release.
 4. Workflow `build-and-publish.yml` roda na tag e anexa artefatos + checksums.
 
+## Configuração do Google Drive (Desenvolvimento)
+
+Para que a sincronização com o Google Drive funcione, é necessário configurar um projeto no Google Cloud Platform:
+
+1. Acesse o [Google Cloud Console](https://console.cloud.google.com/).
+2. Crie um novo projeto.
+3. Ative a **Google Drive API**.
+4. Configure a "Tela de permissão OAuth" (OAuth Consent Screen).
+5. Crie credenciais do tipo **ID do cliente OAuth** para **Extensão do Chrome**.
+   - Adicione o ID da extensão (que pode ser encontrado em `chrome://extensions` ao carregar a extensão descompactada) em "ID do item".
+6. Copie o `Client ID` gerado.
+7. Abra o arquivo `apps/extension/manifest.json` e substitua `YOUR_CLIENT_ID.apps.googleusercontent.com` pelo seu Client ID.
+
 ## Como contribuir
 
 1. Crie branch para feature/fix.
