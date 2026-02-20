@@ -1,21 +1,70 @@
-export function generatePassword(length = 16, useUppercase = true, useNumbers = true, useSymbols = true) {
-  const lowercase = 'abcdefghijklmnopqrstuvwxyz';
-  const uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-  const numbers = '0123456789';
-  const symbols = '!@#$%^&*()_+-=[]{}|;:,.<>?';
+export function generatePassword(length = 16, options = {}) {
+    const {
+        uppercase = true,
+        lowercase = true,
+        numbers = true,
+        symbols = true
+    } = options;
 
-  let charset = lowercase;
-  if (useUppercase) charset += uppercase;
-  if (useNumbers) charset += numbers;
-  if (useSymbols) charset += symbols;
+    const charSets = {
+        uppercase: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+        lowercase: 'abcdefghijklmnopqrstuvwxyz',
+        numbers: '0123456789',
+        symbols: '!@#$%^&*()_+-=[]{}|;:,.<>?'
+    };
 
-  let password = '';
-  const array = new Uint32Array(length);
-  crypto.getRandomValues(array);
+    let allowedChars = '';
+    const guaranteedChars = [];
 
-  for (let i = 0; i < length; i++) {
-    password += charset[array[i] % charset.length];
-  }
+    if (uppercase) {
+        allowedChars += charSets.uppercase;
+        guaranteedChars.push(getRandomChar(charSets.uppercase));
+    }
+    if (lowercase) {
+        allowedChars += charSets.lowercase;
+        guaranteedChars.push(getRandomChar(charSets.lowercase));
+    }
+    if (numbers) {
+        allowedChars += charSets.numbers;
+        guaranteedChars.push(getRandomChar(charSets.numbers));
+    }
+    if (symbols) {
+        allowedChars += charSets.symbols;
+        guaranteedChars.push(getRandomChar(charSets.symbols));
+    }
 
-  return password;
+    if (allowedChars.length === 0) {
+        throw new Error('At least one character set must be selected');
+    }
+
+    // Ensure length is at least the number of selected types
+    if (length < guaranteedChars.length) {
+        length = guaranteedChars.length;
+    }
+
+    let passwordArray = [...guaranteedChars];
+
+    // Fill the rest
+    while (passwordArray.length < length) {
+        passwordArray.push(getRandomChar(allowedChars));
+    }
+
+    // Shuffle the result to avoid predictable patterns (e.g. guaranteed chars at start)
+    return shuffleArray(passwordArray).join('');
+}
+
+function getRandomChar(charSet) {
+    const array = new Uint32Array(1);
+    crypto.getRandomValues(array);
+    return charSet[array[0] % charSet.length];
+}
+
+function shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const rand = new Uint32Array(1);
+        crypto.getRandomValues(rand);
+        const j = rand[0] % (i + 1);
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
 }
