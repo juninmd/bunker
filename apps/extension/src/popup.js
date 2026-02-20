@@ -23,6 +23,7 @@ const generatorOptions = document.getElementById('generatorOptions');
 const lengthRange = document.getElementById('lengthRange');
 const lengthVal = document.getElementById('lengthVal');
 const useUppercase = document.getElementById('useUppercase');
+const useLowercase = document.getElementById('useLowercase');
 const useNumbers = document.getElementById('useNumbers');
 const useSymbols = document.getElementById('useSymbols');
 const passwordInput = document.getElementById('password');
@@ -42,7 +43,7 @@ generateBtn.addEventListener('click', () => {
   runGenerate();
 });
 
-[lengthRange, useUppercase, useNumbers, useSymbols].forEach(el => {
+[lengthRange, useUppercase, useLowercase, useNumbers, useSymbols].forEach(el => {
   el.addEventListener('input', () => {
     if (el === lengthRange) lengthVal.textContent = lengthRange.value;
     runGenerate();
@@ -50,11 +51,15 @@ generateBtn.addEventListener('click', () => {
 });
 
 function runGenerate() {
+  const options = {
+    uppercase: useUppercase.checked,
+    lowercase: useLowercase.checked,
+    numbers: useNumbers.checked,
+    symbols: useSymbols.checked
+  };
   const password = generatePassword(
     parseInt(lengthRange.value, 10),
-    useUppercase.checked,
-    useNumbers.checked,
-    useSymbols.checked
+    options
   );
   passwordInput.value = password;
   passwordInput.dispatchEvent(new Event('input'));
