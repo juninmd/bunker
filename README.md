@@ -37,9 +37,10 @@ O roadmap completo de funcionalidades está em [`docs/ROADMAP.md`](docs/ROADMAP.
 
 ### 🔜 Próximas entregas (curto prazo)
 
-1. Sync Automático (Background Service).
-2. Testes automatizados da lógica de criptografia e CSV.
-3. Desktop e Android App (em fases posteriores).
+1. **Gerador de Senhas Seguro** (Em desenvolvimento).
+2. Sync Automático (Background Service).
+3. Testes automatizados da lógica de criptografia e CSV.
+4. Desktop e Android App (em fases posteriores).
 
 ## Arquitetura em alto nível
 
