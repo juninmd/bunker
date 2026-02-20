@@ -1,147 +1,105 @@
-import { base64ToBytes, decryptWithKey, encryptWithKey } from './utils/crypto.js';
+import { VaultService } from './services/vault-service.js';
+import { SyncService } from './services/sync-service.js';
+import { base64ToBytes } from './utils/crypto.js';
 
 console.log('BunkerPass: Background Service Worker started');
 
-const STORAGE_KEY = 'bunkerpass.vault.v1';
+const vaultService = new VaultService();
+const syncService = new SyncService(vaultService);
 
 chrome.runtime.onInstalled.addListener(() => {
   console.log('BunkerPass: Extension installed');
+  chrome.alarms.create('autoSync', { periodInMinutes: 15 });
 });
+
+chrome.alarms.onAlarm.addListener(async (alarm) => {
+  if (alarm.name === 'autoSync') {
+    await performAutoSync();
+  }
+});
+
+async function performAutoSync() {
+    try {
+        const session = await chrome.storage.session.get('sessionKey');
+        if (!session || !session.sessionKey) return; // Locked
+
+        const keyBytes = base64ToBytes(session.sessionKey);
+        await vaultService.unlockWithSessionKey(keyBytes);
+        await syncService.sync();
+        console.log('BunkerPass: Auto-sync completed');
+    } catch (e) {
+        console.error('BunkerPass: Auto-sync failed', e);
+    }
+}
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.type === 'GET_CREDENTIALS') {
-    handleGetCredentials(message.domain, sendResponse);
-    return true; // Keep channel open for async response
+    handleGetCredentials(message.domain).then(sendResponse);
+    return true;
   }
   if (message.type === 'SAVE_CREDENTIAL') {
-    handleSaveCredential(message.data, sendResponse);
+    handleSaveCredential(message.data).then(sendResponse);
     return true;
+  }
+  if (message.type === 'TRIGGER_SYNC') {
+      performAutoSync().then(() => sendResponse({success: true})).catch(e => sendResponse({error: e.message}));
+      return true;
   }
 });
 
-async function handleGetCredentials(domain, sendResponse) {
-  try {
-    // 1. Get session key
-    const session = await chrome.storage.session.get('sessionKey');
-    if (!session || !session.sessionKey) {
-      console.log('BunkerPass: Vault locked');
-      sendResponse({ error: 'LOCKED' });
-      return;
+async function handleGetCredentials(domain) {
+    try {
+        const session = await chrome.storage.session.get('sessionKey');
+        if (!session || !session.sessionKey) return { error: 'LOCKED' };
+
+        const keyBytes = base64ToBytes(session.sessionKey);
+        await vaultService.unlockWithSessionKey(keyBytes);
+        const vault = vaultService.getVault();
+
+        const credentials = vault.filter(cred => {
+            if (!cred.site) return false;
+            // Simple domain matching
+            return domain.includes(cred.site) || cred.site.includes(domain);
+        });
+        return { credentials };
+    } catch (e) {
+        return { error: e.message };
     }
-
-    // 2. Import key
-    const keyData = base64ToBytes(session.sessionKey);
-    const key = await crypto.subtle.importKey(
-      'raw',
-      keyData,
-      { name: 'AES-GCM', length: 256 },
-      true,
-      ['encrypt', 'decrypt']
-    );
-
-    // 3. Get encrypted vault
-    const local = await chrome.storage.local.get(STORAGE_KEY);
-    const encryptedVault = local[STORAGE_KEY];
-
-    if (!encryptedVault) {
-      sendResponse({ credentials: [] });
-      return;
-    }
-
-    // 4. Decrypt vault using session key
-    const vaultData = await decryptWithKey(encryptedVault, key);
-
-    // 5. Filter credentials
-    const credentials = (vaultData.credentials || []).filter(cred => {
-        // Simple domain matching
-        if (!cred.site) return false;
-        // Check if domain contains the site or site contains the domain
-        // Ideally we should use a proper URL parsing
-        return domain.includes(cred.site) || cred.site.includes(domain);
-    });
-
-    sendResponse({ credentials });
-
-  } catch (error) {
-    console.error('BunkerPass: Failed to retrieve credentials', error);
-    sendResponse({ error: error.message });
-  }
 }
 
-async function handleSaveCredential(data, sendResponse) {
-  try {
-    const { site, username, password } = data;
-    if (!site || !username || !password) {
-      throw new Error('Missing required fields');
+async function handleSaveCredential(data) {
+    try {
+        const { site, username, password } = data;
+        const session = await chrome.storage.session.get('sessionKey');
+        if (!session || !session.sessionKey) return { error: 'LOCKED' };
+
+        const keyBytes = base64ToBytes(session.sessionKey);
+        await vaultService.unlockWithSessionKey(keyBytes);
+
+        // Use vaultService to modify and save
+        const vault = vaultService.getVault();
+        const newVault = vault.map(i => ({...i}));
+
+        const now = new Date().toISOString();
+        const existingIndex = newVault.findIndex(c => c.site === site && c.username === username);
+
+        if (existingIndex >= 0) {
+            newVault[existingIndex].password = password;
+            newVault[existingIndex].updatedAt = now;
+        } else {
+            newVault.push({
+                id: crypto.randomUUID(),
+                site, username, password, createdAt: now, updatedAt: now
+            });
+        }
+
+        await vaultService.save(newVault);
+
+        // Trigger sync immediately (best effort)
+        performAutoSync();
+
+        return { success: true };
+    } catch (e) {
+        return { error: e.message };
     }
-
-    // 1. Get session key
-    const session = await chrome.storage.session.get('sessionKey');
-    if (!session || !session.sessionKey) {
-      console.log('BunkerPass: Vault locked (cannot save)');
-      sendResponse({ error: 'LOCKED' });
-      return;
-    }
-
-    // 2. Import key
-    const keyData = base64ToBytes(session.sessionKey);
-    const key = await crypto.subtle.importKey(
-      'raw',
-      keyData,
-      { name: 'AES-GCM', length: 256 },
-      true,
-      ['encrypt', 'decrypt']
-    );
-
-    // 3. Get encrypted vault
-    const local = await chrome.storage.local.get(STORAGE_KEY);
-    const encryptedVault = local[STORAGE_KEY];
-
-    let vaultData = { schemaVersion: 1, credentials: [] };
-    if (encryptedVault) {
-      try {
-        vaultData = await decryptWithKey(encryptedVault, key);
-      } catch (e) {
-        console.error('Failed to decrypt vault for saving', e);
-        // If we can't decrypt, we shouldn't overwrite, because we might lose data.
-        // But if it's corrupted, maybe we should? For now, fail safe.
-        throw new Error('Failed to decrypt vault');
-      }
-    }
-
-    if (!vaultData.credentials) vaultData.credentials = [];
-
-    // 4. Update or Add Credential
-    const now = new Date().toISOString();
-    // Check if credential exists
-    const existingIndex = vaultData.credentials.findIndex(
-        c => c.site === site && c.username === username
-    );
-
-    if (existingIndex >= 0) {
-        vaultData.credentials[existingIndex].password = password;
-        vaultData.credentials[existingIndex].updatedAt = now;
-        console.log('BunkerPass: Updated existing credential for', site);
-    } else {
-        vaultData.credentials.push({
-            id: crypto.randomUUID(),
-            site,
-            username,
-            password,
-            createdAt: now,
-            updatedAt: now
-        });
-        console.log('BunkerPass: Added new credential for', site);
-    }
-
-    // 5. Encrypt and Save
-    const newEncrypted = await encryptWithKey(vaultData, key);
-    await chrome.storage.local.set({ [STORAGE_KEY]: newEncrypted });
-
-    sendResponse({ success: true });
-
-  } catch (error) {
-    console.error('BunkerPass: Failed to save credential', error);
-    sendResponse({ error: error.message });
-  }
 }

@@ -3,8 +3,8 @@
 BunkerPass é um gerenciador de senhas open-source inspirado no LastPass, com foco em **privacidade, sincronização via Google Drive** e suporte multiplataforma:
 
 - Extensão para **Chrome/Firefox**
-- Aplicativo desktop (Tauri)
-- Aplicativo Android (APK)
+- Aplicativo desktop (Planejado: Electron/Tauri)
+- Aplicativo Android (Planejado: React Native/Flutter)
 - Acesso offline rápido com sincronização posterior
 
 ## Visão do produto
@@ -33,13 +33,13 @@ O roadmap completo de funcionalidades está em [`docs/ROADMAP.md`](docs/ROADMAP.
   - fallback para `localStorage` em ambiente de teste
 - Pipeline para empacotar artefato `.zip` da extensão.
 - Workflow de release orientado a tags (`vX.Y.Z`) com anexos automáticos.
+- **Sincronização Manual com Google Drive (`vault.enc` + `passwords.csv`)**
 
 ### 🔜 Próximas entregas (curto prazo)
 
-1. Content script para detecção de formulários e autofill básico.
-2. Modelo de dados versionado do cofre (`vault schema v1`).
-3. Módulo de sincronização inicial com Google Drive (arquivo `vault.enc` + índice Sheets).
-4. Importador CSV (LastPass) para migração assistida.
+1. Sync Automático (Background Service).
+2. Testes automatizados da lógica de criptografia e CSV.
+3. Desktop e Android App (em fases posteriores).
 
 ## Arquitetura em alto nível
 
@@ -49,8 +49,8 @@ O roadmap completo de funcionalidades está em [`docs/ROADMAP.md`](docs/ROADMAP.
   - Gestão de cofre
 - **Clientes**:
   - Extensão browser (Manifest V3)
-  - Desktop (Tauri)
-  - Android (Kotlin + bridge para core)
+  - Desktop (Tauri/Electron)
+  - Android (React Native/Kotlin)
 - **Sincronização**:
   - API Google Drive/Sheets
   - Estratégia offline-first
