@@ -10,213 +10,108 @@
 - **Portabilidade**: import/export em CSV e backup verificável.
 - **Segurança por padrão**: MFA, políticas fortes e auditoria.
 
-## 2) Mapa de features (inspirado em funcionalidades do LastPass)
+## 2) Mapa de features
 
-## 2.1 Cofre de senhas
+### 2.1 Cofre de senhas
 
 - Cadastro manual de credenciais (site, usuário, senha, notas).
 - Pastas e tags para organização.
 - Busca full-text por domínio, título e tags.
-- Favoritos e itens recentes.
 - Histórico de versões por item (com rollback).
 
-## 2.2 Geração de senhas
+### 2.2 Geração de senhas
 
 - Gerador com regras: tamanho, símbolos, pronúncia opcional.
-- Perfis de geração (ex.: bancos, redes sociais, devops).
 - Avaliação de força em tempo real.
 
-## 2.3 Preenchimento automático (autofill)
+### 2.3 Preenchimento automático (autofill)
 
 - Detecção inteligente de formulários de login.
 - Fill de múltiplos campos (usuário/senha/OTP quando aplicável).
 - Captura automática de novas credenciais no submit.
-- Atualização de senha detectada (password change flow).
 
-## 2.4 Segurança e autenticação
+### 2.4 Segurança e autenticação
 
 - Senha mestra obrigatória.
-- PBKDF2 (MVP) → Argon2id (Futuro) para derivação de chave.
-- Cofre criptografado com AES-GCM (MVP) → XChaCha20-Poly1305 (Futuro).
+- PBKDF2 (MVP) → Argon2id (Futuro).
+- Cofre criptografado com AES-GCM (MVP).
 - Bloqueio automático por tempo/inatividade.
-- Biometria no desktop/mobile (quando disponível).
-- MFA para desbloqueio de conta (TOTP/WebAuthn).
-- Lista de dispositivos confiáveis e revogação remota.
+- Biometria no desktop/mobile.
 
-## 2.5 Auditoria de segurança
+### 2.5 Sincronização Google Drive (Diferencial)
 
-- Dashboard de saúde das senhas:
-  - senhas fracas
-  - reutilizadas
-  - antigas
-  - potencialmente vazadas (integração HIBP por hash k-anon)
-- Score de segurança por usuário.
-- Recomendações automáticas priorizadas por risco.
+A sincronização utiliza o Google Drive como backend de armazenamento, garantindo privacidade total (zero-knowledge cloud).
 
-## 2.6 Compartilhamento e colaboração
+- **Arquivo Principal (`vault.enc`)**:
+  - Contém todo o cofre criptografado com a chave do usuário.
+  - É a fonte da verdade (Source of Truth).
+  - Atualizado em cada alteração local.
 
-- Compartilhamento seguro de credenciais entre usuários.
-- Cofres compartilhados (família/equipe).
-- Permissões por papel (leitura, edição, admin).
-- Revogação imediata de acesso.
+- **Arquivo CSV (`passwords.csv`)**:
+  - Exportação legível (para backup ou migração).
+  - Atualizado automaticamente após cada sync bem-sucedido do `vault.enc`.
+  - Permite edição manual externa (com reimportação via "Importar CSV").
 
-## 2.7 Recuperação de conta
+- **Índice (Google Sheets - Opcional)**:
+  - Metadados não sensíveis (ex: lista de sites) para busca rápida sem baixar todo o cofre.
 
-- Kit de recuperação com frases/chaves de recuperação.
-- Contatos de emergência configuráveis.
-- Fluxo anti-sequestro com delay e notificações.
+## 3) Arquitetura Multiplataforma
 
-## 2.8 Sincronização Google Drive (diferencial)
+O projeto utiliza um **Monorepo** para compartilhar a lógica de negócio (`core`) entre as plataformas.
 
-- Armazenamento de índice em **Google Sheets** (metadados não sensíveis).
-- Exportação/snapshot em **CSV** para portabilidade.
-- Arquivo canônico criptografado (`vault.enc`) no Google Drive.
-- Sincronização incremental por `record_version` + `updated_at`.
-- Estratégia de conflitos:
-  - last-writer-wins para campos não sensíveis
-  - merge assistido para colisões relevantes
-- Logs de sync, retries e fila local.
+### 3.1 Core (Shared Logic)
+- **Linguagem**: TypeScript / JavaScript (ES Modules).
+- **Módulos**:
+  - `crypto`: Criptografia AES-GCM, PBKDF2.
+  - `vault`: Gerenciamento de estado do cofre e versionamento.
+  - `sync`: Lógica de sincronização com Google Drive API.
+  - `csv`: Parser e gerador de CSV compatível com RFC 4180.
 
-## 2.9 Offline e performance
+### 3.2 Extensão (Chrome/Firefox)
+- **Tecnologia**: Web Extensions API (Manifest V3).
+- **Estado**: Em desenvolvimento (`apps/extension`).
+- **Features**: Popup, Autofill (Content Script), Background Sync.
 
-- Cache local criptografado de leitura instantânea.
-- Fila de operações offline (create/update/delete).
-- Reconciliador em background ao reconectar.
-- Meta de desbloqueio local < 300ms em dispositivo médio.
+### 3.3 Desktop App
+- **Tecnologia**: Electron ou Tauri (Rust + Frontend Web).
+- **Estratégia**:
+  - Reutilizar a UI da extensão (React/HTML/CSS) dentro de uma janela desktop.
+  - Adaptar a camada de armazenamento (`chrome.storage.local` -> `fs` ou `sqlite`).
+  - Teclas de atalho globais e integração com sistema (tray icon).
 
-## 2.10 UX e produtividade
+### 3.4 Android App
+- **Tecnologia**: React Native ou Flutter.
+- **Estratégia**:
+  - Se React Native: Compartilhar diretamente o código JS do `core`.
+  - Bridge para Crypto nativo (para performance).
+  - Integração com Autofill Framework do Android.
 
-- **Acesso Rápido (Quick Access):** Atalho de teclado (`Ctrl/Cmd + Shift + Y`) para abrir o cofre instantaneamente.
-- Quick search dentro do popup.
-- Atalhos globais no desktop.
-- Tema dark/light e acessibilidade (WCAG AA).
-- Onboarding guiado com checklist de migração.
+## 4) Fases do Roadmap
 
-## 2.11 Compliance e observabilidade
+### Fase 1 — MVP Extensão (Concluído/Em Polimento)
+- ✅ Estrutura do projeto e Release Automation.
+- ✅ Criptografia local e CRUD básico.
+- ✅ Sincronização Manual com Google Drive (`vault.enc` + `passwords.csv`).
+- 🔄 Melhoria: Sync Automático e Tratamento de Conflitos robusto.
 
-- Telemetria opcional e anonimizada.
-- Logs de segurança auditáveis localmente.
-- Relatórios de incidente e trilha de eventos.
+### Fase 2 — Sync Automático e Segurança (Próximo)
+- Sync em background via `chrome.alarms` (cada 15min).
+- Detecção de alterações remotas (polling eficiente).
+- Testes automatizados da lógica de criptografia e CSV.
 
-## 3) Matriz de priorização (MVP → paridade LastPass)
+### Fase 3 — Desktop App (Electron/Tauri)
+1. Criar `apps/desktop`.
+2. Configurar build pipeline (GitHub Actions).
+3. Portar `VaultService` para usar File System local.
+4. Implementar UI responsiva baseada na extensão.
 
-| Feature | MVP Extensão | Desktop | Android | Paridade avançada |
-|---|---:|---:|---:|---:|
-| Cofre local criptografado | ✅ | ✅ | ✅ | ✅ |
-| Gerador de senha | ✅ | ✅ | ✅ | ✅ |
-| Autofill básico | ✅ | ✅ | ✅ | ✅ |
-| Sync Google Drive (`vault.enc`) | ✅ | ✅ | ✅ | ✅ |
-| Índice no Google Sheets | ⚠️ parcial | ✅ | ✅ | ✅ |
-| Snapshot CSV | ✅ | ✅ | ✅ | ✅ |
-| Segurança (MFA/WebAuthn) | ❌ | ❌ | ❌ | ✅ |
-| Compartilhamento de cofre | ❌ | ❌ | ❌ | ✅ |
+### Fase 4 — Android App (React Native)
+1. Criar `apps/android` (React Native CLI).
+2. Configurar build de APK (GitHub Actions).
+3. Implementar UI Mobile-first.
+4. Integrar com Google Drive Android API.
 
-## 4) Roadmap por fases
-
-## Fase 0 — Fundação (Semanas 1–3)
-
-- Definição do modelo de dados do cofre.
-- Biblioteca criptográfica compartilhada (Rust/WASM).
-- Estrutura monorepo e padrões de commit/release.
-- POC de sincronização com Google Drive.
-
-**Entregáveis**
-- Especificação de dados v1.
-- CLI de teste para criptografar/decriptar cofre.
-- Documento de threat model inicial.
-
-## Fase 1 — MVP Extensão (Semanas 4–8)
-
-- Extensão Chrome/Firefox com:
-  - login local por senha mestra
-  - CRUD de credenciais
-  - autofill básico
-  - gerador de senha
-- Cache offline criptografado.
-- **Sync Manual com Google Drive e CSV (Diferencial):**
-  - **Fluxo de Sincronização Detalhado:**
-    1. Autenticação via `chrome.identity`.
-    2. Verificação de existência do arquivo `vault.enc` no Google Drive.
-    3. Se existir:
-       - Download do conteúdo criptografado.
-       - Decriptografia local.
-       - Merge com o cofre local (união de registros, preferência por data de atualização mais recente).
-    4. Geração de arquivo CSV (`passwords.csv`) com os dados do cofre (para visibilidade do usuário).
-    5. Criptografia do cofre mergeado.
-    6. Upload do novo `vault.enc` e `passwords.csv` para o Google Drive.
-    7. Atualização do cache local.
-
-**Critério de saída**
-- Usuário consegue migrar CSV, usar offline e sincronizar manualmente.
-
-## Fase 2 — Sync robusto e segurança (Semanas 9–12)
-
-- Sync incremental automático.
-- Resolução de conflitos e reprocessamento de fila.
-- Dashboard de senhas fracas/reutilizadas.
-- MFA (TOTP) e gerenciamento de sessões/dispositivos.
-
-**Critério de saída**
-- Sistema resiliente com retries, métricas e recuperação de falha.
-
-## Fase 3 — Desktop App (Semanas 13–16)
-
-- App desktop (Tauri) com paridade da extensão.
-- Atalhos globais, desbloqueio biométrico (quando suportado).
-- Import/export avançado e backups agendados.
-
-**Critério de saída**
-- Desktop pronto para uso diário como cofre principal.
-
-## Fase 4 — Android APK (Semanas 17–22)
-
-- App Android com:
-  - cofre local
-  - unlock biométrico
-  - autofill service Android
-  - sync em background
-- Hardening para armazenamento seguro no dispositivo.
-
-**Critério de saída**
-- APK beta com autofill funcional em apps e navegador mobile.
-
-## Fase 5 — Colaboração e escala (Semanas 23–30)
-
-- Cofres compartilhados e permissões.
-- Compartilhamento seguro e revogação.
-- Observabilidade avançada + SLOs de sync.
-
-**Critério de saída**
-- Produto competitivo para famílias e pequenos times.
-
-## 5) Backlog técnico prioritário
-
-- Motor de matching de domínio/subdomínio para autofill.
-- Criptografia de campos sensíveis por registro.
-- Índice local com busca rápida e normalização de URL.
-- Módulo de importadores (LastPass/1Password/Bitwarden CSV).
-- Testes de compatibilidade Manifest V3 em Chrome/Firefox.
-
-## 6) Início da implementação (status)
-
-- ✅ `apps/extension`: popup funcional para unlock e CRUD local criptografado.
-- ✅ `apps/extension`: Sincronização básica com Google Drive (vault.enc + passwords.csv).
-- ✅ `scripts/package-extension.sh`: geração de `.zip` para release.
-- ✅ `build-and-publish.yml`: publicação automática de artefatos por tag.
-- ✅ `content_scripts`: detecção de formulário e captura de credenciais (save flow).
-- ⏳ Próximo passo técnico: Melhorar autofill e implementar sync automático.
-
-## 7) KPIs de sucesso
-
-- Tempo médio de desbloqueio local.
-- Taxa de sucesso de autofill.
-- Latência média de sincronização.
-- Taxa de conflitos por 1.000 operações.
-- Taxa de erro de release e rollback.
-
-## 8) Riscos e mitigação
-
-- **Limites de API Google** → cache agressivo + retries exponenciais.
-- **Conflitos de sync** → modelo de versão por item + UI de merge.
-- **UX de migração complexa** → wizard guiado e validações automáticas.
-- **Ataques de phishing** → validação de domínio rigorosa e alertas.
+### Fase 5 — Paridade e Polimento
+- Autofill inteligente em iframes e shadow DOM.
+- Compartilhamento seguro de senhas (via link temporário ou chave pública).
+- Auditoria de segurança (senha fraca/repetida).
