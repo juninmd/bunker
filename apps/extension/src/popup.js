@@ -186,6 +186,10 @@ async function handleSaveCredential(event) {
   }
 
   await vaultService.save(newVault);
+
+  // Trigger background sync
+  chrome.runtime.sendMessage({ type: 'TRIGGER_SYNC' });
+
   form.reset();
   handleSearch();
 }

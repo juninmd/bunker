@@ -1,6 +1,6 @@
 import { GoogleDriveService } from './google-drive.js';
 import { generateCSV, parseCSV } from '../utils/csv-utils.js';
-import { decryptPayload, encryptPayload } from '../utils/crypto.js';
+import { decryptWithKey, encryptWithKey } from '../utils/crypto.js';
 
 export class SyncService {
   constructor(vaultService) {
@@ -12,7 +12,7 @@ export class SyncService {
   }
 
   async sync() {
-    if (!this.vaultService.masterPassword || !this.vaultService.salt) {
+    if (!this.vaultService.cryptoKey) {
       throw new Error('Vault locked');
     }
 
@@ -25,7 +25,7 @@ export class SyncService {
     if (vaultFile) {
       const content = await this.driveService.getFileContent(vaultFile.id);
       try {
-        const data = await decryptPayload(content, this.vaultService.masterPassword, this.vaultService.salt);
+        const data = await decryptWithKey(content, this.vaultService.cryptoKey);
         remoteVault = this.vaultService.sanitizeVault(data);
       } catch (e) {
         throw new Error('Failed to decrypt remote vault. Check password.');
@@ -44,29 +44,38 @@ export class SyncService {
       schemaVersion: this.VAULT_SCHEMA_VERSION,
       credentials: mergedVault
     };
-    const encrypted = await encryptPayload(payload, this.vaultService.masterPassword, this.vaultService.salt);
+    const encrypted = await encryptWithKey(payload, this.vaultService.cryptoKey);
 
-    if (vaultFile) {
-      await this.driveService.updateFile(vaultFile.id, encrypted, 'text/plain');
-    } else {
-      await this.driveService.createFile(this.VAULT_FILE, encrypted, 'text/plain');
+    try {
+      if (vaultFile) {
+        await this.driveService.updateFile(vaultFile.id, encrypted, 'text/plain');
+      } else {
+        await this.driveService.createFile(this.VAULT_FILE, encrypted, 'text/plain');
+      }
+    } catch (e) {
+      throw new Error('Failed to sync encrypted vault to Drive: ' + e.message);
     }
 
     // 5. Update CSV (Export)
-    const csvContent = this.generateCSVContent(mergedVault);
-    const csvFile = await this.driveService.findFile(this.CSV_FILE);
+    try {
+      const csvContent = this.generateCSVContent(mergedVault);
+      const csvFile = await this.driveService.findFile(this.CSV_FILE);
 
-    if (csvFile) {
-      await this.driveService.updateFile(csvFile.id, csvContent, 'text/csv');
-    } else {
-      await this.driveService.createFile(this.CSV_FILE, csvContent, 'text/csv');
+      if (csvFile) {
+        await this.driveService.updateFile(csvFile.id, csvContent, 'text/csv');
+      } else {
+        await this.driveService.createFile(this.CSV_FILE, csvContent, 'text/csv');
+      }
+    } catch (e) {
+      console.error('Failed to update CSV backup:', e);
+      stats.csvError = e.message;
     }
 
     return { vault: mergedVault, stats };
   }
 
   async importCSV() {
-      if (!this.vaultService.masterPassword) throw new Error('Locked');
+      if (!this.vaultService.cryptoKey) throw new Error('Locked');
       await this.driveService.authorize();
 
       const csvFile = await this.driveService.findFile(this.CSV_FILE);
