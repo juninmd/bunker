@@ -13,8 +13,20 @@ jobs:
   release-please:
     runs-on: ubuntu-latest
     steps:
-      - name: Run Release Please
-        uses: google-github-actions/release-please-action@v4
+      - uses: actions/checkout@v4
+
+      - uses: google-github-actions/release-please-action@v4
+        id: release
         with:
           release-type: simple
           package-name: bunkerpass
+
+      - name: Update README
+        if: ${{ steps.release.outputs.release_created }}
+        run: |
+          node scripts/update-readme.js
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add README.md
+          git commit -m "chore: update readme version to ${{ steps.release.outputs.version }}"
+          git push
