@@ -90,6 +90,7 @@ export class SyncService {
               site: row.site || row.url || row.name || '',
               username: row.username || '',
               password: row.password || '',
+              notes: row.extra || row.notes || '',
               updatedAt: new Date().toISOString(),
               createdAt: new Date().toISOString()
           };
@@ -105,8 +106,9 @@ export class SyncService {
       imported.forEach(newItem => {
           const existing = merged.find(i => i.site === newItem.site && i.username === newItem.username);
           if (existing) {
-              if (existing.password !== newItem.password) {
+              if (existing.password !== newItem.password || existing.notes !== newItem.notes) {
                   existing.password = newItem.password;
+                  existing.notes = newItem.notes;
                   existing.updatedAt = new Date().toISOString();
                   updatedCount++;
               }
@@ -153,7 +155,7 @@ export class SyncService {
           url: item.site,
           username: item.username,
           password: item.password,
-          extra: '',
+          extra: item.notes || '',
           name: item.site,
           grouping: '',
           fav: '0'
