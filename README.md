@@ -1,3 +1,5 @@
+[![Version](https://img.shields.io/badge/version-0.1.0-blue.svg)](https://github.com/juninmd/bunker/releases)
+
 # BunkerPass
 
 BunkerPass é um gerenciador de senhas open-source inspirado no LastPass, com foco em **privacidade, sincronização via Google Drive** e suporte multiplataforma:

@@ -27,6 +27,7 @@ const useLowercase = document.getElementById('useLowercase');
 const useNumbers = document.getElementById('useNumbers');
 const useSymbols = document.getElementById('useSymbols');
 const passwordInput = document.getElementById('password');
+const notesInput = document.getElementById('notes');
 
 unlockButton.addEventListener('click', handleUnlock);
 lockButton.addEventListener('click', handleLock);
@@ -160,6 +161,7 @@ async function handleSaveCredential(event) {
   const site = normalizeSite(document.getElementById('site').value);
   const username = document.getElementById('username').value.trim();
   const password = document.getElementById('password').value;
+  const notes = notesInput.value;
 
   if (!site || !username || !password) {
     setStatus('Preencha todos os campos.');
@@ -176,6 +178,7 @@ async function handleSaveCredential(event) {
 
   if (existingIndex >= 0) {
      newVault[existingIndex].password = password;
+     newVault[existingIndex].notes = notes;
      newVault[existingIndex].updatedAt = now;
      setStatus('Credencial atualizada localmente.');
   } else {
@@ -184,6 +187,7 @@ async function handleSaveCredential(event) {
       site,
       username,
       password,
+      notes,
       createdAt: now,
       updatedAt: now
     });
@@ -230,6 +234,14 @@ function renderVault(vault) {
       const userEl = document.createElement('div');
       userEl.className = 'item-user';
       userEl.textContent = item.username;
+
+      if (item.notes) {
+        const notesIcon = document.createElement('span');
+        notesIcon.textContent = ' 📝';
+        notesIcon.title = item.notes;
+        notesIcon.style.cursor = 'help';
+        userEl.appendChild(notesIcon);
+      }
 
       const removeButton = document.createElement('button');
       removeButton.type = 'button';
