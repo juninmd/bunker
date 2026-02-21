@@ -9,7 +9,7 @@ try {
   const version = packageJson.version;
   let readme = fs.readFileSync(readmePath, 'utf8');
 
-  const badge = `[![Version](https://img.shields.io/badge/version-${version}-blue.svg)](https://github.com/release-please/bunkerpass/releases)`;
+  const badge = `[![Version](https://img.shields.io/badge/version-${version}-blue.svg)](https://github.com/juninmd/bunker/releases)`;
   const badgeRegex = /\[!\[Version\]\(https:\/\/img\.shields\.io\/badge\/version-.*?-blue\.svg\)\]\(.*?\)/;
 
   if (badgeRegex.test(readme)) {
