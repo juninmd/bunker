@@ -108,7 +108,12 @@ export class VaultService {
         chrome.storage.local.get([key], (result) => resolve(result[key]));
       });
     }
-    return localStorage.getItem(key);
+    const val = localStorage.getItem(key);
+    try {
+      return JSON.parse(val);
+    } catch (e) {
+      return val;
+    }
   }
 
   async setStorage(key, value) {
@@ -120,7 +125,8 @@ export class VaultService {
         chrome.storage.local.set({ [key]: value }, resolve);
       });
     }
-    localStorage.setItem(key, value);
+    const val = typeof value === 'object' ? JSON.stringify(value) : value;
+    localStorage.setItem(key, val);
   }
 
   async getSalt() {

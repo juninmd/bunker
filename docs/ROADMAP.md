@@ -8,32 +8,60 @@ O objetivo é fornecer uma experiência similar ao LastPass, mas onde o usuário
 **O grande diferencial** é o armazenamento híbrido que garante interoperabilidade e backup legível:
 
 1.  **Planilha CSV (`passwords.csv`):** O usuário pode visualizar e editar suas senhas diretamente no Google Drive (via Google Sheets ou download). O BunkerPass mantém esse arquivo sincronizado bidirecionalmente.
-2.  **Cofre Criptografado (`vault.enc`):** Fonte da verdade para a segurança (criptografia ponta a ponta), garantindo que metadados sensíveis não fiquem expostos se o usuário preferir.
+    - *Nota:* O CSV pode ser visualizado como texto plano para facilidade de uso, ou conter campos criptografados dependendo da configuração de segurança do usuário (Fase 2).
+2.  **Cofre Criptografado (`vault.enc`):** Fonte da verdade para a segurança (criptografia ponta a ponta), garantindo que metadados sensíveis não fiquem expostos e servindo como cache principal.
 
 ## Fases de Desenvolvimento
 
 ### Fase 1: Fundação e Extensão MVP (Atual)
-- [x] Criação do Cofre Local (Criptografia AES-GCM).
-- [x] Integração com Google Drive API (OAuth 2.0).
-- [x] **Sincronização Híbrida (CSV + Vault Enc):**
-  - Geração automática de `passwords.csv` no Drive (Backup legível).
-  - Importação manual de alterações feitas no CSV do Drive (via botão no Popup).
-- [ ] **Sincronização Bidirecional Automática do CSV:** Detectar alterações no CSV remoto e importar automaticamente durante o sync.
-- [x] Popup Básico (Listagem/Adição/Remoção).
-- [x] Script de Content Básico (Captura/Preenchimento simples).
-- [x] CI/CD com GitHub Actions e Release Please.
+Foco nas funcionalidades essenciais de um gerenciador de senhas.
+- [x] **Cofre Local Seguro:** Criptografia AES-GCM (PBKDF2/Argon2 para derivação de chave).
+- [x] **Integração Google Drive:** Autenticação OAuth 2.0 e acesso ao escopo de arquivos.
+- [x] **Sincronização Híbrida Manual:**
+  - Exportação automática para `passwords.csv` no Drive.
+  - Importação manual de alterações do CSV.
+- [ ] **Sincronização Bidirecional Inteligente:** Detectar alterações no CSV remoto (`modifiedTime`) e mesclar automaticamente com o cofre local.
+- [x] **Popup de Gerenciamento:** Interface básica para listar, adicionar, editar e remover senhas.
+- [x] **Gerador de Senhas:** Algoritmo seguro (CSPRNG) implementado.
+- [ ] **Persistência do Gerador:** Salvar preferências de geração (tamanho, caracteres) do usuário.
+- [x] **Autofill Básico:** Detecção de campos de login e preenchimento via menu de contexto ou atalho.
+- [x] **CI/CD:** Pipelines de release automatizados e versionamento semântico.
 
-### Fase 2: Experiência do Usuário (Extensão v1.0)
-Foco em igualar as funcionalidades essenciais do dia-a-dia do LastPass.
-- [ ] **Notas Seguras:** Campo "Notes" nos itens e mapeamento para a coluna `extra` no CSV.
-- [ ] **Gerador de Senhas Seguro:** Interface no popup para criar senhas fortes customizáveis (já implementado, falta persistência de opções).
-- [ ] **Autopreenchimento Aprimorado:** Ícone do BunkerPass dentro dos campos de login para seleção rápida de contas múltiplas.
-- [ ] **Busca e Filtragem:** Busca instantânea no popup por nome ou site (Já implementado).
-- [ ] **Detector de Login Aprimorado:** Melhorar a heurística para detectar novos logins e atualizações de senha.
-- [ ] **Sincronização Automática:** Sync em background periódico e ao detectar alterações no CSV remoto.
+### Fase 2: Paridade de Features (LastPass Replacement)
+Foco em igualar as funcionalidades de conveniência e organização.
+- [ ] **Tipos de Itens Distintos:**
+  - **Notas Seguras:** Suporte dedicado para notas criptografadas (não apenas campo extra).
+  - **Endereços e Cartões:** Perfis de preenchimento de formulários (Form Fills).
+  - **Cartões de Pagamento:** Armazenamento seguro de CVV e dados bancários.
+- [ ] **Organização:**
+  - **Pastas/Grupos:** Agrupamento hierárquico de credenciais.
+  - **Favoritos:** Acesso rápido no topo da lista.
+- [ ] **UX Aprimorada:**
+  - **Ícone In-Field:** Botão do BunkerPass dentro dos inputs de login para preenchimento com um clique.
+  - **Detector de Mudança de Senha:** Pop-up perguntando "Deseja atualizar esta senha?" ao submeter formulários.
+- [ ] **Segurança Avançada:**
+  - **Logout Automático:** Configuração de timeout por inatividade.
+  - **Desbloqueio com PIN/Biometria:** Opção de PIN curto para acesso rápido (se suportado pelo navegador/OS).
 
-### Fase 3: Expansão Multiplataforma
-Levar o cofre para fora do navegador.
+### Fase 3: Auditoria e Monitoramento (Security Challenge)
+Foco na proatividade da segurança.
+- [ ] **Painel de Segurança:**
+  - Análise de força das senhas.
+  - Identificação de senhas reutilizadas.
+- [ ] **Integração HaveIBeenPwned:** Verificar se emails ou senhas foram expostos em vazamentos conhecidos.
+- [ ] **Histórico de Senhas:** Manter histórico de alterações para permitir reversão.
+
+### Fase 4: Compartilhamento e Emergência
+Foco em funcionalidades colaborativas.
+- [ ] **Compartilhamento Seguro:**
+  - Compartilhar item específico via link temporário (One-Time View).
+  - Compartilhamento via pasta compartilhada do Google Drive (Team/Family Folders).
+- [ ] **Acesso de Emergência:**
+  - Configurar contatos de confiança que podem solicitar acesso ao cofre.
+  - Período de espera configurável antes da liberação do acesso.
+
+### Fase 5: Expansão Multiplataforma
+Levar o cofre para fora do navegador com experiência nativa.
 - [ ] **App Desktop (Electron/Tauri):**
   - Wrapper da lógica da extensão.
   - Atalho global para preenchimento em apps nativos.
@@ -42,17 +70,23 @@ Levar o cofre para fora do navegador.
   - Integração com Autofill Framework do Android.
   - Acesso biométrico (Fingerprint/FaceID) para desbloqueio.
   - Sincronização direta com o arquivo `passwords.csv` e `vault.enc` no Google Drive.
+- [ ] **App iOS:** Portabilidade da versão React Native para iOS.
 
-### Fase 4: Funcionalidades Avançadas
-- [ ] **Compartilhamento Seguro:** Mecanismo para compartilhar senhas criptografadas com outros usuários (via link ou email).
-- [ ] **Auditoria de Segurança:** Painel que identifica senhas fracas, reutilizadas ou vazadas (HaveIBeenPwned).
-- [ ] **Acesso de Emergência:** Permitir que uma conta confiável solicite acesso após período de inatividade.
-- [ ] **Histórico de Senhas:** Manter versões anteriores de senhas no `vault.enc` (e talvez uma aba extra no CSV).
+## Detalhes Técnicos
 
-## Detalhes Técnicos Importantes
+### Estratégia de Sync com CSV
+O arquivo `passwords.csv` no Google Drive atua como uma interface de usuário secundária.
+1. **Leitura:** O usuário pode abrir o CSV no Google Sheets para ver suas senhas (útil em dispositivos onde não tem a extensão instalada).
+2. **Escrita:** O usuário pode adicionar uma linha no Sheets (ex: `facebook.com, user, pass123, note`).
+3. **Sincronização:** O BunkerPass verifica periodicamente o `modifiedTime` do arquivo CSV. Se for mais recente que a última sincronização local, o app baixa o CSV, faz o parse e atualiza o cofre local (`vault.enc` é atualizado em seguida).
 
-- **Armazenamento:** A "fonte da verdade" é híbrida. O `vault.enc` garante a integridade criptográfica, enquanto o `passwords.csv` garante a legibilidade e portabilidade.
-- **CSV:** O arquivo `.csv` segue o padrão LastPass (url,username,password,extra,name,grouping,fav) para garantir compatibilidade.
-  - *Fluxo de Sync:* Ao sincronizar, o app verifica qual versão é mais recente (CSV ou Local). Se o CSV foi editado manualmente no Drive, essas alterações são importadas.
-- **Criptografia:** Tudo ocorre no cliente (End-to-End Encryption). A chave nunca sai do dispositivo.
-- **Offline First:** O app funciona 100% offline usando o cache local (`chrome.storage.local`). A sincronização ocorre quando há conexão.
+### Segurança do CSV
+Por padrão, para conveniência (como solicitado), o CSV contém as senhas em texto plano.
+- **Aviso:** O usuário será alertado sobre os riscos de manter o CSV em texto plano.
+- **Opção Segura:** Implementar uma configuração "Criptografar CSV" onde o conteúdo das células sensíveis é cifrado, mantendo a estrutura de linhas/colunas para organização, mas ocultando os segredos.
+
+### Stack Tecnológica
+- **Extensão:** JavaScript (ES Modules), HTML, CSS, Web Crypto API.
+- **Desktop:** Electron ou Tauri (Rust).
+- **Mobile:** React Native.
+- **CI/CD:** GitHub Actions, Release Please.
