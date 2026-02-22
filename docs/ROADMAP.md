@@ -26,6 +26,7 @@ Foco nas funcionalidades essenciais de um gerenciador de senhas.
 - [ ] **Persistência do Gerador:** Salvar preferências de geração (tamanho, caracteres) do usuário.
 - [x] **Autofill Básico:** Detecção de campos de login e preenchimento via menu de contexto ou atalho.
 - [x] **CI/CD:** Pipelines de release automatizados e versionamento semântico.
+- [ ] **Tipos de Item:** Suporte inicial para "Senhas" e "Notas Seguras".
 
 ### Fase 2: Paridade de Features (LastPass Replacement)
 Foco em igualar as funcionalidades de conveniência e organização.
@@ -79,6 +80,12 @@ O arquivo `passwords.csv` no Google Drive atua como uma interface de usuário se
 1. **Leitura:** O usuário pode abrir o CSV no Google Sheets para ver suas senhas (útil em dispositivos onde não tem a extensão instalada).
 2. **Escrita:** O usuário pode adicionar uma linha no Sheets (ex: `facebook.com, user, pass123, note`).
 3. **Sincronização:** O BunkerPass verifica periodicamente o `modifiedTime` do arquivo CSV. Se for mais recente que a última sincronização local, o app baixa o CSV, faz o parse e atualiza o cofre local (`vault.enc` é atualizado em seguida).
+
+### Tipos de Dados no CSV
+Para manter compatibilidade com importadores (LastPass CSV), usamos convenções:
+- **Senhas:** `url` contém o site (ex: `google.com`).
+- **Notas Seguras:** `url` é definido como `http://sn`. O Título vai em `username` e o conteúdo em `extra` (notas).
+- **Cartões:** `url` como `http://cc`. Dados estruturados em JSON no campo `extra` ou colunas adicionais se expandirmos o CSV.
 
 ### Segurança do CSV
 Por padrão, para conveniência (como solicitado), o CSV contém as senhas em texto plano.
