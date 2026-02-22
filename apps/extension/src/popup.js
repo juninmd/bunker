@@ -47,9 +47,35 @@ generateBtn.addEventListener('click', () => {
 [lengthRange, useUppercase, useLowercase, useNumbers, useSymbols].forEach(el => {
   el.addEventListener('input', () => {
     if (el === lengthRange) lengthVal.textContent = lengthRange.value;
+    saveGeneratorSettings();
     runGenerate();
   });
 });
+
+async function loadGeneratorSettings() {
+  const settings = await vaultService.getStorage('generator.settings');
+  if (settings) {
+    if (settings.length) {
+      lengthRange.value = settings.length;
+      lengthVal.textContent = settings.length;
+    }
+    useUppercase.checked = settings.uppercase !== false;
+    useLowercase.checked = settings.lowercase !== false;
+    useNumbers.checked = settings.numbers !== false;
+    useSymbols.checked = settings.symbols !== false;
+  }
+}
+
+async function saveGeneratorSettings() {
+  const settings = {
+    length: lengthRange.value,
+    uppercase: useUppercase.checked,
+    lowercase: useLowercase.checked,
+    numbers: useNumbers.checked,
+    symbols: useSymbols.checked
+  };
+  await vaultService.setStorage('generator.settings', settings);
+}
 
 function runGenerate() {
   const options = {
@@ -103,6 +129,8 @@ async function handleUnlock() {
     if (lastSync) {
       lastSyncEl.textContent = `Última sincronização: ${lastSync}`;
     }
+
+    await loadGeneratorSettings();
 
     unlockSection.classList.add('hidden');
     vaultSection.classList.remove('hidden');
