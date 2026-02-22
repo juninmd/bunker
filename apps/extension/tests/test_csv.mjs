@@ -74,4 +74,32 @@ console.log('Running CSV Utils Tests...');
     console.log('Test 6 Passed: Empty Fields Parse');
 }
 
+// Test 7: Secure Note Simulation (Sync Service Integration Test)
+{
+    // Simulate the data structure SyncService generates for a note
+    const data = [{
+        url: 'http://sn',
+        username: 'My Secure Note',
+        password: '',
+        extra: 'This is a secret note.\nIt has multiple lines.',
+        name: 'My Secure Note',
+        grouping: 'Secure Notes',
+        fav: '0'
+    }];
+    const headers = ['url', 'username', 'password', 'extra', 'name', 'grouping', 'fav'];
+
+    // Generate
+    const csv = generateCSV(data, headers);
+    // Expected: extra field quoted due to newline
+    const expected = 'url,username,password,extra,name,grouping,fav\nhttp://sn,My Secure Note,,"This is a secret note.\nIt has multiple lines.",My Secure Note,Secure Notes,0';
+    assert.strictEqual(csv, expected, 'Secure Note generation failed');
+
+    // Parse back
+    const parsed = parseCSV(csv);
+    assert.strictEqual(parsed[0].url, 'http://sn');
+    assert.strictEqual(parsed[0].extra, 'This is a secret note.\nIt has multiple lines.');
+
+    console.log('Test 7 Passed: Secure Note Simulation');
+}
+
 console.log('All CSV tests passed!');

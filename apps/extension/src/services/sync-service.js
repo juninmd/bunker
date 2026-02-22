@@ -108,16 +108,33 @@ export class SyncService {
       const parsed = parseCSV(content);
 
       const imported = parsed.map(row => {
-          return {
-              id: crypto.randomUUID(),
-              site: row.site || row.url || row.name || '',
-              username: row.username || '',
-              password: row.password || '',
-              notes: row.extra || row.notes || '',
-              updatedAt: new Date().toISOString(),
-              createdAt: new Date().toISOString()
-          };
-      }).filter(i => i.site && i.username && i.password);
+          const url = row.url || row.site || row.name || '';
+          if (url === 'http://sn') {
+              // Secure Note
+              return {
+                  id: crypto.randomUUID(),
+                  type: 'note',
+                  site: row.username || row.name || 'Sem Título', // Title is often in username or name for notes
+                  username: '',
+                  password: '',
+                  notes: row.extra || row.notes || row.password || '',
+                  updatedAt: new Date().toISOString(),
+                  createdAt: new Date().toISOString()
+              };
+          } else {
+              // Standard Password
+              return {
+                  id: crypto.randomUUID(),
+                  type: 'password',
+                  site: url,
+                  username: row.username || '',
+                  password: row.password || '',
+                  notes: row.extra || row.notes || '',
+                  updatedAt: new Date().toISOString(),
+                  createdAt: new Date().toISOString()
+              };
+          }
+      }).filter(i => (i.type === 'note' && i.site) || (i.site && i.username && i.password));
 
       const localVault = this.vaultService.getVault();
       // Clone to avoid mutating cachedVault directly before save
@@ -127,7 +144,14 @@ export class SyncService {
       let updatedCount = 0;
 
       imported.forEach(newItem => {
-          const existing = merged.find(i => i.site === newItem.site && i.username === newItem.username);
+          const existing = merged.find(i => {
+              // Match by Type + Site (and Username for passwords)
+              if ((i.type || 'password') !== newItem.type) return false;
+              if (i.site !== newItem.site) return false;
+              if (newItem.type === 'note') return true;
+              return i.username === newItem.username;
+          });
+
           if (existing) {
               if (existing.password !== newItem.password || existing.notes !== newItem.notes) {
                   existing.password = newItem.password;
@@ -174,15 +198,28 @@ export class SyncService {
       // LastPass CSV format: url,username,password,extra,name,grouping,fav
       const headers = ['url', 'username', 'password', 'extra', 'name', 'grouping', 'fav'];
 
-      const data = vault.map(item => ({
-          url: item.site,
-          username: item.username,
-          password: item.password,
-          extra: item.notes || '',
-          name: item.site,
-          grouping: '',
-          fav: '0'
-      }));
+      const data = vault.map(item => {
+          if (item.type === 'note') {
+              return {
+                  url: 'http://sn',
+                  username: item.site, // Title goes to username col in LP export usually
+                  password: '',
+                  extra: item.notes || '',
+                  name: item.site,
+                  grouping: 'Secure Notes',
+                  fav: '0'
+              };
+          }
+          return {
+              url: item.site,
+              username: item.username,
+              password: item.password,
+              extra: item.notes || '',
+              name: item.site,
+              grouping: '',
+              fav: '0'
+          };
+      });
 
       return generateCSV(data, headers);
   }

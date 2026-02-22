@@ -28,6 +28,9 @@ const useNumbers = document.getElementById('useNumbers');
 const useSymbols = document.getElementById('useSymbols');
 const passwordInput = document.getElementById('password');
 const notesInput = document.getElementById('notes');
+const passwordWrapper = document.getElementById('passwordWrapper');
+const usernameInput = document.getElementById('username');
+const siteInput = document.getElementById('site');
 
 unlockButton.addEventListener('click', handleUnlock);
 lockButton.addEventListener('click', handleLock);
@@ -36,6 +39,26 @@ importCsvButton.addEventListener('click', handleImportCSV);
 form.addEventListener('submit', handleSaveCredential);
 
 searchInput.addEventListener('input', handleSearch);
+
+document.querySelectorAll('input[name="itemType"]').forEach(radio => {
+  radio.addEventListener('change', (e) => updateFormState(e.target.value));
+});
+
+function updateFormState(type) {
+  if (type === 'note') {
+    siteInput.placeholder = 'Título da Nota';
+    usernameInput.style.display = 'none';
+    usernameInput.removeAttribute('required');
+    passwordWrapper.style.display = 'none';
+    passwordInput.removeAttribute('required');
+  } else {
+    siteInput.placeholder = 'Site (ex: github.com)';
+    usernameInput.style.display = 'block';
+    usernameInput.setAttribute('required', 'true');
+    passwordWrapper.style.display = 'flex'; // Assuming flex for layout
+    passwordInput.setAttribute('required', 'true');
+  }
+}
 
 generateBtn.addEventListener('click', () => {
   if (generatorOptions.classList.contains('hidden')) {
@@ -186,14 +209,27 @@ async function handleImportCSV() {
 
 async function handleSaveCredential(event) {
   event.preventDefault();
-  const site = normalizeSite(document.getElementById('site').value);
-  const username = document.getElementById('username').value.trim();
-  const password = document.getElementById('password').value;
+  const type = document.querySelector('input[name="itemType"]:checked').value;
+  let site = document.getElementById('site').value;
+  let username = document.getElementById('username').value.trim();
+  let password = document.getElementById('password').value;
   const notes = notesInput.value;
 
-  if (!site || !username || !password) {
-    setStatus('Preencha todos os campos.');
-    return;
+  if (type === 'password') {
+    site = normalizeSite(site);
+    if (!site || !username || !password) {
+      setStatus('Preencha todos os campos.');
+      return;
+    }
+  } else {
+    // Secure Note
+    site = site.trim(); // Title
+    username = '';
+    password = '';
+    if (!site) {
+      setStatus('Informe o título da nota.');
+      return;
+    }
   }
 
   const now = new Date().toISOString();
@@ -202,16 +238,23 @@ async function handleSaveCredential(event) {
   // Create shallow copy of array, and clone objects we modify
   const newVault = vault.map(i => ({...i}));
 
-  const existingIndex = newVault.findIndex(i => i.site === site && i.username === username);
+  // Check existence
+  let existingIndex = -1;
+  if (type === 'password') {
+    existingIndex = newVault.findIndex(i => i.site === site && i.username === username && (!i.type || i.type === 'password'));
+  } else {
+    existingIndex = newVault.findIndex(i => i.site === site && i.type === 'note');
+  }
 
   if (existingIndex >= 0) {
-     newVault[existingIndex].password = password;
+     if (type === 'password') newVault[existingIndex].password = password;
      newVault[existingIndex].notes = notes;
      newVault[existingIndex].updatedAt = now;
-     setStatus('Credencial atualizada localmente.');
+     setStatus('Item atualizado localmente.');
   } else {
     newVault.push({
       id: crypto.randomUUID(),
+      type,
       site,
       username,
       password,
@@ -219,7 +262,7 @@ async function handleSaveCredential(event) {
       createdAt: now,
       updatedAt: now
     });
-    setStatus('Credencial salva localmente.');
+    setStatus('Item salvo localmente.');
   }
 
   await vaultService.save(newVault);
@@ -228,6 +271,9 @@ async function handleSaveCredential(event) {
   chrome.runtime.sendMessage({ type: 'TRIGGER_SYNC' });
 
   form.reset();
+  // Reset UI state to default (Password)
+  document.querySelector('input[value="password"]').checked = true;
+  updateFormState('password');
   handleSearch();
 }
 
@@ -257,15 +303,20 @@ function renderVault(vault) {
 
       const siteEl = document.createElement('div');
       siteEl.className = 'item-site';
-      siteEl.textContent = item.site;
+
+      if (item.type === 'note') {
+         siteEl.textContent = '📝 ' + item.site; // item.site holds Title for notes
+      } else {
+         siteEl.textContent = item.site;
+      }
 
       const userEl = document.createElement('div');
       userEl.className = 'item-user';
-      userEl.textContent = item.username;
+      userEl.textContent = item.type === 'note' ? '(Nota Segura)' : item.username;
 
-      if (item.notes) {
+      if (item.notes && item.type !== 'note') { // Only show icon if it's a password with notes
         const notesIcon = document.createElement('span');
-        notesIcon.textContent = ' 📝';
+        notesIcon.textContent = ' 📄';
         notesIcon.title = item.notes;
         notesIcon.style.cursor = 'help';
         userEl.appendChild(notesIcon);
