@@ -18,6 +18,24 @@ export class SyncService {
 
     await this.driveService.authorize();
 
+    // 0. Check CSV for updates (Sync In)
+    try {
+      const csvFile = await this.driveService.findFile(this.CSV_FILE);
+      const lastCsvSync = await this.vaultService.getStorage('bunkerpass.last_csv_sync');
+
+      if (csvFile && csvFile.modifiedTime) {
+        const remoteTime = new Date(csvFile.modifiedTime).getTime();
+        const localTime = lastCsvSync ? new Date(lastCsvSync).getTime() : 0;
+        // Add 2 second buffer to avoid self-update triggering import
+        if (remoteTime > localTime + 2000) {
+          console.log('Remote CSV is newer, importing...');
+          await this.importCSV();
+        }
+      }
+    } catch (e) {
+      console.warn('Failed to check CSV updates', e);
+    }
+
     // 1. Get Remote Vault
     const vaultFile = await this.driveService.findFile(this.VAULT_FILE);
     let remoteVault = [];
@@ -60,11 +78,16 @@ export class SyncService {
     try {
       const csvContent = this.generateCSVContent(mergedVault);
       const csvFile = await this.driveService.findFile(this.CSV_FILE);
+      let updatedFile;
 
       if (csvFile) {
-        await this.driveService.updateFile(csvFile.id, csvContent, 'text/csv');
+        updatedFile = await this.driveService.updateFile(csvFile.id, csvContent, 'text/csv');
       } else {
-        await this.driveService.createFile(this.CSV_FILE, csvContent, 'text/csv');
+        updatedFile = await this.driveService.createFile(this.CSV_FILE, csvContent, 'text/csv');
+      }
+
+      if (updatedFile && updatedFile.modifiedTime) {
+        await this.vaultService.setStorage('bunkerpass.last_csv_sync', updatedFile.modifiedTime);
       }
     } catch (e) {
       console.error('Failed to update CSV backup:', e);

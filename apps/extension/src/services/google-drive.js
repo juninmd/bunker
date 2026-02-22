@@ -57,7 +57,7 @@ export class GoogleDriveService {
       content +
       closeDelim;
 
-    const url = 'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id';
+    const url = 'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,modifiedTime';
 
     const response = await fetch(url, {
       method: 'POST',
@@ -79,7 +79,7 @@ export class GoogleDriveService {
     if (!this.accessToken) await this.authorize();
 
     // Using uploadType=media for simple content update
-    const url = `https://www.googleapis.com/upload/drive/v3/files/${fileId}?uploadType=media`;
+    const url = `https://www.googleapis.com/upload/drive/v3/files/${fileId}?uploadType=media&fields=id,modifiedTime`;
 
     const response = await fetch(url, {
       method: 'PATCH',
