@@ -238,7 +238,7 @@ async function handleSaveCredential(event) {
   // Create shallow copy of array, and clone objects we modify
   const newVault = vault.map(i => ({...i}));
 
-  // Check existence
+  // Check existence (including deleted items to resurrect them)
   let existingIndex = -1;
   if (type === 'password') {
     existingIndex = newVault.findIndex(i => i.site === site && i.username === username && (!i.type || i.type === 'password'));
@@ -250,7 +250,13 @@ async function handleSaveCredential(event) {
      if (type === 'password') newVault[existingIndex].password = password;
      newVault[existingIndex].notes = notes;
      newVault[existingIndex].updatedAt = now;
-     setStatus('Item atualizado localmente.');
+     // Resurrect if it was deleted
+     if (newVault[existingIndex].deletedAt) {
+       delete newVault[existingIndex].deletedAt;
+       setStatus('Item restaurado e atualizado localmente.');
+     } else {
+       setStatus('Item atualizado localmente.');
+     }
   } else {
     newVault.push({
       id: crypto.randomUUID(),
@@ -279,15 +285,31 @@ async function handleSaveCredential(event) {
 
 async function handleDeleteCredential(credentialId) {
   const vault = vaultService.getVault();
-  const newVault = vault.filter((item) => item.id !== credentialId);
+  // Soft delete: mark as deleted instead of removing
+  const newVault = vault.map((item) => {
+    if (item.id === credentialId) {
+      return {
+        ...item,
+        deletedAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
+    }
+    return item;
+  });
   await vaultService.save(newVault);
+  // Trigger background sync to propagate deletion
+  chrome.runtime.sendMessage({ type: 'TRIGGER_SYNC' });
+
   handleSearch();
   setStatus('Credencial removida.');
 }
 
 function renderVault(vault) {
   credentialList.textContent = '';
-  if (!vault || !vault.length) {
+  // Filter out soft-deleted items
+  const visibleVault = vault.filter(item => !item.deletedAt);
+
+  if (!visibleVault || !visibleVault.length) {
     const emptyItem = document.createElement('li');
     emptyItem.textContent = 'Nenhuma credencial cadastrada.';
     credentialList.append(emptyItem);
@@ -295,7 +317,7 @@ function renderVault(vault) {
   }
 
   // Sort by site
-  vault
+  visibleVault
     .slice()
     .sort((a, b) => (a.site || '').localeCompare(b.site || ''))
     .forEach((item) => {
