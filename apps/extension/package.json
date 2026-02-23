@@ -2,5 +2,8 @@
   "name": "bunkerpass-extension",
   "version": "0.1.0",
   "type": "module",
-  "private": true
+  "private": true,
+  "scripts": {
+    "test": "node tests/unit_tests.mjs"
+  }
 }
