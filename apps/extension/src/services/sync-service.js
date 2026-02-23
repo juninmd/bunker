@@ -119,7 +119,8 @@ export class SyncService {
                   password: '',
                   notes: row.extra || row.notes || row.password || '',
                   updatedAt: new Date().toISOString(),
-                  createdAt: new Date().toISOString()
+                  createdAt: new Date().toISOString(),
+                  grouping: row.grouping
               };
           } else {
               // Standard Password
@@ -131,19 +132,26 @@ export class SyncService {
                   password: row.password || '',
                   notes: row.extra || row.notes || '',
                   updatedAt: new Date().toISOString(),
-                  createdAt: new Date().toISOString()
+                  createdAt: new Date().toISOString(),
+                  grouping: row.grouping
               };
           }
-      }).filter(i => (i.type === 'note' && i.site) || (i.site && i.username && i.password));
+      }).filter(i => (i.type === 'note' && i.site) || (i.site && i.username && i.password) || (i.grouping === 'Deleted' && i.site));
 
       const localVault = this.vaultService.getVault();
+      const { merged, added, updated } = this.mergeCSV(localVault, imported);
+
+      await this.vaultService.save(merged);
+      return { added, updated, total: merged.length };
+  }
+
+  mergeCSV(localVault, importedItems) {
       // Clone to avoid mutating cachedVault directly before save
-      // We need deep clone or at least clone objects we might modify
       const merged = localVault.map(item => ({ ...item }));
       let addedCount = 0;
       let updatedCount = 0;
 
-      imported.forEach(newItem => {
+      importedItems.forEach(newItem => {
           const existing = merged.find(i => {
               // Match by Type + Site (and Username for passwords)
               if ((i.type || 'password') !== newItem.type) return false;
@@ -153,20 +161,45 @@ export class SyncService {
           });
 
           if (existing) {
-              if (existing.password !== newItem.password || existing.notes !== newItem.notes) {
+              // Check if it's a deletion via CSV
+              if (newItem.grouping === 'Deleted') {
+                  if (!existing.deletedAt) {
+                      existing.deletedAt = new Date().toISOString();
+                      existing.updatedAt = new Date().toISOString();
+                      updatedCount++; // counted as update (state change)
+                  }
+                  return; // Done
+              }
+
+              // Check if it matches the existing data
+              const isDifferent = existing.password !== newItem.password || existing.notes !== newItem.notes;
+
+              if (existing.deletedAt) {
+                  // Zombie check: Only resurrect if data changed (implies manual restore in CSV)
+                  // And if the CSV row itself is NOT marked as Deleted (handled above)
+                  if (isDifferent) {
+                      existing.password = newItem.password;
+                      existing.notes = newItem.notes;
+                      existing.updatedAt = new Date().toISOString();
+                      delete existing.deletedAt; // Resurrect
+                      updatedCount++;
+                  }
+                  // Else: It's just the old deleted data lingering in CSV -> Ignore
+              } else if (isDifferent) {
                   existing.password = newItem.password;
                   existing.notes = newItem.notes;
                   existing.updatedAt = new Date().toISOString();
                   updatedCount++;
               }
           } else {
-              merged.push(newItem);
-              addedCount++;
+              // Only add if not marked as deleted in CSV
+              if (newItem.grouping !== 'Deleted') {
+                  merged.push(newItem);
+                  addedCount++;
+              }
           }
       });
-
-      await this.vaultService.save(merged);
-      return { added: addedCount, updated: updatedCount, total: merged.length };
+      return { merged, added: addedCount, updated: updatedCount };
   }
 
   mergeVaults(local, remote) {
@@ -199,6 +232,18 @@ export class SyncService {
       const headers = ['url', 'username', 'password', 'extra', 'name', 'grouping', 'fav'];
 
       const data = vault.map(item => {
+          if (item.deletedAt) {
+              return {
+                  url: item.site,
+                  username: item.username || item.site, // Keep identifier
+                  password: '', // Clear sensitive
+                  extra: '', // Clear sensitive
+                  name: item.site,
+                  grouping: 'Deleted', // Mark as deleted
+                  fav: '0'
+              };
+          }
+
           if (item.type === 'note') {
               return {
                   url: 'http://sn',
