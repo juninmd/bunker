@@ -15,6 +15,7 @@ const importCsvButton = document.getElementById('importCsvButton');
 const lastSyncEl = document.getElementById('last-sync');
 const masterPasswordInput = document.getElementById('masterPassword');
 const form = document.getElementById('credentialForm');
+const credentialIdInput = document.getElementById('credentialId');
 const credentialList = document.getElementById('credentialList');
 const searchInput = document.getElementById('searchInput');
 
@@ -31,6 +32,7 @@ const notesInput = document.getElementById('notes');
 const passwordWrapper = document.getElementById('passwordWrapper');
 const usernameInput = document.getElementById('username');
 const siteInput = document.getElementById('site');
+const submitButton = form.querySelector('button[type="submit"]');
 
 unlockButton.addEventListener('click', handleUnlock);
 lockButton.addEventListener('click', handleLock);
@@ -214,6 +216,7 @@ async function handleSaveCredential(event) {
   let username = document.getElementById('username').value.trim();
   let password = document.getElementById('password').value;
   const notes = notesInput.value;
+  const credentialId = credentialIdInput.value;
 
   if (type === 'password') {
     site = normalizeSite(site);
@@ -238,21 +241,32 @@ async function handleSaveCredential(event) {
   // Create shallow copy of array, and clone objects we modify
   const newVault = vault.map(i => ({...i}));
 
-  // Check existence (including deleted items to resurrect them)
   let existingIndex = -1;
-  if (type === 'password') {
-    existingIndex = newVault.findIndex(i => i.site === site && i.username === username && (!i.type || i.type === 'password'));
+
+  if (credentialId) {
+    // Updating existing by ID
+    existingIndex = newVault.findIndex(i => i.id === credentialId);
   } else {
-    existingIndex = newVault.findIndex(i => i.site === site && i.type === 'note');
+    // Creating new - check duplicates to prevent double entry
+    if (type === 'password') {
+        existingIndex = newVault.findIndex(i => i.site === site && i.username === username && (!i.type || i.type === 'password'));
+    } else {
+        existingIndex = newVault.findIndex(i => i.site === site && i.type === 'note');
+    }
   }
 
   if (existingIndex >= 0) {
-     if (type === 'password') newVault[existingIndex].password = password;
-     newVault[existingIndex].notes = notes;
-     newVault[existingIndex].updatedAt = now;
+     const item = newVault[existingIndex];
+     item.site = site;
+     item.username = username;
+     item.password = password;
+     item.notes = notes;
+     item.type = type; // Ensure type is updated if changed (though UI restricts switching type on edit usually)
+     item.updatedAt = now;
+
      // Resurrect if it was deleted
-     if (newVault[existingIndex].deletedAt) {
-       delete newVault[existingIndex].deletedAt;
+     if (item.deletedAt) {
+       delete item.deletedAt;
        setStatus('Item restaurado e atualizado localmente.');
      } else {
        setStatus('Item atualizado localmente.');
@@ -277,10 +291,37 @@ async function handleSaveCredential(event) {
   chrome.runtime.sendMessage({ type: 'TRIGGER_SYNC' });
 
   form.reset();
+  credentialIdInput.value = '';
+  submitButton.textContent = 'Salvar';
+
   // Reset UI state to default (Password)
   document.querySelector('input[value="password"]').checked = true;
   updateFormState('password');
   handleSearch();
+}
+
+function handleEditCredential(id) {
+    const vault = vaultService.getVault();
+    const item = vault.find(i => i.id === id);
+    if (!item) return;
+
+    credentialIdInput.value = item.id;
+    siteInput.value = item.site;
+    notesInput.value = item.notes || '';
+
+    // Determine type
+    const type = item.type || 'password';
+    document.querySelector(`input[name="itemType"][value="${type}"]`).checked = true;
+    updateFormState(type);
+
+    if (type === 'password') {
+        usernameInput.value = item.username;
+        passwordInput.value = item.password;
+    }
+
+    submitButton.textContent = 'Atualizar';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    setStatus(`Editando: ${item.site}`);
 }
 
 async function handleDeleteCredential(credentialId) {
@@ -344,15 +385,29 @@ function renderVault(vault) {
         userEl.appendChild(notesIcon);
       }
 
+      const actionsDiv = document.createElement('div');
+      actionsDiv.className = 'item-actions'; // For CSS styling if needed
+
+      const editButton = document.createElement('button');
+      editButton.type = 'button';
+      editButton.className = 'secondary small'; // Assuming small class or I can add inline style
+      editButton.textContent = 'Edit';
+      editButton.style.marginRight = '5px';
+      editButton.addEventListener('click', () => {
+        handleEditCredential(item.id);
+      });
+
       const removeButton = document.createElement('button');
       removeButton.type = 'button';
-      removeButton.className = 'danger';
+      removeButton.className = 'danger small';
       removeButton.textContent = 'Remover';
       removeButton.addEventListener('click', () => {
         handleDeleteCredential(item.id);
       });
 
-      li.append(siteEl, userEl, removeButton);
+      actionsDiv.append(editButton, removeButton);
+
+      li.append(siteEl, userEl, actionsDiv);
       credentialList.append(li);
     });
 }
