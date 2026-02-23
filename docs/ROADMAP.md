@@ -21,12 +21,13 @@ Foco nas funcionalidades essenciais de um gerenciador de senhas.
   - Exportação automática para `passwords.csv` no Drive.
   - Importação manual de alterações do CSV.
 - [ ] **Sincronização Bidirecional Inteligente:** Detectar alterações no CSV remoto (`modifiedTime`) e mesclar automaticamente com o cofre local.
-- [x] **Popup de Gerenciamento:** Interface básica para listar, adicionar, editar e remover senhas.
+- [x] **Popup de Gerenciamento:** Interface básica para listar, adicionar, editar (v0.1.0) e remover senhas.
 - [x] **Gerador de Senhas:** Algoritmo seguro (CSPRNG) implementado.
-- [ ] **Persistência do Gerador:** Salvar preferências de geração (tamanho, caracteres) do usuário.
+- [x] **Persistência do Gerador:** Salvar preferências de geração (tamanho, caracteres) do usuário.
 - [x] **Autofill Básico:** Detecção de campos de login e preenchimento via menu de contexto ou atalho.
 - [x] **CI/CD:** Pipelines de release automatizados e versionamento semântico.
-- [ ] **Tipos de Item:** Suporte inicial para "Senhas" e "Notas Seguras".
+- [x] **Tipos de Item:** Suporte inicial para "Senhas" e "Notas Seguras".
+- [x] **Infraestrutura de Testes:** Testes unitários configurados para lógica de CSV e Criptografia.
 
 ### Fase 2: Paridade de Features (LastPass Replacement)
 Foco em igualar as funcionalidades de conveniência e organização.
