@@ -98,3 +98,10 @@ Por padrão, para conveniência (como solicitado), o CSV contém as senhas em te
 - **Desktop:** Electron ou Tauri (Rust).
 - **Mobile:** React Native.
 - **CI/CD:** GitHub Actions, Release Please.
+
+### DevOps e Release Automático
+O projeto utiliza GitHub Actions para automatizar o ciclo de vida do software:
+- **Build e Teste:** Validação contínua a cada push.
+- **Versionamento Semântico:** `release-please` analisa commits convencionais para determinar a próxima versão (patch, minor, major).
+- **Tags e Releases:** Gera tags git e GitHub Releases automaticamente.
+- **Update README:** Mantém o badge de versão no README atualizado.
