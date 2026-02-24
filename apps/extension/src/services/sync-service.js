@@ -136,7 +136,7 @@ export class SyncService {
                   grouping: row.grouping
               };
           }
-      }).filter(i => (i.type === 'note' && i.site) || (i.site && i.username && i.password) || (i.grouping === 'Deleted' && i.site));
+      }).filter(i => (i.type === 'note' && i.site) || (i.site && (i.username || i.password)) || (i.grouping === 'Deleted' && i.site));
 
       const localVault = this.vaultService.getVault();
       const { merged, added, updated } = this.mergeCSV(localVault, imported);
