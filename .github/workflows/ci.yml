@@ -26,7 +26,27 @@ jobs:
 
       - name: Validate extension manifest and sources
         run: |
-          python -m json.tool apps/extension/manifest.json > /dev/null
+          python3 -m json.tool apps/extension/manifest.json > /dev/null
           test -f apps/extension/src/popup.html
           test -f apps/extension/src/popup.js
           test -f apps/extension/src/popup.css
+
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/extension
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: npm test
