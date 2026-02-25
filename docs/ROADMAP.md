@@ -25,7 +25,7 @@ Foco nas funcionalidades essenciais de um gerenciador de senhas.
 - [x] **Gerador de Senhas:** Algoritmo seguro (CSPRNG) implementado.
 - [x] **Persistência do Gerador:** Salvar preferências de geração (tamanho, caracteres) do usuário.
 - [x] **Autofill Básico:** Detecção de campos de login e preenchimento via menu de contexto ou atalho.
-- [x] **CI/CD:** Pipelines de release automatizados e versionamento semântico.
+- [x] **CI/CD:** Pipelines de release automatizados e versionamento semântico (GitHub Actions).
 - [x] **Tipos de Item:** Suporte inicial para "Senhas" e "Notas Seguras".
 - [x] **Infraestrutura de Testes:** Testes unitários configurados para lógica de CSV e Criptografia.
 
@@ -64,10 +64,11 @@ Foco em funcionalidades colaborativas.
 
 ### Fase 5: Expansão Multiplataforma
 Levar o cofre para fora do navegador com experiência nativa.
-- [ ] **App Desktop (Electron/Tauri):**
-  - Wrapper da lógica da extensão.
-  - Atalho global para preenchimento em apps nativos.
-  - Funcionamento offline robusto com `file://` ou SQLite local.
+- [~] **App Desktop (Electron/Tauri):**
+  - [x] Estrutura inicial (Electron).
+  - [ ] Wrapper da lógica da extensão.
+  - [ ] Atalho global para preenchimento em apps nativos.
+  - [ ] Funcionamento offline robusto com `file://` ou SQLite local.
 - [ ] **App Android (React Native):**
   - Integração com Autofill Framework do Android.
   - Acesso biométrico (Fingerprint/FaceID) para desbloqueio.
@@ -95,13 +96,13 @@ Por padrão, para conveniência (como solicitado), o CSV contém as senhas em te
 
 ### Stack Tecnológica
 - **Extensão:** JavaScript (ES Modules), HTML, CSS, Web Crypto API.
-- **Desktop:** Electron ou Tauri (Rust).
+- **Desktop:** Electron (Node.js).
 - **Mobile:** React Native.
 - **CI/CD:** GitHub Actions, Release Please.
 
 ### DevOps e Release Automático
 O projeto utiliza GitHub Actions para automatizar o ciclo de vida do software:
-- **Build e Teste:** Validação contínua a cada push.
+- **Build e Teste:** Validação contínua a cada push (Testes Unitários).
 - **Versionamento Semântico:** `release-please` analisa commits convencionais para determinar a próxima versão (patch, minor, major).
 - **Tags e Releases:** Gera tags git e GitHub Releases automaticamente.
 - **Update README:** Mantém o badge de versão no README atualizado.
