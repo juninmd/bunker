@@ -22,10 +22,22 @@ jobs:
       - name: Build browser extension package
         run: ./scripts/package-extension.sh "${{ steps.version.outputs.value }}"
 
-      - name: Build desktop placeholder artifact
+      - name: Build desktop artifact
         run: |
           mkdir -p dist
-          echo "Desktop build placeholder for version ${{ steps.version.outputs.value }}" > dist/bunkerpass-desktop-${{ steps.version.outputs.value }}.txt
+          if [ -d "apps/desktop" ]; then
+            echo "Packaging desktop app..."
+            cd apps/desktop
+            # Install dependencies if package.json exists
+            if [ -f "package.json" ]; then
+              npm install
+            fi
+            # Create a zip of the source for now (MVP Desktop)
+            zip -r ../../dist/bunkerpass-desktop-${{ steps.version.outputs.value }}.zip . -x "node_modules/*" ".git/*" "dist/*"
+          else
+            echo "Desktop app source not found, skipping."
+            echo "Desktop Placeholder" > dist/bunkerpass-desktop-${{ steps.version.outputs.value }}.txt
+          fi
 
       - name: Build Android placeholder artifact
         run: |
@@ -43,7 +55,4 @@ jobs:
           tag_name: ${{ github.ref_name }}
           generate_release_notes: true
           files: |
-            dist/bunkerpass-extension-${{ steps.version.outputs.value }}.zip
-            dist/bunkerpass-desktop-${{ steps.version.outputs.value }}.txt
-            dist/bunkerpass-android-${{ steps.version.outputs.value }}.apk
-            dist/SHA256SUMS.txt
+            dist/*
