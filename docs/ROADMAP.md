@@ -15,17 +15,19 @@ O objetivo é fornecer uma experiência similar ao LastPass, mas onde o usuário
 
 ### Fase 1: Fundação e Extensão MVP (Atual)
 Foco nas funcionalidades essenciais de um gerenciador de senhas.
-- [x] **Cofre Local Seguro:** Criptografia AES-GCM (PBKDF2/Argon2 para derivação de chave).
+- [x] **Cofre Local Seguro:** Criptografia AES-GCM (PBKDF2/Argon2 para derivação de chave), garantindo acesso offline rápido.
 - [x] **Integração Google Drive:** Autenticação OAuth 2.0 e acesso ao escopo de arquivos.
-- [x] **Sincronização Híbrida Manual:**
+- [x] **Sincronização Bidirecional com Planilha CSV:**
   - Exportação automática para `passwords.csv` no Drive.
-  - Importação manual de alterações do CSV.
-- [ ] **Sincronização Bidirecional Inteligente:** Detectar alterações no CSV remoto (`modifiedTime`) e mesclar automaticamente com o cofre local.
+  - Importação de alterações do CSV (adições, edições e exclusões com "Soft Delete").
+  - Estratégia de resolução de conflitos baseada em carimbo de data/hora (`modifiedTime`).
 - [x] **Popup de Gerenciamento:** Interface básica para listar, adicionar, editar (v0.1.0) e remover senhas.
 - [x] **Gerador de Senhas:** Algoritmo seguro (CSPRNG) implementado.
 - [x] **Persistência do Gerador:** Salvar preferências de geração (tamanho, caracteres) do usuário.
 - [x] **Autofill Básico:** Detecção de campos de login e preenchimento via menu de contexto ou atalho.
-- [x] **CI/CD:** Pipelines de release automatizados e versionamento semântico (GitHub Actions).
+- [x] **CI/CD:** Pipelines de release automatizados (GitHub Actions) e versionamento semântico.
+  - [x] Geração automática de releases e tags (`release-please`).
+  - [x] Atualização automática do README com a versão atual.
 - [x] **Tipos de Item:** Suporte inicial para "Senhas" e "Notas Seguras".
 - [x] **Infraestrutura de Testes:** Testes unitários configurados para lógica de CSV e Criptografia.
 
@@ -65,7 +67,7 @@ Foco em funcionalidades colaborativas.
 ### Fase 5: Expansão Multiplataforma
 Levar o cofre para fora do navegador com experiência nativa.
 - [~] **App Desktop (Electron/Tauri):**
-  - [x] Estrutura inicial (Electron).
+  - [x] Estrutura inicial (Electron) e build automatizado.
   - [ ] Wrapper da lógica da extensão.
   - [ ] Atalho global para preenchimento em apps nativos.
   - [ ] Funcionamento offline robusto com `file://` ou SQLite local.
@@ -82,6 +84,7 @@ O arquivo `passwords.csv` no Google Drive atua como uma interface de usuário se
 1. **Leitura:** O usuário pode abrir o CSV no Google Sheets para ver suas senhas (útil em dispositivos onde não tem a extensão instalada).
 2. **Escrita:** O usuário pode adicionar uma linha no Sheets (ex: `facebook.com, user, pass123, note`).
 3. **Sincronização:** O BunkerPass verifica periodicamente o `modifiedTime` do arquivo CSV. Se for mais recente que a última sincronização local, o app baixa o CSV, faz o parse e atualiza o cofre local (`vault.enc` é atualizado em seguida).
+4. **Soft Deletes:** Itens excluídos são mantidos no CSV com `Grouping='Deleted'` para permitir restauração e sincronização correta entre dispositivos.
 
 ### Tipos de Dados no CSV
 Para manter compatibilidade com importadores (LastPass CSV), usamos convenções:
