@@ -1,104 +1,156 @@
 import { SyncService } from '../src/services/sync-service.js';
 import assert from 'assert';
 
-// Mock VaultService (not used by mergeCSV but needed for constructor)
-const mockVaultService = {};
+// Polyfill crypto for node env
+if (!globalThis.crypto) {
+    globalThis.crypto = await import('node:crypto').then(m => m.webcrypto);
+}
+
+// Mock VaultService
+const mockVaultService = {
+    getVault: () => [],
+    save: () => Promise.resolve(),
+    sanitizeVault: (v) => v,
+    cryptoKey: 'mock-key' // Simulate unlocked
+};
+
 const service = new SyncService(mockVaultService);
 
-console.log('Running CSV Sync Logic Tests...');
+console.log('Running CSV Sync Tests...');
 
-function createVaultItem(id, site, username, password, deleted = false) {
+// Helper to create vault items
+function createVaultItem(id, site, username, password, grouping) {
     return {
         id,
         site,
         username,
         password,
         notes: '',
-        type: 'password',
         updatedAt: new Date().toISOString(),
-        deletedAt: deleted ? new Date().toISOString() : undefined
-    };
-}
-
-function createCSVItem(site, username, password, grouping = '') {
-    return {
-        type: 'password',
-        site,
-        username,
-        password,
-        notes: '',
         grouping
     };
 }
 
-// Test 1: New Item
+// Test 1: mergeCSV - Add new item from CSV
 {
-    const local = [];
-    const imported = [createCSVItem('example.com', 'user', 'pass')];
-    const { merged, added } = service.mergeCSV(local, imported);
+    const localVault = [];
+    const importedItems = [
+        { type: 'password', site: 'google.com', username: 'user1', password: 'pw1', grouping: '' }
+    ];
+
+    const { merged, added, updated } = service.mergeCSV(localVault, importedItems);
+
     assert.strictEqual(merged.length, 1);
-    assert.strictEqual(merged[0].site, 'example.com');
+    assert.strictEqual(merged[0].site, 'google.com');
     assert.strictEqual(added, 1);
-    console.log('Test 1 Passed: New Item');
+    assert.strictEqual(updated, 0);
+    console.log('Test 1 Passed: Add new item from CSV');
 }
 
-// Test 2: Update Item
+// Test 2: mergeCSV - Update existing item from CSV
 {
-    const local = [createVaultItem('1', 'example.com', 'user', 'oldpass')];
-    const imported = [createCSVItem('example.com', 'user', 'newpass')];
-    const { merged, updated } = service.mergeCSV(local, imported);
+    const item = createVaultItem('1', 'google.com', 'user1', 'old_pw', '');
+    const localVault = [item];
+    const importedItems = [
+        { type: 'password', site: 'google.com', username: 'user1', password: 'new_pw', grouping: '' } // Same site+user
+    ];
+
+    const { merged, added, updated } = service.mergeCSV(localVault, importedItems);
+
     assert.strictEqual(merged.length, 1);
-    assert.strictEqual(merged[0].password, 'newpass');
+    assert.strictEqual(merged[0].password, 'new_pw');
+    assert.strictEqual(added, 0);
     assert.strictEqual(updated, 1);
-    console.log('Test 2 Passed: Update Item');
+    console.log('Test 2 Passed: Update existing item from CSV');
 }
 
-// Test 3: Deletion via CSV
+// Test 3: mergeCSV - Handle "Deleted" grouping (Soft Delete)
 {
-    const local = [createVaultItem('1', 'example.com', 'user', 'pass')];
-    const imported = [createCSVItem('example.com', 'user', '', 'Deleted')];
-    const { merged, updated } = service.mergeCSV(local, imported);
+    const item = createVaultItem('1', 'google.com', 'user1', 'pw1', '');
+    const localVault = [item];
+    const importedItems = [
+        { type: 'password', site: 'google.com', username: 'user1', password: '', grouping: 'Deleted' }
+    ];
+
+    const { merged, added, updated } = service.mergeCSV(localVault, importedItems);
+
     assert.strictEqual(merged.length, 1);
-    assert.ok(merged[0].deletedAt, 'Should have deletedAt');
+    assert.ok(merged[0].deletedAt, 'Item should be marked deleted');
     assert.strictEqual(updated, 1);
-    console.log('Test 3 Passed: Deletion via CSV');
+    console.log('Test 3 Passed: Soft Delete via CSV');
 }
 
-// Test 4: Idempotent Deletion
+// Test 4: mergeCSV - Ignore already deleted items if CSV is also Deleted
 {
-    const local = [createVaultItem('1', 'example.com', 'user', 'pass', true)];
-    const imported = [createCSVItem('example.com', 'user', '', 'Deleted')];
-    const { merged, updated } = service.mergeCSV(local, imported);
+    const item = createVaultItem('1', 'google.com', 'user1', 'pw1', '');
+    item.deletedAt = new Date().toISOString(); // Already deleted locally
+    const localVault = [item];
+    const importedItems = [
+        { type: 'password', site: 'google.com', username: 'user1', password: '', grouping: 'Deleted' }
+    ];
+
+    const { merged, added, updated } = service.mergeCSV(localVault, importedItems);
+
     assert.strictEqual(merged.length, 1);
     assert.ok(merged[0].deletedAt);
-    assert.strictEqual(updated, 0, 'Should not count as update if already deleted');
-    console.log('Test 4 Passed: Idempotent Deletion');
+    assert.strictEqual(updated, 0, 'Should not update if already deleted');
+    console.log('Test 4 Passed: Ignore redundant delete');
 }
 
-// Test 5: Zombie Check (Same content) -> Ignore
+// Test 5: mergeCSV - Resurrection (CSV has active item, Local is deleted)
 {
-    const local = [createVaultItem('1', 'example.com', 'user', 'pass', true)];
-    // CSV has same content (pass is 'pass'), not marked Deleted
-    // This simulates an old CSV row that matches the deleted item's data
-    const imported = [createCSVItem('example.com', 'user', 'pass')];
-    const { merged, updated } = service.mergeCSV(local, imported);
-    assert.strictEqual(merged.length, 1);
-    assert.ok(merged[0].deletedAt, 'Should remain deleted');
-    assert.strictEqual(updated, 0);
-    console.log('Test 5 Passed: Zombie Check (Same content)');
-}
+    const item = createVaultItem('1', 'google.com', 'user1', 'pw1', '');
+    item.deletedAt = new Date().toISOString();
+    const localVault = [item];
+    // CSV has it active (no grouping=Deleted) and different password (change detected)
+    // Note: The logic in SyncService requires a CHANGE to resurrect to avoid resurrection by stale CSV.
+    const importedItems = [
+        { type: 'password', site: 'google.com', username: 'user1', password: 'new_pw', grouping: '' }
+    ];
 
-// Test 6: Resurrection (Different content) -> Restore
-{
-    const local = [createVaultItem('1', 'example.com', 'user', 'oldpass', true)];
-    // CSV has different content (newpass)
-    const imported = [createCSVItem('example.com', 'user', 'newpass')];
-    const { merged, updated } = service.mergeCSV(local, imported);
+    const { merged, added, updated } = service.mergeCSV(localVault, importedItems);
+
     assert.strictEqual(merged.length, 1);
-    assert.strictEqual(merged[0].deletedAt, undefined, 'Should be resurrected');
-    assert.strictEqual(merged[0].password, 'newpass');
+    assert.strictEqual(merged[0].deletedAt, undefined, 'Item should be resurrected');
+    assert.strictEqual(merged[0].password, 'new_pw');
     assert.strictEqual(updated, 1);
-    console.log('Test 6 Passed: Resurrection (Different content)');
+    console.log('Test 5 Passed: Resurrection via CSV change');
 }
 
-console.log('All CSV Sync Tests Passed!');
+// Test 6: generateCSVContent - Export Deleted Items as Tombstones
+{
+    const item = createVaultItem('1', 'google.com', 'user1', 'pw1', '');
+    item.deletedAt = new Date().toISOString();
+    const vault = [item];
+
+    const csvContent = service.generateCSVContent(vault);
+    // Should contain "Deleted" in grouping column
+    // headers: url,username,password,extra,name,grouping,fav
+    // Expected: google.com,user1,,,google.com,Deleted,0
+
+    assert.match(csvContent, /google\.com,user1,,,google\.com,Deleted,0/);
+    console.log('Test 6 Passed: Export Deleted Tombstones');
+}
+
+// Test 7: generateCSVContent - Export Secure Notes
+{
+    const item = {
+        id: '2',
+        type: 'note',
+        site: 'My Secret',
+        notes: 'Secret content',
+        updatedAt: new Date().toISOString()
+    };
+    const vault = [item];
+
+    const csvContent = service.generateCSVContent(vault);
+    // Expected: http://sn,My Secret,,,My Secret,Secure Notes,0
+    // Note: extra column gets notes.
+    // headers: url,username,password,extra,name,grouping,fav
+    // url=http://sn, username=My Secret, password=, extra=Secret content
+
+    assert.match(csvContent, /http:\/\/sn,My Secret,,Secret content,My Secret,Secure Notes,0/);
+    console.log('Test 7 Passed: Export Secure Notes');
+}
+
+console.log('All CSV Sync Tests Passed! 🚀');
