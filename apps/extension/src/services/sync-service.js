@@ -180,14 +180,16 @@ export class SyncService {
                   if (isDifferent) {
                       existing.password = newItem.password;
                       existing.notes = newItem.notes;
+                      existing.grouping = newItem.grouping;
                       existing.updatedAt = new Date().toISOString();
                       delete existing.deletedAt; // Resurrect
                       updatedCount++;
                   }
                   // Else: It's just the old deleted data lingering in CSV -> Ignore
-              } else if (isDifferent) {
+              } else if (isDifferent || existing.grouping !== newItem.grouping) {
                   existing.password = newItem.password;
                   existing.notes = newItem.notes;
+                  existing.grouping = newItem.grouping;
                   existing.updatedAt = new Date().toISOString();
                   updatedCount++;
               }
@@ -251,7 +253,7 @@ export class SyncService {
                   password: '',
                   extra: item.notes || '',
                   name: item.site,
-                  grouping: 'Secure Notes',
+                  grouping: item.grouping || 'Secure Notes',
                   fav: '0'
               };
           }
@@ -261,7 +263,7 @@ export class SyncService {
               password: item.password,
               extra: item.notes || '',
               name: item.site,
-              grouping: '',
+              grouping: item.grouping || '',
               fav: '0'
           };
       });

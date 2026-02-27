@@ -32,6 +32,8 @@ const notesInput = document.getElementById('notes');
 const passwordWrapper = document.getElementById('passwordWrapper');
 const usernameInput = document.getElementById('username');
 const siteInput = document.getElementById('site');
+const folderInput = document.getElementById('folder');
+const folderDatalist = document.getElementById('folderOptions');
 const submitButton = form.querySelector('button[type="submit"]');
 
 unlockButton.addEventListener('click', handleUnlock);
@@ -121,6 +123,9 @@ function handleSearch() {
   const query = searchInput.value.trim().toLowerCase();
   const vault = vaultService.getVault();
 
+  // Update folder datalist
+  updateFolderOptions(vault);
+
   if (!query) {
     renderVault(vault);
     return;
@@ -128,9 +133,26 @@ function handleSearch() {
 
   const filtered = vault.filter((item) =>
     (item.site || '').toLowerCase().includes(query) ||
-    (item.username || '').toLowerCase().includes(query)
+    (item.username || '').toLowerCase().includes(query) ||
+    (item.grouping || '').toLowerCase().includes(query)
   );
   renderVault(filtered);
+}
+
+function updateFolderOptions(vault) {
+  const folders = new Set();
+  vault.forEach(item => {
+    if (item.grouping && item.grouping !== 'Deleted') {
+      folders.add(item.grouping);
+    }
+  });
+
+  folderDatalist.innerHTML = '';
+  Array.from(folders).sort().forEach(folderName => {
+    const option = document.createElement('option');
+    option.value = folderName;
+    folderDatalist.appendChild(option);
+  });
 }
 
 async function handleUnlock() {
@@ -215,6 +237,7 @@ async function handleSaveCredential(event) {
   let site = document.getElementById('site').value;
   let username = document.getElementById('username').value.trim();
   let password = document.getElementById('password').value;
+  const folder = folderInput.value.trim();
   const notes = notesInput.value;
   const credentialId = credentialIdInput.value;
 
@@ -261,6 +284,7 @@ async function handleSaveCredential(event) {
      item.username = username;
      item.password = password;
      item.notes = notes;
+     item.grouping = folder;
      item.type = type; // Ensure type is updated if changed (though UI restricts switching type on edit usually)
      item.updatedAt = now;
 
@@ -279,6 +303,7 @@ async function handleSaveCredential(event) {
       username,
       password,
       notes,
+      grouping: folder,
       createdAt: now,
       updatedAt: now
     });
@@ -308,6 +333,7 @@ function handleEditCredential(id) {
     credentialIdInput.value = item.id;
     siteInput.value = item.site;
     notesInput.value = item.notes || '';
+    folderInput.value = item.grouping || '';
 
     // Determine type
     const type = item.type || 'password';
@@ -357,59 +383,110 @@ function renderVault(vault) {
     return;
   }
 
-  // Sort by site
-  visibleVault
-    .slice()
-    .sort((a, b) => (a.site || '').localeCompare(b.site || ''))
-    .forEach((item) => {
-      const li = document.createElement('li');
+  // Group by folder
+  const grouped = {};
+  const noFolder = [];
 
-      const siteEl = document.createElement('div');
-      siteEl.className = 'item-site';
+  visibleVault.forEach(item => {
+    if (item.grouping && item.grouping !== 'Deleted') {
+      if (!grouped[item.grouping]) grouped[item.grouping] = [];
+      grouped[item.grouping].push(item);
+    } else {
+      noFolder.push(item);
+    }
+  });
 
-      if (item.type === 'note') {
-         siteEl.textContent = '📝 ' + item.site; // item.site holds Title for notes
-      } else {
-         siteEl.textContent = item.site;
-      }
+  // Helper to render a list of items into a container
+  const renderList = (items, container) => {
+    items
+      .slice()
+      .sort((a, b) => (a.site || '').localeCompare(b.site || ''))
+      .forEach((item) => {
+        const li = document.createElement('li');
 
-      const userEl = document.createElement('div');
-      userEl.className = 'item-user';
-      userEl.textContent = item.type === 'note' ? '(Nota Segura)' : item.username;
+        const siteEl = document.createElement('div');
+        siteEl.className = 'item-site';
 
-      if (item.notes && item.type !== 'note') { // Only show icon if it's a password with notes
-        const notesIcon = document.createElement('span');
-        notesIcon.textContent = ' 📄';
-        notesIcon.title = item.notes;
-        notesIcon.style.cursor = 'help';
-        userEl.appendChild(notesIcon);
-      }
+        if (item.type === 'note') {
+           siteEl.textContent = '📝 ' + item.site; // item.site holds Title for notes
+        } else {
+           siteEl.textContent = item.site;
+        }
 
-      const actionsDiv = document.createElement('div');
-      actionsDiv.className = 'item-actions'; // For CSS styling if needed
+        const userEl = document.createElement('div');
+        userEl.className = 'item-user';
+        userEl.textContent = item.type === 'note' ? '(Nota Segura)' : item.username;
 
-      const editButton = document.createElement('button');
-      editButton.type = 'button';
-      editButton.className = 'secondary small'; // Assuming small class or I can add inline style
-      editButton.textContent = 'Edit';
-      editButton.style.marginRight = '5px';
-      editButton.addEventListener('click', () => {
-        handleEditCredential(item.id);
+        if (item.notes && item.type !== 'note') { // Only show icon if it's a password with notes
+          const notesIcon = document.createElement('span');
+          notesIcon.textContent = ' 📄';
+          notesIcon.title = item.notes;
+          notesIcon.style.cursor = 'help';
+          userEl.appendChild(notesIcon);
+        }
+
+        const actionsDiv = document.createElement('div');
+        actionsDiv.className = 'item-actions'; // For CSS styling if needed
+
+        const editButton = document.createElement('button');
+        editButton.type = 'button';
+        editButton.className = 'secondary small'; // Assuming small class or I can add inline style
+        editButton.textContent = 'Edit';
+        editButton.style.marginRight = '5px';
+        editButton.addEventListener('click', () => {
+          handleEditCredential(item.id);
+        });
+
+        const removeButton = document.createElement('button');
+        removeButton.type = 'button';
+        removeButton.className = 'danger small';
+        removeButton.textContent = 'Remover';
+        removeButton.addEventListener('click', () => {
+          handleDeleteCredential(item.id);
+        });
+
+        actionsDiv.append(editButton, removeButton);
+
+        li.append(siteEl, userEl, actionsDiv);
+        container.append(li);
       });
+  };
 
-      const removeButton = document.createElement('button');
-      removeButton.type = 'button';
-      removeButton.className = 'danger small';
-      removeButton.textContent = 'Remover';
-      removeButton.addEventListener('click', () => {
-        handleDeleteCredential(item.id);
-      });
+  // Render Folders
+  Object.keys(grouped).sort().forEach(folder => {
+    const details = document.createElement('details');
+    const summary = document.createElement('summary');
+    summary.textContent = `📁 ${folder} (${grouped[folder].length})`;
+    summary.style.cursor = 'pointer';
+    summary.style.fontWeight = 'bold';
+    summary.style.marginBottom = '4px';
 
-      actionsDiv.append(editButton, removeButton);
+    const ul = document.createElement('ul');
+    ul.style.paddingLeft = '10px';
+    ul.style.listStyle = 'none';
+    ul.style.margin = '4px 0 12px 0';
 
-      li.append(siteEl, userEl, actionsDiv);
-      credentialList.append(li);
-    });
+    renderList(grouped[folder], ul);
+
+    details.append(summary, ul);
+    // Expand by default if searching
+    if (searchInput.value.trim()) details.open = true;
+
+    credentialList.append(details);
+  });
+
+  // Render items without folder
+  if (noFolder.length > 0) {
+    if (Object.keys(grouped).length > 0) {
+      const header = document.createElement('div');
+      header.textContent = 'Sem Pasta';
+      header.style.fontWeight = 'bold';
+      header.style.marginTop = '8px';
+      header.style.marginBottom = '4px';
+      credentialList.append(header);
+    }
+    renderList(noFolder, credentialList);
+  }
 }
 
 function normalizeSite(siteInput) {

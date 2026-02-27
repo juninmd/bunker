@@ -33,13 +33,13 @@ Foco nas funcionalidades essenciais de um gerenciador de senhas.
 
 ### Fase 2: Paridade de Features (LastPass Replacement)
 Foco em igualar as funcionalidades de conveniência e organização.
+- [ ] **Organização por Pastas/Grupos:**
+  - Implementar campo `grouping` no schema e UI.
+  - Visualização hierárquica no Popup.
 - [ ] **Tipos de Itens Distintos:**
   - **Notas Seguras:** Suporte dedicado para notas criptografadas (não apenas campo extra).
   - **Endereços e Cartões:** Perfis de preenchimento de formulários (Form Fills).
   - **Cartões de Pagamento:** Armazenamento seguro de CVV e dados bancários.
-- [ ] **Organização:**
-  - **Pastas/Grupos:** Agrupamento hierárquico de credenciais.
-  - **Favoritos:** Acesso rápido no topo da lista.
 - [ ] **UX Aprimorada:**
   - **Ícone In-Field:** Botão do BunkerPass dentro dos inputs de login para preenchimento com um clique.
   - **Detector de Mudança de Senha:** Pop-up perguntando "Deseja atualizar esta senha?" ao submeter formulários.
@@ -56,13 +56,12 @@ Foco na proatividade da segurança.
 - [ ] **Histórico de Senhas:** Manter histórico de alterações para permitir reversão.
 
 ### Fase 4: Compartilhamento e Emergência
-Foco em funcionalidades colaborativas.
-- [ ] **Compartilhamento Seguro:**
-  - Compartilhar item específico via link temporário (One-Time View).
-  - Compartilhamento via pasta compartilhada do Google Drive (Team/Family Folders).
+Foco em funcionalidades colaborativas usando a infraestrutura do Google Drive.
+- [ ] **Compartilhamento Seguro (Via Drive):**
+  - Compartilhar item específico criando um arquivo criptografado separado e compartilhando via permissões do Drive.
+  - Pastas Compartilhadas: Sincronização de arquivos CSV específicos de pastas do Drive (ex: `family-passwords.csv`).
 - [ ] **Acesso de Emergência:**
-  - Configurar contatos de confiança que podem solicitar acesso ao cofre.
-  - Período de espera configurável antes da liberação do acesso.
+  - Configurar contatos de confiança que podem solicitar acesso à chave privada (via shamir secret sharing ou similar).
 
 ### Fase 5: Expansão Multiplataforma
 Levar o cofre para fora do navegador com experiência nativa.
@@ -75,6 +74,7 @@ Levar o cofre para fora do navegador com experiência nativa.
   - Integração com Autofill Framework do Android.
   - Acesso biométrico (Fingerprint/FaceID) para desbloqueio.
   - Sincronização direta com o arquivo `passwords.csv` e `vault.enc` no Google Drive.
+  - **APK:** Geração automatizada de APK via GitHub Actions.
 - [ ] **App iOS:** Portabilidade da versão React Native para iOS.
 
 ## Detalhes Técnicos
@@ -82,15 +82,14 @@ Levar o cofre para fora do navegador com experiência nativa.
 ### Estratégia de Sync com CSV
 O arquivo `passwords.csv` no Google Drive atua como uma interface de usuário secundária.
 1. **Leitura:** O usuário pode abrir o CSV no Google Sheets para ver suas senhas (útil em dispositivos onde não tem a extensão instalada).
-2. **Escrita:** O usuário pode adicionar uma linha no Sheets (ex: `facebook.com, user, pass123, note`).
+2. **Escrita:** O usuário pode adicionar uma linha no Sheets (ex: `facebook.com, user, pass123, note, , Social`).
 3. **Sincronização:** O BunkerPass verifica periodicamente o `modifiedTime` do arquivo CSV. Se for mais recente que a última sincronização local, o app baixa o CSV, faz o parse e atualiza o cofre local (`vault.enc` é atualizado em seguida).
 4. **Soft Deletes:** Itens excluídos são mantidos no CSV com `Grouping='Deleted'` para permitir restauração e sincronização correta entre dispositivos.
 
 ### Tipos de Dados no CSV
 Para manter compatibilidade com importadores (LastPass CSV), usamos convenções:
-- **Senhas:** `url` contém o site (ex: `google.com`).
-- **Notas Seguras:** `url` é definido como `http://sn`. O Título vai em `username` e o conteúdo em `extra` (notas).
-- **Cartões:** `url` como `http://cc`. Dados estruturados em JSON no campo `extra` ou colunas adicionais se expandirmos o CSV.
+- **Senhas:** `url`, `username`, `password`, `extra`, `name`, `grouping`, `fav`.
+- **Notas Seguras:** `url` é definido como `http://sn`. O Título vai em `username` e o conteúdo em `extra` (notas). `grouping` define a pasta.
 
 ### Segurança do CSV
 Por padrão, para conveniência (como solicitado), o CSV contém as senhas em texto plano.
@@ -100,7 +99,7 @@ Por padrão, para conveniência (como solicitado), o CSV contém as senhas em te
 ### Stack Tecnológica
 - **Extensão:** JavaScript (ES Modules), HTML, CSS, Web Crypto API.
 - **Desktop:** Electron (Node.js).
-- **Mobile:** React Native.
+- **Mobile:** React Native (Expo).
 - **CI/CD:** GitHub Actions, Release Please.
 
 ### DevOps e Release Automático
@@ -108,4 +107,7 @@ O projeto utiliza GitHub Actions para automatizar o ciclo de vida do software:
 - **Build e Teste:** Validação contínua a cada push (Testes Unitários).
 - **Versionamento Semântico:** `release-please` analisa commits convencionais para determinar a próxima versão (patch, minor, major).
 - **Tags e Releases:** Gera tags git e GitHub Releases automaticamente.
-- **Update README:** Mantém o badge de versão no README atualizado.
+- **Artefatos:**
+  - Extensão (`.zip`)
+  - Desktop (`.zip` / `.dmg` / `.exe` futuramente)
+  - Android (`.apk`)
