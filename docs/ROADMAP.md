@@ -43,9 +43,9 @@ Foco em igualar as funcionalidades de conveniência e organização.
 - [ ] **UX Aprimorada:**
   - **Ícone In-Field:** Botão do BunkerPass dentro dos inputs de login para preenchimento com um clique.
   - **Detector de Mudança de Senha:** Pop-up perguntando "Deseja atualizar esta senha?" ao submeter formulários.
-- [ ] **Segurança Avançada:**
-  - **Logout Automático:** Configuração de timeout por inatividade.
-  - **Desbloqueio com PIN/Biometria:** Opção de PIN curto para acesso rápido (se suportado pelo navegador/OS).
+- [~] **Segurança Avançada:**
+  - [x] **Logout Automático:** Configuração de timeout por inatividade.
+  - [ ] **Desbloqueio com PIN/Biometria:** Opção de PIN curto para acesso rápido (se suportado pelo navegador/OS).
 
 ### Fase 3: Auditoria e Monitoramento (Security Challenge)
 Foco na proatividade da segurança.
