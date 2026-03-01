@@ -16,7 +16,32 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
   if (alarm.name === 'autoSync') {
     await performAutoSync();
   }
+  if (alarm.name === 'autoLock') {
+    await performAutoLock();
+  }
 });
+
+chrome.storage.onChanged.addListener((changes, areaName) => {
+  if (areaName === 'session' && changes.sessionKey) {
+    if (changes.sessionKey.newValue) {
+      // Session key was added or changed, set auto-lock alarm
+      resetAutoLockTimer();
+    } else {
+      // Session key removed (locked), clear alarm
+      chrome.alarms.clear('autoLock');
+    }
+  }
+});
+
+function resetAutoLockTimer() {
+  // Lock after 15 minutes of inactivity
+  chrome.alarms.create('autoLock', { delayInMinutes: 15 });
+}
+
+async function performAutoLock() {
+  console.log('BunkerPass: Auto-locking vault due to inactivity');
+  await chrome.storage.session.remove('sessionKey');
+}
 
 async function performAutoSync() {
     try {
@@ -34,10 +59,12 @@ async function performAutoSync() {
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.type === 'GET_CREDENTIALS') {
+    resetAutoLockIfUnlocked();
     handleGetCredentials(message.domain).then(sendResponse);
     return true;
   }
   if (message.type === 'SAVE_CREDENTIAL') {
+    resetAutoLockIfUnlocked();
     handleSaveCredential(message.data).then(sendResponse);
     return true;
   }
@@ -46,6 +73,13 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       return true;
   }
 });
+
+async function resetAutoLockIfUnlocked() {
+  const session = await chrome.storage.session.get('sessionKey');
+  if (session && session.sessionKey) {
+    resetAutoLockTimer();
+  }
+}
 
 async function handleGetCredentials(domain) {
     try {
