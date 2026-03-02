@@ -40,6 +40,7 @@ Foco em igualar as funcionalidades de conveniência e organização.
   - **Notas Seguras:** Suporte dedicado para notas criptografadas (não apenas campo extra).
   - **Endereços e Cartões:** Perfis de preenchimento de formulários (Form Fills).
   - **Cartões de Pagamento:** Armazenamento seguro de CVV e dados bancários.
+- [ ] **Chaves de Acesso (Passkeys):** Suporte nativo para criar, armazenar e gerenciar passkeys (WebAuthn).
 - [ ] **UX Aprimorada:**
   - **Ícone In-Field:** Botão do BunkerPass dentro dos inputs de login para preenchimento com um clique.
   - **Detector de Mudança de Senha:** Pop-up perguntando "Deseja atualizar esta senha?" ao submeter formulários.
@@ -47,21 +48,27 @@ Foco em igualar as funcionalidades de conveniência e organização.
   - [x] **Logout Automático:** Configuração de timeout por inatividade.
   - [ ] **Desbloqueio com PIN/Biometria:** Opção de PIN curto para acesso rápido (se suportado pelo navegador/OS).
 
-### Fase 3: Auditoria e Monitoramento (Security Challenge)
+### Fase 3: Auditoria e Monitoramento (Security Dashboard & Dark Web)
 Foco na proatividade da segurança.
-- [ ] **Painel de Segurança:**
-  - Análise de força das senhas.
+- [ ] **Painel de Segurança (Security Score):**
+  - Análise de força das senhas (fracas, antigas).
   - Identificação de senhas reutilizadas.
-- [ ] **Integração HaveIBeenPwned:** Verificar se emails ou senhas foram expostos em vazamentos conhecidos.
+- [ ] **Monitoramento da Dark Web:**
+  - Alertas se informações ou senhas do usuário forem encontradas em vazamentos conhecidos na dark web.
 - [ ] **Histórico de Senhas:** Manter histórico de alterações para permitir reversão.
+- [ ] **Testamento Digital (Digital Will):** Preparar uma cópia segura dos acessos.
 
-### Fase 4: Compartilhamento e Emergência
+### Fase 4: Compartilhamento, Teams & Emergência
 Foco em funcionalidades colaborativas usando a infraestrutura do Google Drive.
-- [ ] **Compartilhamento Seguro (Via Drive):**
+- [ ] **Compartilhamento de Senhas Pessoais e Empresariais:**
   - Compartilhar item específico criando um arquivo criptografado separado e compartilhando via permissões do Drive.
-  - Pastas Compartilhadas: Sincronização de arquivos CSV específicos de pastas do Drive (ex: `family-passwords.csv`).
+  - Pastas Compartilhadas: Sincronização de arquivos CSV específicos de pastas do Drive (ex: `family-passwords.csv`, `team-passwords.csv`).
 - [ ] **Acesso de Emergência:**
-  - Configurar contatos de confiança que podem solicitar acesso à chave privada (via shamir secret sharing ou similar).
+  - Configurar contatos de confiança (entes queridos) que podem solicitar acesso ao cofre de senhas em caso de emergência.
+- [ ] **Gerenciamento de Usuários e Integração de Diretórios (Business):**
+  - Controle centralizado de políticas, integração com diretórios e logon único (SSO) baseados no Drive Workspace.
+- [ ] **Workstation MFA:** Expansão da autenticação multifatorial para estações de trabalho.
+- [ ] **SaaS Protect:** Controle de uso e restrição a aplicativos SaaS perigosos.
 
 ### Fase 5: Expansão Multiplataforma
 Levar o cofre para fora do navegador com experiência nativa.

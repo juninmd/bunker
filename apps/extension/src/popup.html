@@ -38,6 +38,12 @@
             <input id="password" type="password" placeholder="Senha" required />
             <button type="button" id="generateBtn" class="icon-btn" title="Gerar senha segura">⚡</button>
           </div>
+
+          <div class="password-strength-container hidden" id="passwordStrengthContainer">
+            <div id="password-strength-bar"></div>
+            <span id="password-strength-text"></span>
+          </div>
+
           <div id="generatorOptions" class="generator-options hidden">
             <div class="slider-row">
               <label for="lengthRange">Tamanho: <span id="lengthVal">16</span></label>

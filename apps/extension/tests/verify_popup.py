@@ -50,6 +50,21 @@ def run(playwright):
 
         page.screenshot(path='apps/extension/tests/screenshot_note.png')
 
+        # Test Password Strength
+        print("Clicking Password radio...")
+        page.click('input[value="password"]')
+        page.wait_for_timeout(500)
+
+        print("Typing password '123'...")
+        page.fill('#password', '123')
+        page.wait_for_timeout(500)
+        page.screenshot(path='apps/extension/tests/screenshot_weak_password.png')
+
+        print("Typing password 'StrongP@ssw0rd!123'...")
+        page.fill('#password', 'StrongP@ssw0rd!123')
+        page.wait_for_timeout(500)
+        page.screenshot(path='apps/extension/tests/screenshot_strong_password.png')
+
     except Exception as e:
         print(f"Test failed: {e}")
         page.screenshot(path='apps/extension/tests/screenshot_fail.png')
