@@ -62,7 +62,7 @@ function updateFormState(type) {
     usernameInput.style.display = 'none';
     usernameInput.removeAttribute('required');
     passwordWrapper.style.display = 'none';
-    passwordStrengthContainer.style.display = 'none';
+    passwordStrengthContainer.classList.add('hidden');
     passwordInput.removeAttribute('required');
   } else {
     siteInput.placeholder = 'Site (ex: github.com)';
