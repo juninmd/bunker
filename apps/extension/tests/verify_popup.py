@@ -53,7 +53,7 @@ def run(playwright):
         # Test Password Strength
         print("Clicking Password radio...")
         page.click('input[value="password"]')
-        page.wait_for_timeout(500)
+        page.wait_for_selector('#password-strength-bar.strength-weak', { state: 'visible' })
 
         print("Typing password '123'...")
         page.fill('#password', '123')
