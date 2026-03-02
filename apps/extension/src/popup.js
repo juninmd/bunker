@@ -69,7 +69,7 @@ function updateFormState(type) {
     usernameInput.style.display = 'block';
     usernameInput.setAttribute('required', 'true');
     passwordWrapper.style.display = 'flex'; // Assuming flex for layout
-    passwordStrengthContainer.style.display = ''; // let CSS classes handle it
+    passwordStrengthContainer.classList.remove('hidden');
     passwordInput.setAttribute('required', 'true');
   }
 }
