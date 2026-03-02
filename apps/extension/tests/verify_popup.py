@@ -57,7 +57,7 @@ def run(playwright):
 
         print("Typing password '123'...")
         page.fill('#password', '123')
-        page.wait_for_timeout(500)
+        page.wait_for_selector('#password-strength-bar.strength-weak', { state: 'visible' })
         page.screenshot(path='apps/extension/tests/screenshot_weak_password.png')
 
         print("Typing password 'StrongP@ssw0rd!123'...")
