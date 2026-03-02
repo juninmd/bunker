@@ -96,6 +96,61 @@ button.danger {
   font-size: 12px;
 }
 
+/* Password Strength Styles */
+.password-strength-container {
+  margin-top: 6px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+#password-strength-bar {
+  flex-grow: 1;
+  height: 6px;
+  background-color: #334155;
+  border-radius: 4px;
+  overflow: hidden;
+  position: relative;
+}
+
+#password-strength-bar::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 0%;
+  transition: width 0.3s ease, background-color 0.3s ease;
+  background-color: transparent;
+}
+
+#password-strength-bar.strength-weak::before {
+  width: 25%;
+  background-color: #ef4444; /* red-500 */
+}
+
+#password-strength-bar.strength-fair::before {
+  width: 50%;
+  background-color: #f59e0b; /* amber-500 */
+}
+
+#password-strength-bar.strength-good::before {
+  width: 75%;
+  background-color: #3b82f6; /* blue-500 */
+}
+
+#password-strength-bar.strength-strong::before {
+  width: 100%;
+  background-color: #22c55e; /* green-500 */
+}
+
+#password-strength-text {
+  font-size: 11px;
+  color: #94a3b8;
+  min-width: 45px;
+  text-align: right;
+}
+
 /* Password Generator Styles */
 .password-wrapper {
   display: flex;

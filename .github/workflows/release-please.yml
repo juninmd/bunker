@@ -27,6 +27,6 @@ jobs:
           node scripts/update-readme.js
           git config user.name github-actions[bot]
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
-          git add README.md
-          git commit -m "chore: update readme version to ${{ steps.release.outputs.version }}"
+          git add README.md apps/extension/manifest.json
+          git commit -m "chore: update readme and manifest version to ${{ steps.release.outputs.version }}"
           git push

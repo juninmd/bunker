@@ -36,6 +36,10 @@ const folderInput = document.getElementById('folder');
 const folderDatalist = document.getElementById('folderOptions');
 const submitButton = form.querySelector('button[type="submit"]');
 
+const passwordStrengthContainer = document.getElementById('passwordStrengthContainer');
+const passwordStrengthBar = document.getElementById('password-strength-bar');
+const passwordStrengthText = document.getElementById('password-strength-text');
+
 unlockButton.addEventListener('click', handleUnlock);
 lockButton.addEventListener('click', handleLock);
 syncButton.addEventListener('click', handleSync);
@@ -43,6 +47,10 @@ importCsvButton.addEventListener('click', handleImportCSV);
 form.addEventListener('submit', handleSaveCredential);
 
 searchInput.addEventListener('input', handleSearch);
+
+passwordInput.addEventListener('input', (e) => {
+  updatePasswordStrengthUI(e.target.value);
+});
 
 document.querySelectorAll('input[name="itemType"]').forEach(radio => {
   radio.addEventListener('change', (e) => updateFormState(e.target.value));
@@ -54,12 +62,14 @@ function updateFormState(type) {
     usernameInput.style.display = 'none';
     usernameInput.removeAttribute('required');
     passwordWrapper.style.display = 'none';
+    passwordStrengthContainer.classList.add('hidden');
     passwordInput.removeAttribute('required');
   } else {
     siteInput.placeholder = 'Site (ex: github.com)';
     usernameInput.style.display = 'block';
     usernameInput.setAttribute('required', 'true');
     passwordWrapper.style.display = 'flex'; // Assuming flex for layout
+    passwordStrengthContainer.classList.remove('hidden');
     passwordInput.setAttribute('required', 'true');
   }
 }
@@ -117,6 +127,45 @@ function runGenerate() {
   );
   passwordInput.value = password;
   passwordInput.dispatchEvent(new Event('input'));
+}
+
+function updatePasswordStrengthUI(password) {
+  if (!password) {
+    passwordStrengthContainer.classList.add('hidden');
+    return;
+  }
+
+  passwordStrengthContainer.classList.remove('hidden');
+  passwordStrengthBar.className = ''; // reset classes
+
+  let score = 0;
+  if (password.length >= 8) score++;
+  if (password.length >= 12) score++;
+  if (password.length >= 16) score++;
+  if (/[A-Z]/.test(password)) score++;
+  if (/[a-z]/.test(password)) score++;
+  if (/[0-9]/.test(password)) score++;
+  if (/[^A-Za-z0-9]/.test(password)) score++;
+
+  let strengthClass = '';
+  let strengthText = '';
+
+  if (score < 4) {
+    strengthClass = 'strength-weak';
+    strengthText = 'Fraca';
+  } else if (score < 6) {
+    strengthClass = 'strength-fair';
+    strengthText = 'Razoável';
+  } else if (score < 8) {
+    strengthClass = 'strength-good';
+    strengthText = 'Boa';
+  } else {
+    strengthClass = 'strength-strong';
+    strengthText = 'Forte';
+  }
+
+  passwordStrengthBar.classList.add(strengthClass);
+  passwordStrengthText.textContent = strengthText;
 }
 
 function handleSearch() {
@@ -322,6 +371,7 @@ async function handleSaveCredential(event) {
   // Reset UI state to default (Password)
   document.querySelector('input[value="password"]').checked = true;
   updateFormState('password');
+  updatePasswordStrengthUI(''); // clear strength meter
   handleSearch();
 }
 
