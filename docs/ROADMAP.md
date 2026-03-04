@@ -39,7 +39,7 @@ Foco em igualar as funcionalidades de conveniência e organização.
 - [ ] **Tipos de Itens Distintos:**
   - **Notas Seguras:** Suporte dedicado para notas criptografadas (não apenas campo extra).
   - **Endereços e Cartões:** Perfis de preenchimento de formulários (Form Fills).
-  - **Cartões de Pagamento:** Armazenamento seguro de CVV e dados bancários.
+  - [x] **Cartões de Pagamento:** Armazenamento seguro de CVV e dados bancários.
 - [ ] **Chaves de Acesso (Passkeys):** Suporte nativo para criar, armazenar e gerenciar passkeys (WebAuthn).
 - [ ] **UX Aprimorada:**
   - **Ícone In-Field:** Botão do BunkerPass dentro dos inputs de login para preenchimento com um clique.
