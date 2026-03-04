@@ -31,11 +31,12 @@ O roadmap completo de funcionalidades está em [`docs/ROADMAP.md`](docs/ROADMAP.
 - Popup MVP com:
   - desbloqueio por senha mestra
   - cadastro e remoção de credenciais (CRUD inicial)
+  - suporte a diferentes tipos de itens: Senhas, Notas Seguras e Cartões de Pagamento
   - armazenamento criptografado em `chrome.storage.local`/`browser.storage.local` com schema versionado
   - fallback para `localStorage` em ambiente de teste
-- Pipeline para empacotar artefato `.zip` da extensão.
+- Pipeline para empacotar artefato `.zip` da extensão (via GitHub Actions).
 - Workflow de release orientado a tags (`vX.Y.Z`) com anexos automáticos.
-- **Sincronização Manual com Google Drive (`vault.enc` + `passwords.csv`)**
+- **Sincronização Bidirecional com Google Drive (`vault.enc` + `passwords.csv`)**
 
 ### 🔜 Próximas entregas (curto prazo)
 

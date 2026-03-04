@@ -122,6 +122,19 @@ export class SyncService {
                   createdAt: new Date().toISOString(),
                   grouping: row.grouping
               };
+          } else if (url === 'http://cc') {
+              // Payment Card
+              return {
+                  id: crypto.randomUUID(),
+                  type: 'card',
+                  site: row.username || row.name || 'Sem Título',
+                  username: '',
+                  password: '',
+                  notes: row.extra || row.notes || '',
+                  updatedAt: new Date().toISOString(),
+                  createdAt: new Date().toISOString(),
+                  grouping: row.grouping
+              };
           } else {
               // Standard Password
               return {
@@ -136,7 +149,7 @@ export class SyncService {
                   grouping: row.grouping
               };
           }
-      }).filter(i => (i.type === 'note' && i.site) || (i.site && (i.username || i.password)) || (i.grouping === 'Deleted' && i.site));
+      }).filter(i => (i.type === 'note' && i.site) || (i.type === 'card' && i.site) || (i.site && (i.username || i.password)) || (i.grouping === 'Deleted' && i.site));
 
       const localVault = this.vaultService.getVault();
       const { merged, added, updated } = this.mergeCSV(localVault, imported);
@@ -257,6 +270,19 @@ export class SyncService {
                   fav: '0'
               };
           }
+
+          if (item.type === 'card') {
+              return {
+                  url: 'http://cc',
+                  username: item.site,
+                  password: '',
+                  extra: item.notes || '',
+                  name: item.site,
+                  grouping: item.grouping || 'Cartões',
+                  fav: '0'
+              };
+          }
+
           return {
               url: item.site,
               username: item.username,
