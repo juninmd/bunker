@@ -32,6 +32,11 @@ const notesInput = document.getElementById('notes');
 const passwordWrapper = document.getElementById('passwordWrapper');
 const usernameInput = document.getElementById('username');
 const siteInput = document.getElementById('site');
+const cardFields = document.getElementById('cardFields');
+const cardNameInput = document.getElementById('cardName');
+const cardNumberInput = document.getElementById('cardNumber');
+const cardExpInput = document.getElementById('cardExp');
+const cardCvvInput = document.getElementById('cardCvv');
 const folderInput = document.getElementById('folder');
 const folderDatalist = document.getElementById('folderOptions');
 const submitButton = form.querySelector('button[type="submit"]');
@@ -64,6 +69,19 @@ function updateFormState(type) {
     passwordWrapper.style.display = 'none';
     passwordStrengthContainer.classList.add('hidden');
     passwordInput.removeAttribute('required');
+    cardFields.classList.add('hidden');
+    cardNameInput.removeAttribute('required');
+    cardNumberInput.removeAttribute('required');
+  } else if (type === 'card') {
+    siteInput.placeholder = 'Apelido do Cartão';
+    usernameInput.style.display = 'none';
+    usernameInput.removeAttribute('required');
+    passwordWrapper.style.display = 'none';
+    passwordStrengthContainer.classList.add('hidden');
+    passwordInput.removeAttribute('required');
+    cardFields.classList.remove('hidden');
+    cardNameInput.setAttribute('required', 'true');
+    cardNumberInput.setAttribute('required', 'true');
   } else {
     siteInput.placeholder = 'Site (ex: github.com)';
     usernameInput.style.display = 'block';
@@ -71,6 +89,9 @@ function updateFormState(type) {
     passwordWrapper.style.display = 'flex'; // Assuming flex for layout
     passwordStrengthContainer.classList.remove('hidden');
     passwordInput.setAttribute('required', 'true');
+    cardFields.classList.add('hidden');
+    cardNameInput.removeAttribute('required');
+    cardNumberInput.removeAttribute('required');
   }
 }
 
@@ -296,13 +317,21 @@ async function handleSaveCredential(event) {
       setStatus('Preencha todos os campos.');
       return;
     }
-  } else {
+  } else if (type === 'note') {
     // Secure Note
     site = site.trim(); // Title
     username = '';
     password = '';
     if (!site) {
       setStatus('Informe o título da nota.');
+      return;
+    }
+  } else if (type === 'card') {
+    site = site.trim();
+    username = '';
+    password = '';
+    if (!site || !cardNameInput.value || !cardNumberInput.value) {
+      setStatus('Preencha o apelido, nome e número do cartão.');
       return;
     }
   }
@@ -322,9 +351,23 @@ async function handleSaveCredential(event) {
     // Creating new - check duplicates to prevent double entry
     if (type === 'password') {
         existingIndex = newVault.findIndex(i => i.site === site && i.username === username && (!i.type || i.type === 'password'));
-    } else {
+    } else if (type === 'note') {
         existingIndex = newVault.findIndex(i => i.site === site && i.type === 'note');
+    } else if (type === 'card') {
+        existingIndex = newVault.findIndex(i => i.site === site && i.type === 'card');
     }
+  }
+
+  let finalNotes = notes;
+  if (type === 'card') {
+      const cardData = {
+          name: cardNameInput.value,
+          number: cardNumberInput.value,
+          exp: cardExpInput.value,
+          cvv: cardCvvInput.value,
+          notes: notes
+      };
+      finalNotes = JSON.stringify(cardData);
   }
 
   if (existingIndex >= 0) {
@@ -332,7 +375,7 @@ async function handleSaveCredential(event) {
      item.site = site;
      item.username = username;
      item.password = password;
-     item.notes = notes;
+     item.notes = finalNotes;
      item.grouping = folder;
      item.type = type; // Ensure type is updated if changed (though UI restricts switching type on edit usually)
      item.updatedAt = now;
@@ -351,7 +394,7 @@ async function handleSaveCredential(event) {
       site,
       username,
       password,
-      notes,
+      notes: finalNotes,
       grouping: folder,
       createdAt: now,
       updatedAt: now
@@ -393,6 +436,18 @@ function handleEditCredential(id) {
     if (type === 'password') {
         usernameInput.value = item.username;
         passwordInput.value = item.password;
+    } else if (type === 'card') {
+        try {
+            const cardData = JSON.parse(item.notes || '{}');
+            cardNameInput.value = cardData.name || '';
+            cardNumberInput.value = cardData.number || '';
+            cardExpInput.value = cardData.exp || '';
+            cardCvvInput.value = cardData.cvv || '';
+            notesInput.value = cardData.notes || '';
+        } catch (e) {
+            // Fallback if parsing fails
+            notesInput.value = item.notes || '';
+        }
     }
 
     submitButton.textContent = 'Atualizar';
@@ -459,15 +514,30 @@ function renderVault(vault) {
 
         if (item.type === 'note') {
            siteEl.textContent = '📝 ' + item.site; // item.site holds Title for notes
+        } else if (item.type === 'card') {
+           siteEl.textContent = '💳 ' + item.site;
         } else {
            siteEl.textContent = item.site;
         }
 
         const userEl = document.createElement('div');
         userEl.className = 'item-user';
-        userEl.textContent = item.type === 'note' ? '(Nota Segura)' : item.username;
+        if (item.type === 'note') {
+            userEl.textContent = '(Nota Segura)';
+        } else if (item.type === 'card') {
+            userEl.textContent = '(Cartão de Pagamento)';
+            try {
+                const parsed = JSON.parse(item.notes);
+                if (parsed.number) {
+                    const last4 = parsed.number.slice(-4);
+                    userEl.textContent = `(Cartão final ${last4})`;
+                }
+            } catch (e) {}
+        } else {
+            userEl.textContent = item.username;
+        }
 
-        if (item.notes && item.type !== 'note') { // Only show icon if it's a password with notes
+        if (item.notes && item.type === 'password') { // Only show icon if it's a password with notes
           const notesIcon = document.createElement('span');
           notesIcon.textContent = ' 📄';
           notesIcon.title = item.notes;
