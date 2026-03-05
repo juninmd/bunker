@@ -31,6 +31,8 @@ const passwordInput = document.getElementById('password');
 const notesInput = document.getElementById('notes');
 const passwordWrapper = document.getElementById('passwordWrapper');
 const usernameInput = document.getElementById('username');
+const usernameWrapper = document.getElementById('usernameWrapper');
+const generateUsernameBtn = document.getElementById('generateUsernameBtn');
 const siteInput = document.getElementById('site');
 const cardFields = document.getElementById('cardFields');
 const cardNameInput = document.getElementById('cardName');
@@ -64,7 +66,7 @@ document.querySelectorAll('input[name="itemType"]').forEach(radio => {
 function updateFormState(type) {
   if (type === 'note') {
     siteInput.placeholder = 'Título da Nota';
-    usernameInput.style.display = 'none';
+    usernameWrapper.style.display = 'none';
     usernameInput.removeAttribute('required');
     passwordWrapper.style.display = 'none';
     passwordStrengthContainer.classList.add('hidden');
@@ -74,7 +76,7 @@ function updateFormState(type) {
     cardNumberInput.removeAttribute('required');
   } else if (type === 'card') {
     siteInput.placeholder = 'Apelido do Cartão';
-    usernameInput.style.display = 'none';
+    usernameWrapper.style.display = 'none';
     usernameInput.removeAttribute('required');
     passwordWrapper.style.display = 'none';
     passwordStrengthContainer.classList.add('hidden');
@@ -84,7 +86,7 @@ function updateFormState(type) {
     cardNumberInput.setAttribute('required', 'true');
   } else {
     siteInput.placeholder = 'Site (ex: github.com)';
-    usernameInput.style.display = 'block';
+    usernameWrapper.style.display = 'flex';
     usernameInput.setAttribute('required', 'true');
     passwordWrapper.style.display = 'flex'; // Assuming flex for layout
     passwordStrengthContainer.classList.remove('hidden');
@@ -94,6 +96,15 @@ function updateFormState(type) {
     cardNumberInput.removeAttribute('required');
   }
 }
+
+generateUsernameBtn.addEventListener('click', () => {
+  const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+  let randomString = '';
+  for(let i = 0; i < 8; i++) {
+    randomString += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  usernameInput.value = 'user_' + randomString;
+});
 
 generateBtn.addEventListener('click', () => {
   if (generatorOptions.classList.contains('hidden')) {

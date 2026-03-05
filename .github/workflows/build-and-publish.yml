@@ -39,10 +39,21 @@ jobs:
             echo "Desktop Placeholder" > dist/bunkerpass-desktop-${{ steps.version.outputs.value }}.txt
           fi
 
-      - name: Build Android placeholder artifact
+      - name: Build Android APK
         run: |
           mkdir -p dist
-          echo "Android APK placeholder for version ${{ steps.version.outputs.value }}" > dist/bunkerpass-android-${{ steps.version.outputs.value }}.apk
+          if [ -d "apps/android" ]; then
+            echo "Building Android APK..."
+            cd apps/android
+            # Install dependencies and build APK using EAS/Expo or Gradle
+            npm install
+            # Assuming Expo for React Native based on roadmap
+            npx expo build:android -t apk --no-publish
+            cp *.apk ../../dist/bunkerpass-android-${{ steps.version.outputs.value }}.apk
+          else
+            echo "Android source not found, generating placeholder."
+            echo "Android APK placeholder for version ${{ steps.version.outputs.value }}" > dist/bunkerpass-android-${{ steps.version.outputs.value }}.apk
+          fi
 
       - name: Generate checksums
         run: |

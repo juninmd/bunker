@@ -33,7 +33,10 @@
           <input id="folder" list="folderOptions" placeholder="Pasta (Opcional)" />
           <datalist id="folderOptions"></datalist>
 
-          <input id="username" placeholder="Usuário" required />
+          <div class="username-wrapper" id="usernameWrapper" style="display: flex; gap: 8px;">
+            <input id="username" placeholder="Usuário" required style="flex: 1;" />
+            <button type="button" id="generateUsernameBtn" class="icon-btn" title="Gerar nome de usuário seguro">⚡</button>
+          </div>
 
           <div class="password-wrapper" id="passwordWrapper">
             <input id="password" type="password" placeholder="Senha" required />
