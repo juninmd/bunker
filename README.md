@@ -23,6 +23,21 @@ Toda informação sensível deve ser criptografada ponta a ponta antes de qualqu
 
 O roadmap completo de funcionalidades está em [`docs/ROADMAP.md`](docs/ROADMAP.md).
 
+## Features Mapeadas (Alternativa ao LastPass)
+
+- **Cofre de Senhas Criptografado** (Acesso offline com chave derivada localmente).
+- **Gerador de Senhas e Nome de Usuário** (Senhas fortes e seguras).
+- **Notas Seguras e Cartões de Pagamento** (Organização diversificada).
+- **Organização por Pastas e Grupos**.
+- **Sincronização via Google Drive** (Planilha CSV e blob encriptado).
+- **Autofill (Preenchimento Automático)** em páginas da web.
+- **Detector de Mudança de Senha** e **Painel de Segurança** (Monitoramento de senhas fracas ou reutilizadas).
+- **Monitoramento da Dark Web** e **Testamento Digital**.
+- **Compartilhamento de Senhas** (Uso pessoal e times/business via Drive).
+- **Autenticação Multifatorial (MFA)**, **Workstation MFA**, e **Login Sem Senha (Passkeys)**.
+- **SaaS Protect** e **Acesso Seguro** (VPN/Proxy).
+- Suporte a **Android (APK)** e **Desktop (App)** integrados.
+
 ## Estado atual de desenvolvimento
 
 ### ✅ Entregue neste ciclo
