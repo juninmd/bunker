@@ -75,7 +75,7 @@ function showSecurityDashboard() {
     if (!item.password) return;
 
     // Check weak password (length < 8)
-    if (item.password.length < 8) {
+    if (item.password.length < WEAK_PASSWORD_THRESHOLD) {
       weakCount++;
     }
 
