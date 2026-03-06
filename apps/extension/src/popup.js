@@ -12,6 +12,12 @@ const unlockButton = document.getElementById('unlockButton');
 const lockButton = document.getElementById('lockButton');
 const syncButton = document.getElementById('syncButton');
 const importCsvButton = document.getElementById('importCsvButton');
+const securityDashboardBtn = document.getElementById('securityDashboardBtn');
+const securityDashboardSection = document.getElementById('security-dashboard-section');
+const backToVaultBtn = document.getElementById('backToVaultBtn');
+const statTotal = document.getElementById('statTotal');
+const statWeak = document.getElementById('statWeak');
+const statReused = document.getElementById('statReused');
 const lastSyncEl = document.getElementById('last-sync');
 const masterPasswordInput = document.getElementById('masterPassword');
 const form = document.getElementById('credentialForm');
@@ -54,6 +60,48 @@ importCsvButton.addEventListener('click', handleImportCSV);
 form.addEventListener('submit', handleSaveCredential);
 
 searchInput.addEventListener('input', handleSearch);
+
+securityDashboardBtn.addEventListener('click', showSecurityDashboard);
+backToVaultBtn.addEventListener('click', hideSecurityDashboard);
+
+function showSecurityDashboard() {
+  const vault = vaultService.getVault();
+  const passwords = vault.filter(item => (!item.type || item.type === 'password') && !item.deletedAt);
+
+  let weakCount = 0;
+  const passwordCounts = {};
+
+  passwords.forEach(item => {
+    if (!item.password) return;
+
+    // Check weak password (length < 8)
+    if (item.password.length < 8) {
+      weakCount++;
+    }
+
+    // Count occurrences
+    passwordCounts[item.password] = (passwordCounts[item.password] || 0) + 1;
+  });
+
+  let reusedCount = 0;
+  for (const pw in passwordCounts) {
+    if (passwordCounts[pw] > 1) {
+      reusedCount += passwordCounts[pw]; // Count all instances of reused passwords
+    }
+  }
+
+  statTotal.textContent = passwords.length;
+  statWeak.textContent = weakCount;
+  statReused.textContent = reusedCount;
+
+  vaultSection.classList.add('hidden');
+  securityDashboardSection.classList.remove('hidden');
+}
+
+function hideSecurityDashboard() {
+  securityDashboardSection.classList.add('hidden');
+  vaultSection.classList.remove('hidden');
+}
 
 passwordInput.addEventListener('input', (e) => {
   updatePasswordStrengthUI(e.target.value);

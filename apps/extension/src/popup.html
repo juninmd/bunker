@@ -79,7 +79,18 @@
         <button id="syncButton">Sincronizar com Google Drive</button>
         <button id="importCsvButton" class="secondary" style="margin-top: 8px;">Importar CSV do Drive</button>
         <div id="last-sync" class="last-sync"></div>
-        <button id="lockButton" class="secondary">Bloquear</button>
+        <button id="securityDashboardBtn" class="secondary" style="margin-top: 8px; width: 100%;">Painel de Segurança</button>
+        <button id="lockButton" class="secondary" style="margin-top: 8px; width: 100%;">Bloquear</button>
+      </section>
+
+      <section id="security-dashboard-section" class="hidden">
+        <h2>Painel de Segurança</h2>
+        <div class="dashboard-stats" style="margin-bottom: 16px;">
+          <p><strong>Total de Senhas:</strong> <span id="statTotal">0</span></p>
+          <p><strong>Senhas Fracas:</strong> <span id="statWeak">0</span></p>
+          <p><strong>Senhas Reutilizadas:</strong> <span id="statReused">0</span></p>
+        </div>
+        <button id="backToVaultBtn" class="secondary" style="width: 100%;">Voltar ao Cofre</button>
       </section>
 
       <p id="status" role="status" aria-live="polite"></p>
