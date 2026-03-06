@@ -61,6 +61,7 @@ def run(playwright):
 
         print("Typing password 'StrongP@ssw0rd!123'...")
         page.fill('#password', 'StrongP@ssw0rd!123')
+        page.wait_for_selector('#password-strength-bar.strength-strong', state='visible')
         page.screenshot(path='apps/extension/tests/screenshot_strong_password.png')
 
         # Test Security Dashboard
@@ -68,6 +69,9 @@ def run(playwright):
         page.click('#securityDashboardBtn')
 
         statTotal = page.inner_text('#statTotal')
+        assert statTotal == '0'
+        assert page.inner_text('#statWeak') == '0'
+        assert page.inner_text('#statReused') == '0'
         print(f"Total Passwords in Dashboard: {statTotal}")
 
         page.screenshot(path='apps/extension/tests/screenshot_security_dashboard.png')
