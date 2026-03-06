@@ -53,17 +53,28 @@ def run(playwright):
         # Test Password Strength
         print("Clicking Password radio...")
         page.click('input[value="password"]')
-        page.wait_for_selector('#password-strength-bar.strength-weak', { state: 'visible' })
 
         print("Typing password '123'...")
         page.fill('#password', '123')
-        page.wait_for_selector('#password-strength-bar.strength-weak', { state: 'visible' })
+        page.wait_for_selector('#password-strength-bar.strength-weak', state='visible')
         page.screenshot(path='apps/extension/tests/screenshot_weak_password.png')
 
         print("Typing password 'StrongP@ssw0rd!123'...")
         page.fill('#password', 'StrongP@ssw0rd!123')
-        page.wait_for_selector('#password-strength-bar.strength-strong', { state: 'visible' })
+        page.wait_for_selector('#password-strength-bar.strength-strong', state='visible')
         page.screenshot(path='apps/extension/tests/screenshot_strong_password.png')
+
+        # Test Security Dashboard
+        print("Clicking Security Dashboard button...")
+        page.click('#securityDashboardBtn')
+
+        statTotal = page.inner_text('#statTotal')
+        assert statTotal == '0'
+        assert page.inner_text('#statWeak') == '0'
+        assert page.inner_text('#statReused') == '0'
+        print(f"Total Passwords in Dashboard: {statTotal}")
+
+        page.screenshot(path='apps/extension/tests/screenshot_security_dashboard.png')
 
     except Exception as e:
         print(f"Test failed: {e}")
