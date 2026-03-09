@@ -36,7 +36,7 @@ Foco em igualar as funcionalidades de conveniência e organização.
 - [ ] **Organização por Pastas/Grupos:**
   - Implementar campo `grouping` no schema e UI.
   - Visualização hierárquica no Popup.
-- [ ] **Gerador de nome de usuário:** Gerar nomes de usuário aleatórios e exclusivos.
+- [x] **Gerador de nome de usuário:** Gerar nomes de usuário aleatórios e exclusivos.
 - [ ] **Tipos de Itens Distintos:**
   - **Notas Seguras:** Suporte dedicado para notas criptografadas (não apenas campo extra).
   - **Endereços e Cartões:** Perfis de preenchimento de formulários (Form Fills).
@@ -58,18 +58,32 @@ Foco na proatividade da segurança.
   - Alertas se informações ou senhas do usuário forem encontradas em vazamentos conhecidos na dark web.
 - [ ] **Histórico de Senhas:** Manter histórico de alterações para permitir reversão.
 - [ ] **Testamento Digital (Digital Will):** Preparar uma cópia segura dos acessos.
+- [ ] **Compartilhe credenciais com segurança:** Compartilhe credenciais com segurança.
+- [ ] **Sincronização automática de dispositivos:** Sincronização automática de dispositivos.
+- [ ] **Notas seguras:** Notas seguras.
+- [ ] **Login sem senha no cofre:** Login sem senha no cofre.
+- [ ] **Salvar e preencher automaticamente no Google Chrome:** Salvar e preencher automaticamente no Google Chrome.
+- [ ] **Salvar e preencher automaticamente no Android:** Salvar e preencher automaticamente no Android.
+- [ ] **Salvar e preencher automaticamente no iPhone e no iPad:** Salvar e preencher automaticamente no iPhone e no iPad.
+- [ ] **Salvar e preencher automaticamente no Safari:** Salvar e preencher automaticamente no Safari.
+- [ ] **Salvar e preencher automaticamente no Mozilla Firefox:** Salvar e preencher automaticamente no Mozilla Firefox.
 
 ### Fase 4: Compartilhamento, Teams & Emergência
 Foco em funcionalidades colaborativas usando a infraestrutura do Google Drive.
 - [ ] **Compartilhamento de Senhas Pessoais e Empresariais:**
+  - Compartilhamento de senhas pessoais.
+  - Compartilhamento de senhas empresariais.
   - Compartilhar item específico criando um arquivo criptografado separado e compartilhando via permissões do Drive.
   - Pastas Compartilhadas: Sincronização de arquivos CSV específicos de pastas do Drive (ex: `family-passwords.csv`, `team-passwords.csv`).
-- [ ] **Acesso de Emergência:**
+- [ ] **Acesso de Emergência:** Acesso de emergência.
   - Configurar contatos de confiança (entes queridos) que podem solicitar acesso ao cofre de senhas em caso de emergência.
 - [ ] **Gerenciamento de Usuários e Integração de Diretórios (Business):**
+  - Gerenciamento de usuários.
+  - Integração de diretórios.
   - Controle centralizado de políticas, integração com diretórios e logon único (SSO) baseados no Drive Workspace.
 - [ ] **Workstation MFA:** Expansão da autenticação multifatorial para estações de trabalho.
 - [ ] **SaaS Protect:** Controle de uso e restrição a aplicativos SaaS perigosos.
+- [ ] **Login federado:** Login federado.
 - [ ] **Acesso Seguro:** VPN ou proxy de autenticação.
 - [ ] **Autenticação multifatorial (MFA):** Suporte nativo a 2FA e chaves de segurança.
 

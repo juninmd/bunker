@@ -68,3 +68,21 @@ function shuffleArray(array) {
     }
     return array;
 }
+
+export function generateUsername(length = 12) {
+    const letters = 'abcdefghijklmnopqrstuvwxyz';
+    const numbers = '0123456789';
+    const allowedChars = letters + numbers;
+
+    if (length < 1) {
+        throw new Error('Length must be at least 1');
+    }
+
+    let username = getRandomChar(letters); // First character must be a letter
+
+    for (let i = 1; i < length; i++) {
+        username += getRandomChar(allowedChars);
+    }
+
+    return username;
+}
