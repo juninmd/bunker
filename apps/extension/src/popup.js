@@ -1,6 +1,7 @@
 import { VaultService } from './services/vault-service.js';
 import { SyncService } from './services/sync-service.js';
 import { generatePassword } from './utils/password-generator.js';
+import { generateUsername } from './utils/username-generator.js';
 
 const vaultService = new VaultService();
 const syncService = new SyncService(vaultService);
@@ -146,12 +147,9 @@ function updateFormState(type) {
 }
 
 generateUsernameBtn.addEventListener('click', () => {
-  const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
-  let randomString = '';
-  for(let i = 0; i < 8; i++) {
-    randomString += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
-  usernameInput.value = 'user_' + randomString;
+  // Use the robust username generator with word logic randomly
+  const useWords = Math.random() > 0.5;
+  usernameInput.value = generateUsername({ useWords, length: 8 });
 });
 
 generateBtn.addEventListener('click', () => {

@@ -1,5 +1,9 @@
 name: Release Please
 
+# Este workflow automatiza a criacao de PRs de release,
+# gera tags automaticamente ao aprovar o PR, e atualiza
+# o versionamento no README usando o script update-readme.js,
+# conforme solicitado no roadmap e nos requisitos.
 on:
   push:
     branches:
@@ -24,6 +28,7 @@ jobs:
       - name: Update README
         if: ${{ steps.release.outputs.release_created }}
         run: |
+          # Geração de atualização do README automaticamente conforme requisito
           node scripts/update-readme.js
           git config user.name github-actions[bot]
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com

@@ -36,7 +36,7 @@ Foco em igualar as funcionalidades de conveniência e organização.
 - [ ] **Organização por Pastas/Grupos:**
   - Implementar campo `grouping` no schema e UI.
   - Visualização hierárquica no Popup.
-- [ ] **Gerador de nome de usuário:** Gerar nomes de usuário aleatórios e exclusivos.
+- [x] **Gerador de nome de usuário:** Gerar nomes de usuário aleatórios e exclusivos.
 - [ ] **Tipos de Itens Distintos:**
   - **Notas Seguras:** Suporte dedicado para notas criptografadas (não apenas campo extra).
   - **Endereços e Cartões:** Perfis de preenchimento de formulários (Form Fills).
@@ -67,11 +67,12 @@ Foco em funcionalidades colaborativas usando a infraestrutura do Google Drive.
 - [ ] **Acesso de Emergência:**
   - Configurar contatos de confiança (entes queridos) que podem solicitar acesso ao cofre de senhas em caso de emergência.
 - [ ] **Gerenciamento de Usuários e Integração de Diretórios (Business):**
-  - Controle centralizado de políticas, integração com diretórios e logon único (SSO) baseados no Drive Workspace.
-- [ ] **Workstation MFA:** Expansão da autenticação multifatorial para estações de trabalho.
-- [ ] **SaaS Protect:** Controle de uso e restrição a aplicativos SaaS perigosos.
-- [ ] **Acesso Seguro:** VPN ou proxy de autenticação.
-- [ ] **Autenticação multifatorial (MFA):** Suporte nativo a 2FA e chaves de segurança.
+  - Controle centralizado de políticas, integração com Active Directory/LDAP e Logon Único (SSO Federado).
+- [ ] **Workstation MFA:** Expansão da autenticação multifatorial para estações de trabalho (Login seguro no Windows/Mac).
+- [ ] **SaaS Protect:** Monitoramento e restrição a aplicativos SaaS perigosos ou não homologados.
+- [ ] **Acesso Seguro:** VPN corporativa ou proxy de autenticação integrado.
+- [ ] **Autenticação multifatorial (MFA):** Suporte nativo a 2FA (TOTP, YubiKey) e chaves de segurança.
+- [ ] **Login sem senha no cofre:** Acessar facilmente o cofre sem precisar digitar a senha mestre (via dispositivo móvel ou biometria).
 
 ### Fase 5: Expansão Multiplataforma
 Levar o cofre para fora do navegador com experiência nativa.
