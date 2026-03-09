@@ -148,7 +148,7 @@ function updateFormState(type) {
 
 generateUsernameBtn.addEventListener('click', () => {
   // Use the robust username generator with word logic randomly
-  const useWords = Math.random() > 0.5;
+  const useWords = (crypto.getRandomValues(new Uint8Array(1))[0] % 2) === 0;
   usernameInput.value = generateUsername({ useWords, length: 8 });
 });
 
