@@ -10,8 +10,8 @@ export function generateUsername(options = {}) {
   let result = '';
 
   if (config.useWords) {
-    const adjectives = ['swift', 'clever', 'brave', 'silent', 'happy', 'lucky', 'cool', 'smart'];
-    const nouns = ['tiger', 'eagle', 'wolf', 'fox', 'bear', 'panda', 'lion', 'hawk'];
+    const adjectives = ['swift', 'clever', 'brave', 'silent', 'happy', 'lucky', 'cool', 'smart', 'witty', 'bright', 'calm', 'eager', 'gentle', 'proud', 'shiny', 'vast'];
+    const nouns = ['tiger', 'eagle', 'wolf', 'fox', 'bear', 'panda', 'lion', 'hawk', 'river', 'ocean', 'star', 'moon', 'sun', 'comet', 'planet', 'galaxy'];
     const adj = adjectives[Math.floor(Math.random() * adjectives.length)];
     const noun = nouns[Math.floor(Math.random() * nouns.length)];
     result = `${adj}_${noun}`;
