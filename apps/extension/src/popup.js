@@ -1,6 +1,6 @@
 import { VaultService } from './services/vault-service.js';
 import { SyncService } from './services/sync-service.js';
-import { generatePassword } from './utils/password-generator.js';
+import { generatePassword, generateUsername } from './utils/password-generator.js';
 
 const vaultService = new VaultService();
 const syncService = new SyncService(vaultService);
@@ -146,12 +146,12 @@ function updateFormState(type) {
 }
 
 generateUsernameBtn.addEventListener('click', () => {
-  const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
-  let randomString = '';
-  for(let i = 0; i < 8; i++) {
-    randomString += chars.charAt(Math.floor(Math.random() * chars.length));
+  try {
+    const username = generateUsername();
+    usernameInput.value = username;
+  } catch (err) {
+    setStatus(err.message);
   }
-  usernameInput.value = 'user_' + randomString;
 });
 
 generateBtn.addEventListener('click', () => {

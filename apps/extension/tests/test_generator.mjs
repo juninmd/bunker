@@ -1,4 +1,4 @@
-import { generatePassword } from '../src/utils/password-generator.js';
+import { generatePassword, generateUsername } from '../src/utils/password-generator.js';
 import assert from 'assert';
 
 if (!globalThis.crypto) {
@@ -56,3 +56,26 @@ assert.strictEqual(p4.length, 4, 'Should auto-correct length to minimum required
 console.log('Test 4 Passed: Length auto-corrected');
 
 console.log('All Password Generator tests passed! 🚀');
+
+console.log('\nTesting Username Generator...');
+
+// Test 1: Length
+const u1 = generateUsername(12);
+assert.strictEqual(u1.length, 12);
+console.log('Test 1 Passed: Length correct');
+
+// Test 2: Only alphanumeric and lowercase
+const u2 = generateUsername(100);
+assert.match(u2, /^[a-z0-9]+$/, 'Must contain only lowercase letters and numbers');
+console.log('Test 2 Passed: Only alphanumeric characters');
+
+// Test 3: Starts with a letter
+const u3 = generateUsername(50);
+assert.match(u3[0], /^[a-z]$/, 'Must start with a lowercase letter');
+console.log('Test 3 Passed: Starts with a letter');
+
+// Test 4: Throws error if length < 1
+assert.throws(() => generateUsername(0), /Length must be at least 1/);
+console.log('Test 4 Passed: Throws error for invalid length');
+
+console.log('All Username Generator tests passed! 🚀');
