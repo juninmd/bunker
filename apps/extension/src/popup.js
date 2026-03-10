@@ -634,10 +634,7 @@ function renderVault(vault) {
   // Helper to create a folder section
   const renderFolder = (folderName, items) => {
     const li = document.createElement('li');
-    li.style.background = 'transparent';
-    li.style.border = 'none';
-    li.style.padding = '0';
-    li.style.marginBottom = '0';
+    li.className = 'folder-container';
 
     const header = document.createElement('div');
     header.className = 'folder-header collapsed';
