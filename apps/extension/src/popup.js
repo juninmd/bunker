@@ -1,6 +1,7 @@
 import { VaultService } from './services/vault-service.js';
 import { SyncService } from './services/sync-service.js';
-import { generatePassword, generateUsername } from './utils/password-generator.js';
+import { generatePassword } from './utils/password-generator.js';
+import { generateUsername } from './utils/username-generator.js';
 
 const vaultService = new VaultService();
 const syncService = new SyncService(vaultService);
@@ -146,12 +147,9 @@ function updateFormState(type) {
 }
 
 generateUsernameBtn.addEventListener('click', () => {
-  try {
-    const username = generateUsername();
-    usernameInput.value = username;
-  } catch (err) {
-    setStatus(err.message);
-  }
+  // Use the robust username generator with word logic randomly
+  const useWords = (crypto.getRandomValues(new Uint8Array(1))[0] % 2) === 0;
+  usernameInput.value = generateUsername({ useWords, length: 8 });
 });
 
 generateBtn.addEventListener('click', () => {
@@ -296,9 +294,9 @@ async function handleUnlock() {
     handleSearch();
 
     try {
-        await vaultService.exportSessionKey();
+      await vaultService.exportSessionKey();
     } catch (e) {
-        console.warn('Failed to export session key', e);
+      console.warn('Failed to export session key', e);
     }
 
     const lastSync = await vaultService.getStorage('bunkerpass.last_sync');
@@ -399,7 +397,7 @@ async function handleSaveCredential(event) {
   const vault = vaultService.getVault();
 
   // Create shallow copy of array, and clone objects we modify
-  const newVault = vault.map(i => ({...i}));
+  const newVault = vault.map(i => ({ ...i }));
 
   let existingIndex = -1;
 
@@ -409,43 +407,43 @@ async function handleSaveCredential(event) {
   } else {
     // Creating new - check duplicates to prevent double entry
     if (type === 'password') {
-        existingIndex = newVault.findIndex(i => i.site === site && i.username === username && (!i.type || i.type === 'password'));
+      existingIndex = newVault.findIndex(i => i.site === site && i.username === username && (!i.type || i.type === 'password'));
     } else if (type === 'note') {
-        existingIndex = newVault.findIndex(i => i.site === site && i.type === 'note');
+      existingIndex = newVault.findIndex(i => i.site === site && i.type === 'note');
     } else if (type === 'card') {
-        existingIndex = newVault.findIndex(i => i.site === site && i.type === 'card');
+      existingIndex = newVault.findIndex(i => i.site === site && i.type === 'card');
     }
   }
 
   let finalNotes = notes;
   if (type === 'card') {
-      const cardData = {
-          name: cardNameInput.value,
-          number: cardNumberInput.value,
-          exp: cardExpInput.value,
-          cvv: cardCvvInput.value,
-          notes: notes
-      };
-      finalNotes = JSON.stringify(cardData);
+    const cardData = {
+      name: cardNameInput.value,
+      number: cardNumberInput.value,
+      exp: cardExpInput.value,
+      cvv: cardCvvInput.value,
+      notes: notes
+    };
+    finalNotes = JSON.stringify(cardData);
   }
 
   if (existingIndex >= 0) {
-     const item = newVault[existingIndex];
-     item.site = site;
-     item.username = username;
-     item.password = password;
-     item.notes = finalNotes;
-     item.grouping = folder;
-     item.type = type; // Ensure type is updated if changed (though UI restricts switching type on edit usually)
-     item.updatedAt = now;
+    const item = newVault[existingIndex];
+    item.site = site;
+    item.username = username;
+    item.password = password;
+    item.notes = finalNotes;
+    item.grouping = folder;
+    item.type = type; // Ensure type is updated if changed (though UI restricts switching type on edit usually)
+    item.updatedAt = now;
 
-     // Resurrect if it was deleted
-     if (item.deletedAt) {
-       delete item.deletedAt;
-       setStatus('Item restaurado e atualizado localmente.');
-     } else {
-       setStatus('Item atualizado localmente.');
-     }
+    // Resurrect if it was deleted
+    if (item.deletedAt) {
+      delete item.deletedAt;
+      setStatus('Item restaurado e atualizado localmente.');
+    } else {
+      setStatus('Item atualizado localmente.');
+    }
   } else {
     newVault.push({
       id: crypto.randomUUID(),
@@ -478,40 +476,40 @@ async function handleSaveCredential(event) {
 }
 
 function handleEditCredential(id) {
-    const vault = vaultService.getVault();
-    const item = vault.find(i => i.id === id);
-    if (!item) return;
+  const vault = vaultService.getVault();
+  const item = vault.find(i => i.id === id);
+  if (!item) return;
 
-    credentialIdInput.value = item.id;
-    siteInput.value = item.site;
-    notesInput.value = item.notes || '';
-    folderInput.value = item.grouping || '';
+  credentialIdInput.value = item.id;
+  siteInput.value = item.site;
+  notesInput.value = item.notes || '';
+  folderInput.value = item.grouping || '';
 
-    // Determine type
-    const type = item.type || 'password';
-    document.querySelector(`input[name="itemType"][value="${type}"]`).checked = true;
-    updateFormState(type);
+  // Determine type
+  const type = item.type || 'password';
+  document.querySelector(`input[name="itemType"][value="${type}"]`).checked = true;
+  updateFormState(type);
 
-    if (type === 'password') {
-        usernameInput.value = item.username;
-        passwordInput.value = item.password;
-    } else if (type === 'card') {
-        try {
-            const cardData = JSON.parse(item.notes || '{}');
-            cardNameInput.value = cardData.name || '';
-            cardNumberInput.value = cardData.number || '';
-            cardExpInput.value = cardData.exp || '';
-            cardCvvInput.value = cardData.cvv || '';
-            notesInput.value = cardData.notes || '';
-        } catch (e) {
-            // Fallback if parsing fails
-            notesInput.value = item.notes || '';
-        }
+  if (type === 'password') {
+    usernameInput.value = item.username;
+    passwordInput.value = item.password;
+  } else if (type === 'card') {
+    try {
+      const cardData = JSON.parse(item.notes || '{}');
+      cardNameInput.value = cardData.name || '';
+      cardNumberInput.value = cardData.number || '';
+      cardExpInput.value = cardData.exp || '';
+      cardCvvInput.value = cardData.cvv || '';
+      notesInput.value = cardData.notes || '';
+    } catch (e) {
+      // Fallback if parsing fails
+      notesInput.value = item.notes || '';
     }
+  }
 
-    submitButton.textContent = 'Atualizar';
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-    setStatus(`Editando: ${item.site}`);
+  submitButton.textContent = 'Atualizar';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  setStatus(`Editando: ${item.site}`);
 }
 
 async function handleDeleteCredential(credentialId) {
@@ -572,28 +570,28 @@ function renderVault(vault) {
         siteEl.className = 'item-site';
 
         if (item.type === 'note') {
-           siteEl.textContent = '📝 ' + item.site; // item.site holds Title for notes
+          siteEl.textContent = '📝 ' + item.site; // item.site holds Title for notes
         } else if (item.type === 'card') {
-           siteEl.textContent = '💳 ' + item.site;
+          siteEl.textContent = '💳 ' + item.site;
         } else {
-           siteEl.textContent = item.site;
+          siteEl.textContent = item.site;
         }
 
         const userEl = document.createElement('div');
         userEl.className = 'item-user';
         if (item.type === 'note') {
-            userEl.textContent = '(Nota Segura)';
+          userEl.textContent = '(Nota Segura)';
         } else if (item.type === 'card') {
-            userEl.textContent = '(Cartão de Pagamento)';
-            try {
-                const parsed = JSON.parse(item.notes);
-                if (parsed.number) {
-                    const last4 = parsed.number.slice(-4);
-                    userEl.textContent = `(Cartão final ${last4})`;
-                }
-            } catch (e) {}
+          userEl.textContent = '(Cartão de Pagamento)';
+          try {
+            const parsed = JSON.parse(item.notes);
+            if (parsed.number) {
+              const last4 = parsed.number.slice(-4);
+              userEl.textContent = `(Cartão final ${last4})`;
+            }
+          } catch (e) { }
         } else {
-            userEl.textContent = item.username;
+          userEl.textContent = item.username;
         }
 
         if (item.notes && item.type === 'password') { // Only show icon if it's a password with notes

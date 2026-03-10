@@ -1,5 +1,8 @@
 name: Build and Publish Artifacts
 
+# Roda na criacao da tag gerada pelo release-please.
+# Empacota a extensao e futuramente apps mobile (APK) e desktop,
+# automatizando a criacao do artefato conforme requisito.
 on:
   push:
     tags:

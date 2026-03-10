@@ -78,14 +78,12 @@ Foco em funcionalidades colaborativas usando a infraestrutura do Google Drive.
 - [ ] **Acesso de Emergência:** Acesso de emergência.
   - Configurar contatos de confiança (entes queridos) que podem solicitar acesso ao cofre de senhas em caso de emergência.
 - [ ] **Gerenciamento de Usuários e Integração de Diretórios (Business):**
-  - Gerenciamento de usuários.
-  - Integração de diretórios.
-  - Controle centralizado de políticas, integração com diretórios e logon único (SSO) baseados no Drive Workspace.
-- [ ] **Workstation MFA:** Expansão da autenticação multifatorial para estações de trabalho.
-- [ ] **SaaS Protect:** Controle de uso e restrição a aplicativos SaaS perigosos.
-- [ ] **Login federado:** Login federado.
-- [ ] **Acesso Seguro:** VPN ou proxy de autenticação.
-- [ ] **Autenticação multifatorial (MFA):** Suporte nativo a 2FA e chaves de segurança.
+  - Controle centralizado de políticas, integração com Active Directory/LDAP e Logon Único (SSO Federado).
+- [ ] **Workstation MFA:** Expansão da autenticação multifatorial para estações de trabalho (Login seguro no Windows/Mac).
+- [ ] **SaaS Protect:** Monitoramento e restrição a aplicativos SaaS perigosos ou não homologados.
+- [ ] **Acesso Seguro:** VPN corporativa ou proxy de autenticação integrado.
+- [ ] **Autenticação multifatorial (MFA):** Suporte nativo a 2FA (TOTP, YubiKey) e chaves de segurança.
+- [ ] **Login sem senha no cofre:** Acessar facilmente o cofre sem precisar digitar a senha mestre (via dispositivo móvel ou biometria).
 
 ### Fase 5: Expansão Multiplataforma
 Levar o cofre para fora do navegador com experiência nativa.
