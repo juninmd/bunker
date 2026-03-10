@@ -65,12 +65,16 @@ button.danger {
   display: none;
 }
 
-#credentialList {
+#credentialListContainer {
   margin: 12px 0;
+  max-height: 240px;
+  overflow-y: auto;
+}
+
+#credentialList {
+  margin: 0;
   padding: 0;
   list-style: none;
-  max-height: 180px;
-  overflow: auto;
 }
 
 #credentialList li {
@@ -78,6 +82,45 @@ button.danger {
   border-radius: 8px;
   padding: 10px;
   margin-bottom: 8px;
+  background: #0f172a;
+}
+
+.folder-header {
+  font-weight: 600;
+  color: #94a3b8;
+  padding: 8px 0 4px 0;
+  margin-top: 8px;
+  border-bottom: 1px solid #334155;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  user-select: none;
+}
+
+.folder-header:hover {
+  color: #e2e8f0;
+}
+
+.folder-header::after {
+  content: '▼';
+  font-size: 10px;
+  transition: transform 0.2s;
+}
+
+.folder-header.collapsed::after {
+  transform: rotate(-90deg);
+}
+
+.folder-content {
+  padding-left: 8px;
+  margin-top: 8px;
+  transition: max-height 0.2s ease-out;
+  overflow: hidden;
+}
+
+.folder-content.collapsed {
+  display: none;
 }
 
 .item-site {
