@@ -236,7 +236,7 @@ function updatePasswordStrengthUI(password) {
   } else if (score < 6) {
     strengthClass = 'strength-fair';
     strengthText = 'Razoável';
-  } else if (score < 8) {
+  } else if (score < 7) {
     strengthClass = 'strength-good';
     strengthText = 'Boa';
   } else {
@@ -631,40 +631,53 @@ function renderVault(vault) {
       });
   };
 
-  // Render Folders
-  Object.keys(grouped).sort().forEach(folder => {
-    const details = document.createElement('details');
-    const summary = document.createElement('summary');
-    summary.textContent = `📁 ${folder} (${grouped[folder].length})`;
-    summary.style.cursor = 'pointer';
-    summary.style.fontWeight = 'bold';
-    summary.style.marginBottom = '4px';
+  // Helper to create a folder section
+  const renderFolder = (folderName, items) => {
+    const li = document.createElement('li');
+    li.className = 'folder-container';
+
+    const header = document.createElement('div');
+    header.className = 'folder-header collapsed';
+    header.textContent = `📁 ${folderName} (${items.length})`;
+
+    const content = document.createElement('div');
+    content.className = 'folder-content collapsed';
 
     const ul = document.createElement('ul');
-    ul.style.paddingLeft = '10px';
     ul.style.listStyle = 'none';
-    ul.style.margin = '4px 0 12px 0';
+    ul.style.padding = '0';
+    ul.style.margin = '0';
 
-    renderList(grouped[folder], ul);
+    renderList(items, ul);
+    content.appendChild(ul);
 
-    details.append(summary, ul);
+    header.addEventListener('click', () => {
+      header.classList.toggle('collapsed');
+      content.classList.toggle('collapsed');
+    });
+
     // Expand by default if searching
-    if (searchInput.value.trim()) details.open = true;
+    if (searchInput.value.trim()) {
+      header.classList.remove('collapsed');
+      content.classList.remove('collapsed');
+    }
 
-    credentialList.append(details);
+    li.append(header, content);
+    credentialList.append(li);
+  };
+
+  // Render Folders
+  Object.keys(grouped).sort().forEach(folder => {
+    renderFolder(folder, grouped[folder]);
   });
 
   // Render items without folder
   if (noFolder.length > 0) {
     if (Object.keys(grouped).length > 0) {
-      const header = document.createElement('div');
-      header.textContent = 'Sem Pasta';
-      header.style.fontWeight = 'bold';
-      header.style.marginTop = '8px';
-      header.style.marginBottom = '4px';
-      credentialList.append(header);
+      renderFolder('Sem Pasta', noFolder);
+    } else {
+      renderList(noFolder, credentialList);
     }
-    renderList(noFolder, credentialList);
   }
 }
 
