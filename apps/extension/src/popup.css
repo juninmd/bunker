@@ -115,12 +115,16 @@ button.danger {
 .folder-content {
   padding-left: 8px;
   margin-top: 8px;
-  transition: max-height 0.2s ease-out;
+  transition: max-height 0.2s ease-out, margin-top 0.2s ease-out, padding-top 0.2s ease-out, padding-bottom 0.2s ease-out;
   overflow: hidden;
+  max-height: 500px; /* Valor alto o suficiente para conter os itens */
 }
 
 .folder-content.collapsed {
-  display: none;
+  max-height: 0;
+  margin-top: 0;
+  padding-top: 0;
+  padding-bottom: 0;
 }
 
 .item-site {
