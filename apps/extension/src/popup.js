@@ -146,12 +146,9 @@ function updateFormState(type) {
 }
 
 generateUsernameBtn.addEventListener('click', () => {
-  try {
-    const username = generateUsername();
-    usernameInput.value = username;
-  } catch (err) {
-    setStatus(err.message);
-  }
+  // Use the robust username generator with word logic randomly
+  const useWords = (crypto.getRandomValues(new Uint8Array(1))[0] % 2) === 0;
+  usernameInput.value = generateUsername({ useWords, length: 8 });
 });
 
 generateBtn.addEventListener('click', () => {
