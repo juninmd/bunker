@@ -33,7 +33,7 @@ Foco nas funcionalidades essenciais de um gerenciador de senhas.
 
 ### Fase 2: Paridade de Features (LastPass Replacement)
 Foco em igualar as funcionalidades de conveniência e organização.
-- [ ] **Organização por Pastas/Grupos:**
+- [x] **Organização por Pastas/Grupos:**
   - Implementar campo `grouping` no schema e UI.
   - Visualização hierárquica no Popup.
 - [x] **Gerador de nome de usuário:** Gerar nomes de usuário aleatórios e exclusivos.
@@ -58,13 +58,25 @@ Foco na proatividade da segurança.
   - Alertas se informações ou senhas do usuário forem encontradas em vazamentos conhecidos na dark web.
 - [ ] **Histórico de Senhas:** Manter histórico de alterações para permitir reversão.
 - [ ] **Testamento Digital (Digital Will):** Preparar uma cópia segura dos acessos.
+- [ ] **Compartilhe credenciais com segurança:** Compartilhe credenciais com segurança.
+- [ ] **Sincronização automática de dispositivos:** Sincronização constante de cofres através de multiplos dispositivos.
+- [x] **Notas seguras:** Armazenamento seguro de anotações confidenciais.
+- [ ] **Login sem senha no cofre:** Passkeys ou FIDO2 para acesso ao cofre.
+- [x] **Salvar e preencher automaticamente no Google Chrome:** Extensão compatível com Chrome.
+- [ ] **Salvar e preencher automaticamente no Android:** Autopreenchimento no Android via Accessibility ou Autofill API.
+- [ ] **Salvar e preencher automaticamente no iPhone e no iPad:** Autopreenchimento no iOS via Credential Provider Extension.
+- [ ] **Salvar e preencher automaticamente no Safari:** Extensão compatível com Safari.
+- [x] **Salvar e preencher automaticamente no Mozilla Firefox:** Extensão compatível com Firefox.
+- [ ] **Painel de Segurança (Security Dashboard):** Avaliação de score de segurança, senhas fracas, reutilizadas ou antigas.
 
 ### Fase 4: Compartilhamento, Teams & Emergência
 Foco em funcionalidades colaborativas usando a infraestrutura do Google Drive.
 - [ ] **Compartilhamento de Senhas Pessoais e Empresariais:**
+  - Compartilhamento de senhas pessoais.
+  - Compartilhamento de senhas empresariais.
   - Compartilhar item específico criando um arquivo criptografado separado e compartilhando via permissões do Drive.
   - Pastas Compartilhadas: Sincronização de arquivos CSV específicos de pastas do Drive (ex: `family-passwords.csv`, `team-passwords.csv`).
-- [ ] **Acesso de Emergência:**
+- [ ] **Acesso de Emergência:** Acesso de emergência.
   - Configurar contatos de confiança (entes queridos) que podem solicitar acesso ao cofre de senhas em caso de emergência.
 - [ ] **Gerenciamento de Usuários e Integração de Diretórios (Business):**
   - Controle centralizado de políticas, integração com Active Directory/LDAP e Logon Único (SSO Federado).
