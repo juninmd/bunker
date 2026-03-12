@@ -53,18 +53,41 @@ export function generatePassword(length = 16, options = {}) {
     return shuffleArray(passwordArray).join('');
 }
 
+/**
+ * @param {string} charSet
+ * @returns {string}
+ */
 function getRandomChar(charSet) {
+    if (!charSet) {
+        throw new Error('Character set cannot be empty');
+    }
+
     const array = new Uint32Array(1);
     crypto.getRandomValues(array);
-    return charSet[array[0] % charSet.length];
+    const randomValue = array[0] ?? 0;
+    const char = charSet[randomValue % charSet.length];
+    if (!char) {
+        throw new Error('Failed to generate random character');
+    }
+    return char;
 }
 
+/**
+ * @param {string[]} array
+ * @returns {string[]}
+ */
 function shuffleArray(array) {
     for (let i = array.length - 1; i > 0; i--) {
         const rand = new Uint32Array(1);
         crypto.getRandomValues(rand);
-        const j = rand[0] % (i + 1);
-        [array[i], array[j]] = [array[j], array[i]];
+        const randomValue = rand[0] ?? 0;
+        const j = randomValue % (i + 1);
+        const current = array[i];
+        const target = array[j];
+        if (current === undefined || target === undefined) {
+            continue;
+        }
+        [array[i], array[j]] = [target, current];
     }
     return array;
 }
