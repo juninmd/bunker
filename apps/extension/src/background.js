@@ -117,7 +117,7 @@ async function handleCheckCredential(domain, username) {
 
         const credential = vault.find(cred => {
             if (!cred.site) return false;
-            return (domain.includes(cred.site) || cred.site.includes(domain)) && cred.username === username;
+            return (domain === cred.site || domain.endsWith('.' + cred.site) || cred.site.endsWith('.' + domain)) && cred.username === username;
         });
 
         if (credential) {
