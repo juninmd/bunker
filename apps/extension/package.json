@@ -4,6 +4,7 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "test": "node tests/unit_tests.mjs"
+    "test": "node tests/unit_tests.mjs",
+    "typecheck": "tsc -p tsconfig.json"
   }
 }

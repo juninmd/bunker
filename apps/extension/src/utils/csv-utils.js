@@ -100,11 +100,15 @@ export function parseCSV(content) {
   const lines = parseCSVLines(content);
   if (lines.length < 2) return [];
 
-  const headers = lines[0].map(h => h.trim());
+  const headerRow = lines[0];
+  if (!headerRow) return [];
+
+  const headers = headerRow.map(h => h.trim());
   const result = [];
 
   for (let i = 1; i < lines.length; i++) {
     const currentLine = lines[i];
+    if (!currentLine) continue;
     // Skip empty lines
     if (currentLine.length === 0 || (currentLine.length === 1 && currentLine[0] === '')) continue;
 
