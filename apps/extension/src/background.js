@@ -63,6 +63,11 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     handleGetCredentials(message.domain).then(sendResponse);
     return true;
   }
+  if (message.type === 'CHECK_CREDENTIAL') {
+    resetAutoLockIfUnlocked();
+    handleCheckCredential(message.domain, message.username).then(sendResponse);
+    return true;
+  }
   if (message.type === 'SAVE_CREDENTIAL') {
     resetAutoLockIfUnlocked();
     handleSaveCredential(message.data).then(sendResponse);
@@ -96,6 +101,29 @@ async function handleGetCredentials(domain) {
             return domain.includes(cred.site) || cred.site.includes(domain);
         });
         return { credentials };
+    } catch (e) {
+        return { error: e.message };
+    }
+}
+
+async function handleCheckCredential(domain, username) {
+    try {
+        const session = await chrome.storage.session.get('sessionKey');
+        if (!session || !session.sessionKey) return { error: 'LOCKED' };
+
+        const keyBytes = base64ToBytes(session.sessionKey);
+        await vaultService.unlockWithSessionKey(keyBytes);
+        const vault = vaultService.getVault();
+
+        const credential = vault.find(cred => {
+            if (!cred.site) return false;
+            return (domain === cred.site || domain.endsWith('.' + cred.site) || cred.site.endsWith('.' + domain)) && cred.username === username;
+        });
+
+        if (credential) {
+            return { password: credential.password };
+        }
+        return { password: null };
     } catch (e) {
         return { error: e.message };
     }

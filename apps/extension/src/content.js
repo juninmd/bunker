@@ -247,13 +247,51 @@ function handleFormSubmit(event) {
             console.log('BunkerPass: Detected form submission', { site, username });
 
             chrome.runtime.sendMessage({
-                type: 'SAVE_CREDENTIAL',
-                data: { site, username, password }
-            }, (response) => {
+                type: 'CHECK_CREDENTIAL',
+                domain: site,
+                username: username
+            }, (checkResponse) => {
                 if (chrome.runtime.lastError) {
-                    console.error('BunkerPass: Failed to save credential', chrome.runtime.lastError);
+                    console.error('BunkerPass: Error checking credential', chrome.runtime.lastError);
+                    return;
+                }
+
+                let shouldSave = false;
+
+                if (checkResponse.error === 'LOCKED') {
+                    console.log('BunkerPass: Vault locked, cannot check if password changed.');
+                    // Optionally prompt the user, or just skip saving silently
+                    return;
+                }
+
+                if (checkResponse.password) {
+                    if (checkResponse.password !== password) {
+                        // Password exists but is different -> Ask to update
+                        if (window.confirm("BunkerPass: Foi detectada uma nova senha para este login. Deseja atualizar a senha no cofre?")) {
+                            shouldSave = true;
+                        }
+                    } else {
+                        // Password is the same -> Do nothing
+                        console.log('BunkerPass: Password identical, no update needed.');
+                    }
                 } else {
-                    console.log('BunkerPass: Save response', response);
+                    // New credential -> Ask to save
+                    if (window.confirm("BunkerPass: Deseja salvar a senha para este novo login no cofre?")) {
+                        shouldSave = true;
+                    }
+                }
+
+                if (shouldSave) {
+                    chrome.runtime.sendMessage({
+                        type: 'SAVE_CREDENTIAL',
+                        data: { site, username, password }
+                    }, (saveResponse) => {
+                        if (chrome.runtime.lastError) {
+                            console.error('BunkerPass: Failed to save credential', chrome.runtime.lastError);
+                        } else {
+                            console.log('BunkerPass: Save response', saveResponse);
+                        }
+                    });
                 }
             });
         }
