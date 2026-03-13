@@ -18,6 +18,8 @@ const backToVaultBtn = document.getElementById('backToVaultBtn');
 const statTotal = document.getElementById('statTotal');
 const statWeak = document.getElementById('statWeak');
 const statReused = document.getElementById('statReused');
+const statOld = document.getElementById('statOld');
+const statScore = document.getElementById('statScore');
 const lastSyncEl = document.getElementById('last-sync');
 const masterPasswordInput = document.getElementById('masterPassword');
 const form = document.getElementById('credentialForm');
@@ -69,7 +71,11 @@ function showSecurityDashboard() {
   const passwords = vault.filter(item => (!item.type || item.type === 'password') && !item.deletedAt);
 
   let weakCount = 0;
+  let oldCount = 0;
   const passwordCounts = {};
+
+  const sixMonthsAgo = new Date();
+  sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
 
   passwords.forEach(item => {
     if (!item.password) return;
@@ -77,6 +83,17 @@ function showSecurityDashboard() {
     // Check weak password (length < 8)
     if (item.password.length < WEAK_PASSWORD_THRESHOLD) {
       weakCount++;
+    }
+
+    // Check old password (> 6 months)
+    if (item.updatedAt) {
+      const updatedDate = new Date(item.updatedAt);
+      if (updatedDate < sixMonthsAgo) {
+        oldCount++;
+      }
+    } else {
+      // If no updatedAt is present, assume it's old
+      oldCount++;
     }
 
     // Count occurrences
@@ -90,9 +107,22 @@ function showSecurityDashboard() {
     }
   }
 
+  // Calculate Security Score
+  // Base score 100, subtract points for vulnerabilities
+  let score = 100;
+  if (passwords.length > 0) {
+    // Arbitrary weighting: each weak password = -5, reused = -3, old = -1
+    const deductions = (weakCount * 5) + (reusedCount * 3) + (oldCount * 1);
+    score = Math.max(0, 100 - deductions);
+  } else {
+    score = 0; // No passwords, no score
+  }
+
+  statScore.textContent = score;
   statTotal.textContent = passwords.length;
   statWeak.textContent = weakCount;
   statReused.textContent = reusedCount;
+  statOld.textContent = oldCount;
 
   vaultSection.classList.add('hidden');
   securityDashboardSection.classList.remove('hidden');
