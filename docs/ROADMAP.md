@@ -51,7 +51,7 @@ Foco em igualar as funcionalidades de conveniência e organização.
 
 ### Fase 3: Auditoria e Monitoramento (Security Dashboard & Dark Web)
 Foco na proatividade da segurança.
-- [ ] **Painel de Segurança (Security Score):**
+- [x] **Painel de Segurança (Security Score):**
   - Análise de força das senhas (fracas, antigas).
   - Identificação de senhas reutilizadas.
 - [ ] **Monitoramento da Dark Web:**
@@ -67,7 +67,7 @@ Foco na proatividade da segurança.
 - [ ] **Salvar e preencher automaticamente no iPhone e no iPad:** Autopreenchimento no iOS via Credential Provider Extension.
 - [ ] **Salvar e preencher automaticamente no Safari:** Extensão compatível com Safari.
 - [x] **Salvar e preencher automaticamente no Mozilla Firefox:** Extensão compatível com Firefox.
-- [ ] **Painel de Segurança (Security Dashboard):** Avaliação de score de segurança, senhas fracas, reutilizadas ou antigas.
+- [x] **Painel de Segurança (Security Dashboard):** Avaliação de score de segurança, senhas fracas, reutilizadas ou antigas.
 
 ### Fase 4: Compartilhamento, Teams & Emergência
 Foco em funcionalidades colaborativas usando a infraestrutura do Google Drive.
