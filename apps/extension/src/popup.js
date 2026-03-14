@@ -150,58 +150,39 @@ document.querySelectorAll('input[name="itemType"]').forEach(radio => {
 });
 
 function updateFormState(type) {
+  // Reset all fields to default hidden/unrequired state
+  usernameWrapper.style.display = 'none';
+  usernameInput.removeAttribute('required');
+  passwordWrapper.style.display = 'none';
+  passwordStrengthContainer.classList.add('hidden');
+  passwordInput.removeAttribute('required');
+  cardFields.classList.add('hidden');
+  cardNameInput.removeAttribute('required');
+  cardNumberInput.removeAttribute('required');
+  addressFields.classList.add('hidden');
+  addressNameInput.removeAttribute('required');
+  addressStreetInput.removeAttribute('required');
+
   if (type === 'note') {
     siteInput.placeholder = 'Título da Nota';
-    usernameWrapper.style.display = 'none';
-    usernameInput.removeAttribute('required');
-    passwordWrapper.style.display = 'none';
-    passwordStrengthContainer.classList.add('hidden');
-    passwordInput.removeAttribute('required');
-    cardFields.classList.add('hidden');
-    cardNameInput.removeAttribute('required');
-    cardNumberInput.removeAttribute('required');
-    addressFields.classList.add('hidden');
-    addressNameInput.removeAttribute('required');
-    addressStreetInput.removeAttribute('required');
   } else if (type === 'card') {
     siteInput.placeholder = 'Apelido do Cartão';
-    usernameWrapper.style.display = 'none';
-    usernameInput.removeAttribute('required');
-    passwordWrapper.style.display = 'none';
-    passwordStrengthContainer.classList.add('hidden');
-    passwordInput.removeAttribute('required');
     cardFields.classList.remove('hidden');
     cardNameInput.setAttribute('required', 'true');
     cardNumberInput.setAttribute('required', 'true');
-    addressFields.classList.add('hidden');
-    addressNameInput.removeAttribute('required');
-    addressStreetInput.removeAttribute('required');
   } else if (type === 'address') {
     siteInput.placeholder = 'Perfil de Endereço';
-    usernameWrapper.style.display = 'none';
-    usernameInput.removeAttribute('required');
-    passwordWrapper.style.display = 'none';
-    passwordStrengthContainer.classList.add('hidden');
-    passwordInput.removeAttribute('required');
-    cardFields.classList.add('hidden');
-    cardNameInput.removeAttribute('required');
-    cardNumberInput.removeAttribute('required');
     addressFields.classList.remove('hidden');
     addressNameInput.setAttribute('required', 'true');
     addressStreetInput.setAttribute('required', 'true');
   } else {
+    // Password type
     siteInput.placeholder = 'Site (ex: github.com)';
     usernameWrapper.style.display = 'flex';
     usernameInput.setAttribute('required', 'true');
-    passwordWrapper.style.display = 'flex'; // Assuming flex for layout
+    passwordWrapper.style.display = 'flex';
     passwordStrengthContainer.classList.remove('hidden');
     passwordInput.setAttribute('required', 'true');
-    cardFields.classList.add('hidden');
-    cardNameInput.removeAttribute('required');
-    cardNumberInput.removeAttribute('required');
-    addressFields.classList.add('hidden');
-    addressNameInput.removeAttribute('required');
-    addressStreetInput.removeAttribute('required');
   }
 }
 
@@ -582,6 +563,7 @@ function handleEditCredential(id) {
             cardCvvInput.value = cardData.cvv || '';
             notesInput.value = cardData.notes || '';
         } catch (e) {
+            console.error('Failed to parse card data:', e);
             // Fallback if parsing fails
             notesInput.value = item.notes || '';
         }
@@ -596,6 +578,7 @@ function handleEditCredential(id) {
             addressPhoneInput.value = addressData.phone || '';
             notesInput.value = addressData.notes || '';
         } catch (e) {
+            console.error('Failed to parse address data:', e);
             notesInput.value = item.notes || '';
         }
     }
@@ -684,7 +667,9 @@ function renderVault(vault) {
                     const last4 = parsed.number.slice(-4);
                     userEl.textContent = `(Cartão final ${last4})`;
                 }
-            } catch (e) {}
+            } catch (e) {
+                console.warn('Failed to parse card data for display:', e);
+            }
         } else if (item.type === 'address') {
             userEl.textContent = '(Endereço)';
         } else {
