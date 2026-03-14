@@ -135,6 +135,19 @@ export class SyncService {
                   createdAt: new Date().toISOString(),
                   grouping: row.grouping
               };
+          } else if (url === 'http://id') {
+              // Address / Identity
+              return {
+                  id: crypto.randomUUID(),
+                  type: 'address',
+                  site: row.username || row.name || 'Sem Título',
+                  username: '',
+                  password: '',
+                  notes: row.extra || row.notes || '',
+                  updatedAt: new Date().toISOString(),
+                  createdAt: new Date().toISOString(),
+                  grouping: row.grouping
+              };
           } else {
               // Standard Password
               return {
@@ -279,6 +292,18 @@ export class SyncService {
                   extra: item.notes || '',
                   name: item.site,
                   grouping: item.grouping || 'Cartões',
+                  fav: '0'
+              };
+          }
+
+          if (item.type === 'address') {
+              return {
+                  url: 'http://id',
+                  username: item.site,
+                  password: '',
+                  extra: item.notes || '',
+                  name: item.site,
+                  grouping: item.grouping || 'Endereços',
                   fav: '0'
               };
           }
