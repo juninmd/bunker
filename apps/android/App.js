@@ -8,12 +8,12 @@ const MOCK_VAULT = [
 ];
 
 export default function App() {
-  const renderItem = ({ item }) => (
+  const renderItem = useCallback(({ item }) => (
     <TouchableOpacity style={styles.item}>
       <Text style={styles.title}>{item.title}</Text>
       <Text style={styles.subtitle}>{item.username}</Text>
     </TouchableOpacity>
-  );
+  ), []);
 
   return (
     <View style={styles.container}>
