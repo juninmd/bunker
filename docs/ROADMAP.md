@@ -39,7 +39,7 @@ Foco em igualar as funcionalidades de conveniência e organização.
 - [x] **Gerador de nome de usuário:** Gerar nomes de usuário aleatórios e exclusivos.
 - [ ] **Tipos de Itens Distintos:**
   - **Notas Seguras:** Suporte dedicado para notas criptografadas (não apenas campo extra).
-  - **Endereços e Cartões:** Perfis de preenchimento de formulários (Form Fills).
+  - [x] **Endereços e Cartões:** Perfis de preenchimento de formulários (Form Fills).
   - [x] **Cartões de Pagamento:** Armazenamento seguro de CVV e dados bancários.
 - [ ] **Chaves de Acesso (Passkeys):** Suporte nativo para criar, armazenar e gerenciar passkeys (WebAuthn).
 - [ ] **UX Aprimorada:**

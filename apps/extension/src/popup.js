@@ -47,6 +47,14 @@ const cardNameInput = document.getElementById('cardName');
 const cardNumberInput = document.getElementById('cardNumber');
 const cardExpInput = document.getElementById('cardExp');
 const cardCvvInput = document.getElementById('cardCvv');
+
+const addressFields = document.getElementById('addressFields');
+const addressNameInput = document.getElementById('addressName');
+const addressStreetInput = document.getElementById('addressStreet');
+const addressCityInput = document.getElementById('addressCity');
+const addressStateInput = document.getElementById('addressState');
+const addressZipInput = document.getElementById('addressZip');
+const addressPhoneInput = document.getElementById('addressPhone');
 const folderInput = document.getElementById('folder');
 const folderDatalist = document.getElementById('folderOptions');
 const submitButton = form.querySelector('button[type="submit"]');
@@ -142,36 +150,54 @@ document.querySelectorAll('input[name="itemType"]').forEach(radio => {
 });
 
 function updateFormState(type) {
-  if (type === 'note') {
-    siteInput.placeholder = 'Título da Nota';
-    usernameWrapper.style.display = 'none';
-    usernameInput.removeAttribute('required');
-    passwordWrapper.style.display = 'none';
-    passwordStrengthContainer.classList.add('hidden');
-    passwordInput.removeAttribute('required');
-    cardFields.classList.add('hidden');
-    cardNameInput.removeAttribute('required');
-    cardNumberInput.removeAttribute('required');
-  } else if (type === 'card') {
-    siteInput.placeholder = 'Apelido do Cartão';
-    usernameWrapper.style.display = 'none';
-    usernameInput.removeAttribute('required');
-    passwordWrapper.style.display = 'none';
-    passwordStrengthContainer.classList.add('hidden');
-    passwordInput.removeAttribute('required');
-    cardFields.classList.remove('hidden');
-    cardNameInput.setAttribute('required', 'true');
-    cardNumberInput.setAttribute('required', 'true');
-  } else {
-    siteInput.placeholder = 'Site (ex: github.com)';
-    usernameWrapper.style.display = 'flex';
-    usernameInput.setAttribute('required', 'true');
-    passwordWrapper.style.display = 'flex'; // Assuming flex for layout
-    passwordStrengthContainer.classList.remove('hidden');
-    passwordInput.setAttribute('required', 'true');
-    cardFields.classList.add('hidden');
-    cardNameInput.removeAttribute('required');
-    cardNumberInput.removeAttribute('required');
+  // Reset all fields to default hidden/unrequired state
+  usernameWrapper.style.display = 'none';
+  usernameInput.removeAttribute('required');
+  passwordWrapper.style.display = 'none';
+  passwordStrengthContainer.classList.add('hidden');
+  passwordInput.removeAttribute('required');
+  cardFields.classList.add('hidden');
+  cardNameInput.removeAttribute('required');
+  cardNumberInput.removeAttribute('required');
+  addressFields.classList.add('hidden');
+  addressNameInput.removeAttribute('required');
+  addressStreetInput.removeAttribute('required');
+
+  const typeConfig = {
+    note: { placeholder: 'Título da Nota' },
+    card: {
+      placeholder: 'Apelido do Cartão',
+      elementsToShow: [cardFields],
+      inputsToRequire: [cardNameInput, cardNumberInput]
+    },
+    address: {
+      placeholder: 'Perfil de Endereço',
+      elementsToShow: [addressFields],
+      inputsToRequire: [addressNameInput, addressStreetInput]
+    },
+    password: {
+      placeholder: 'Site (ex: github.com)',
+      elementsToShow: [usernameWrapper, passwordWrapper, passwordStrengthContainer],
+      inputsToRequire: [usernameInput, passwordInput],
+      displayStyle: 'flex'
+    }
+  };
+
+  const config = typeConfig[type] || typeConfig['password'];
+  siteInput.placeholder = config.placeholder;
+
+  if (config.elementsToShow) {
+    config.elementsToShow.forEach(el => {
+      if (config.displayStyle && el !== passwordStrengthContainer) {
+        el.style.display = config.displayStyle;
+      } else {
+        el.classList.remove('hidden');
+      }
+    });
+  }
+
+  if (config.inputsToRequire) {
+    config.inputsToRequire.forEach(input => input.setAttribute('required', 'true'));
   }
 }
 
@@ -420,6 +446,14 @@ async function handleSaveCredential(event) {
       setStatus('Preencha o apelido, nome e número do cartão.');
       return;
     }
+  } else if (type === 'address') {
+    site = site.trim();
+    username = '';
+    password = '';
+    if (!site || !addressNameInput.value || !addressStreetInput.value) {
+      setStatus('Preencha o perfil, nome e rua do endereço.');
+      return;
+    }
   }
 
   const now = new Date().toISOString();
@@ -441,19 +475,28 @@ async function handleSaveCredential(event) {
         existingIndex = newVault.findIndex(i => i.site === site && i.type === 'note');
     } else if (type === 'card') {
         existingIndex = newVault.findIndex(i => i.site === site && i.type === 'card');
+    } else if (type === 'address') {
+        existingIndex = newVault.findIndex(i => i.site === site && i.type === 'address');
     }
   }
 
   let finalNotes = notes;
-  if (type === 'card') {
-      const cardData = {
+  if (type === 'card' || type === 'address') {
+      const fieldData = type === 'card' ? {
           name: cardNameInput.value,
           number: cardNumberInput.value,
           exp: cardExpInput.value,
           cvv: cardCvvInput.value,
-          notes: notes
+      } : {
+          name: addressNameInput.value,
+          street: addressStreetInput.value,
+          city: addressCityInput.value,
+          state: addressStateInput.value,
+          zip: addressZipInput.value,
+          phone: addressPhoneInput.value,
       };
-      finalNotes = JSON.stringify(cardData);
+      fieldData.notes = notes;
+      finalNotes = JSON.stringify(fieldData);
   }
 
   if (existingIndex >= 0) {
@@ -522,16 +565,25 @@ function handleEditCredential(id) {
     if (type === 'password') {
         usernameInput.value = item.username;
         passwordInput.value = item.password;
-    } else if (type === 'card') {
+    } else if (type === 'card' || type === 'address') {
         try {
-            const cardData = JSON.parse(item.notes || '{}');
-            cardNameInput.value = cardData.name || '';
-            cardNumberInput.value = cardData.number || '';
-            cardExpInput.value = cardData.exp || '';
-            cardCvvInput.value = cardData.cvv || '';
-            notesInput.value = cardData.notes || '';
+            const parsedData = JSON.parse(item.notes || '{}');
+            if (type === 'card') {
+                cardNameInput.value = parsedData.name || '';
+                cardNumberInput.value = parsedData.number || '';
+                cardExpInput.value = parsedData.exp || '';
+                cardCvvInput.value = parsedData.cvv || '';
+            } else {
+                addressNameInput.value = parsedData.name || '';
+                addressStreetInput.value = parsedData.street || '';
+                addressCityInput.value = parsedData.city || '';
+                addressStateInput.value = parsedData.state || '';
+                addressZipInput.value = parsedData.zip || '';
+                addressPhoneInput.value = parsedData.phone || '';
+            }
+            notesInput.value = parsedData.notes || '';
         } catch (e) {
-            // Fallback if parsing fails
+            console.error(`Failed to parse ${type} data:`, e);
             notesInput.value = item.notes || '';
         }
     }
@@ -602,6 +654,8 @@ function renderVault(vault) {
            siteEl.textContent = '📝 ' + item.site; // item.site holds Title for notes
         } else if (item.type === 'card') {
            siteEl.textContent = '💳 ' + item.site;
+        } else if (item.type === 'address') {
+           siteEl.textContent = '🏠 ' + item.site;
         } else {
            siteEl.textContent = item.site;
         }
@@ -618,7 +672,11 @@ function renderVault(vault) {
                     const last4 = parsed.number.slice(-4);
                     userEl.textContent = `(Cartão final ${last4})`;
                 }
-            } catch (e) {}
+            } catch (e) {
+                console.warn('Failed to parse card data for display:', e);
+            }
+        } else if (item.type === 'address') {
+            userEl.textContent = '(Endereço)';
         } else {
             userEl.textContent = item.username;
         }

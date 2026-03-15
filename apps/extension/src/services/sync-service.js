@@ -122,11 +122,10 @@ export class SyncService {
                   createdAt: new Date().toISOString(),
                   grouping: row.grouping
               };
-          } else if (url === 'http://cc') {
-              // Payment Card
+          } else if (url === 'http://cc' || url === 'http://id') {
               return {
                   id: crypto.randomUUID(),
-                  type: 'card',
+                  type: url === 'http://cc' ? 'card' : 'address',
                   site: row.username || row.name || 'Sem Título',
                   username: '',
                   password: '',
@@ -271,14 +270,14 @@ export class SyncService {
               };
           }
 
-          if (item.type === 'card') {
+          if (item.type === 'card' || item.type === 'address') {
               return {
-                  url: 'http://cc',
+                  url: item.type === 'card' ? 'http://cc' : 'http://id',
                   username: item.site,
                   password: '',
                   extra: item.notes || '',
                   name: item.site,
-                  grouping: item.grouping || 'Cartões',
+                  grouping: item.grouping || (item.type === 'card' ? 'Cartões' : 'Endereços'),
                   fav: '0'
               };
           }

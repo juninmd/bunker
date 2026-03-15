@@ -25,6 +25,7 @@
             <label><input type="radio" name="itemType" value="password" checked> Senha</label>
             <label style="margin-left: 10px;"><input type="radio" name="itemType" value="note"> Nota Segura</label>
             <label style="margin-left: 10px;"><input type="radio" name="itemType" value="card"> Cartão</label>
+            <label style="margin-left: 10px;"><input type="radio" name="itemType" value="address"> Endereço</label>
           </div>
 
           <input id="site" placeholder="Site (ex: github.com)" required />
@@ -49,6 +50,19 @@
             <div style="display: flex; gap: 8px;">
               <input id="cardExp" placeholder="MM/AA" style="flex: 1;" />
               <input id="cardCvv" placeholder="CVV" style="flex: 1;" />
+            </div>
+          </div>
+
+          <div id="addressFields" class="hidden" style="display: flex; flex-direction: column; gap: 8px;">
+            <input id="addressName" placeholder="Nome Completo" />
+            <input id="addressStreet" placeholder="Endereço (Rua/Avenida)" />
+            <div style="display: flex; gap: 8px;">
+              <input id="addressCity" placeholder="Cidade" style="flex: 1;" />
+              <input id="addressState" placeholder="Estado" style="flex: 1;" />
+            </div>
+            <div style="display: flex; gap: 8px;">
+              <input id="addressZip" placeholder="CEP" style="flex: 1;" />
+              <input id="addressPhone" placeholder="Telefone" style="flex: 1;" />
             </div>
           </div>
 
