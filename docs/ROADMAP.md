@@ -48,6 +48,7 @@ Foco em igualar as funcionalidades de conveniência e organização.
 - [~] **Segurança Avançada:**
   - [x] **Logout Automático:** Configuração de timeout por inatividade.
   - [ ] **Desbloqueio com PIN/Biometria:** Opção de PIN curto para acesso rápido (se suportado pelo navegador/OS).
+  - [ ] **Login sem senha no cofre:** Passkeys ou FIDO2 para acesso direto ao cofre sem a senha mestre.
 
 ### Fase 3: Auditoria e Monitoramento (Security Dashboard & Dark Web)
 Foco na proatividade da segurança.
@@ -58,33 +59,23 @@ Foco na proatividade da segurança.
   - Alertas se informações ou senhas do usuário forem encontradas em vazamentos conhecidos na dark web.
 - [ ] **Histórico de Senhas:** Manter histórico de alterações para permitir reversão.
 - [ ] **Testamento Digital (Digital Will):** Preparar uma cópia segura dos acessos.
-- [ ] **Compartilhe credenciais com segurança:** Compartilhe credenciais com segurança.
-- [ ] **Sincronização automática de dispositivos:** Sincronização constante de cofres através de multiplos dispositivos.
-- [x] **Notas seguras:** Armazenamento seguro de anotações confidenciais.
-- [ ] **Login sem senha no cofre:** Passkeys ou FIDO2 para acesso ao cofre.
-- [x] **Salvar e preencher automaticamente no Google Chrome:** Extensão compatível com Chrome.
-- [ ] **Salvar e preencher automaticamente no Android:** Autopreenchimento no Android via Accessibility ou Autofill API.
-- [ ] **Salvar e preencher automaticamente no iPhone e no iPad:** Autopreenchimento no iOS via Credential Provider Extension.
-- [ ] **Salvar e preencher automaticamente no Safari:** Extensão compatível com Safari.
-- [x] **Salvar e preencher automaticamente no Mozilla Firefox:** Extensão compatível com Firefox.
-- [x] **Painel de Segurança (Security Dashboard):** Avaliação de score de segurança, senhas fracas, reutilizadas ou antigas.
 
-### Fase 4: Compartilhamento, Teams & Emergência
+### Fase 4: Compartilhamento, Teams & Corporativo
 Foco em funcionalidades colaborativas usando a infraestrutura do Google Drive.
 - [ ] **Compartilhamento de Senhas Pessoais e Empresariais:**
-  - Compartilhamento de senhas pessoais.
-  - Compartilhamento de senhas empresariais.
   - Compartilhar item específico criando um arquivo criptografado separado e compartilhando via permissões do Drive.
   - Pastas Compartilhadas: Sincronização de arquivos CSV específicos de pastas do Drive (ex: `family-passwords.csv`, `team-passwords.csv`).
-- [ ] **Acesso de Emergência:** Acesso de emergência.
+- [ ] **Acesso de Emergência:**
   - Configurar contatos de confiança (entes queridos) que podem solicitar acesso ao cofre de senhas em caso de emergência.
 - [ ] **Gerenciamento de Usuários e Integração de Diretórios (Business):**
   - Controle centralizado de políticas, integração com Active Directory/LDAP e Logon Único (SSO Federado).
-- [ ] **Workstation MFA:** Expansão da autenticação multifatorial para estações de trabalho (Login seguro no Windows/Mac).
-- [ ] **SaaS Protect:** Monitoramento e restrição a aplicativos SaaS perigosos ou não homologados.
-- [ ] **Acesso Seguro:** VPN corporativa ou proxy de autenticação integrado.
+- [ ] **Login Federado:**
+  - Permita que os usuários façam login com suas credenciais de identidade federada.
+- [ ] **Workstation MFA:**
+  - Expansão da autenticação multifatorial para estações de trabalho (Login seguro no Windows/Mac).
+- [ ] **SaaS Protect:**
+  - Monitoramento e restrição a aplicativos SaaS perigosos ou não homologados.
 - [ ] **Autenticação multifatorial (MFA):** Suporte nativo a 2FA (TOTP, YubiKey) e chaves de segurança.
-- [ ] **Login sem senha no cofre:** Acessar facilmente o cofre sem precisar digitar a senha mestre (via dispositivo móvel ou biometria).
 
 ### Fase 5: Expansão Multiplataforma
 Levar o cofre para fora do navegador com experiência nativa.
@@ -93,12 +84,18 @@ Levar o cofre para fora do navegador com experiência nativa.
   - [ ] Wrapper da lógica da extensão.
   - [ ] Atalho global para preenchimento em apps nativos.
   - [ ] Funcionamento offline robusto com `file://` ou SQLite local.
-- [ ] **App Android (React Native):**
-  - Integração com Autofill Framework do Android.
+- [ ] **App Android (React Native/Expo):**
+  - Salvar e preencher automaticamente credenciais (Integração com Autofill Framework do Android).
   - Acesso biométrico (Fingerprint/FaceID) para desbloqueio.
-  - Sincronização direta com o arquivo `passwords.csv` e `vault.enc` no Google Drive.
+  - Sincronização automática de dispositivos via Google Drive.
   - **APK:** Geração automatizada de APK via GitHub Actions.
-- [ ] **App iOS:** Portabilidade da versão React Native para iOS.
+- [ ] **App iOS:**
+  - Salvar e preencher automaticamente no iPhone e iPad.
+- [ ] **Salvar e preencher automaticamente em outros Navegadores:**
+  - [x] Google Chrome
+  - [x] Mozilla Firefox
+  - [ ] Apple Safari
+  - [ ] Microsoft Edge
 
 ## Detalhes Técnicos
 
