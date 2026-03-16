@@ -110,7 +110,7 @@ export class SyncService {
       const imported = parsed.map(row => {
           const url = row.url || row.site || row.name || '';
           if (url === 'http://sn') {
-              // Secure Note
+              // Secure Note (Notas Seguras)
               return {
                   id: crypto.randomUUID(),
                   type: 'note',
@@ -120,7 +120,7 @@ export class SyncService {
                   notes: row.extra || row.notes || row.password || '',
                   updatedAt: new Date().toISOString(),
                   createdAt: new Date().toISOString(),
-                  grouping: row.grouping
+                  grouping: row.grouping || 'Secure Notes'
               };
           } else if (url === 'http://cc') {
               // Payment Card
@@ -263,8 +263,8 @@ export class SyncService {
               return {
                   url: 'http://sn',
                   username: item.site, // Title goes to username col in LP export usually
-                  password: '',
-                  extra: item.notes || '',
+                  password: '', // Senha é vazia para nota segura
+                  extra: item.notes || '', // Conteudo da nota vai no extra
                   name: item.site,
                   grouping: item.grouping || 'Secure Notes',
                   fav: '0'

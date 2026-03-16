@@ -38,17 +38,19 @@ Foco em igualar as funcionalidades de conveniência e organização.
   - Visualização hierárquica no Popup.
 - [x] **Gerador de nome de usuário:** Gerar nomes de usuário aleatórios e exclusivos.
 - [ ] **Tipos de Itens Distintos:**
-  - **Notas Seguras:** Suporte dedicado para notas criptografadas (não apenas campo extra).
+  - **Notas Seguras:** Suporte dedicado para notas criptografadas e anotações financeiras, rascunhos ou Wi-Fi.
   - **Endereços e Cartões:** Perfis de preenchimento de formulários (Form Fills).
   - [x] **Cartões de Pagamento:** Armazenamento seguro de CVV e dados bancários.
-- [ ] **Chaves de Acesso (Passkeys):** Suporte nativo para criar, armazenar e gerenciar passkeys (WebAuthn).
+- [ ] **Chaves de Acesso (Passkeys):** Suporte nativo para criar, armazenar e gerenciar passkeys (WebAuthn), acelerando logins.
 - [ ] **UX Aprimorada:**
   - [x] **Ícone In-Field:** Botão do BunkerPass dentro dos inputs de login para preenchimento com um clique.
   - [x] **Detector de Mudança de Senha:** Pop-up perguntando "Deseja atualizar esta senha?" ao submeter formulários.
+  - [ ] **Sincronização automática de dispositivos:** Salvar uma senha em um dispositivo e tê-la disponível em todos.
 - [~] **Segurança Avançada:**
   - [x] **Logout Automático:** Configuração de timeout por inatividade.
-  - [ ] **Desbloqueio com PIN/Biometria:** Opção de PIN curto para acesso rápido (se suportado pelo navegador/OS).
-  - [ ] **Login sem senha no cofre:** Passkeys ou FIDO2 para acesso direto ao cofre sem a senha mestre.
+  - [ ] **Desbloqueio com PIN/Biometria:** Opção de PIN curto para acesso rápido.
+  - [ ] **Login sem senha no cofre:** Usar biometria/passkey para dispensar digitação de senha mestre.
+  - [ ] **Recuperação de Conta:** Mecanismo seguro de recuperação para senha mestre esquecida.
 
 ### Fase 3: Auditoria e Monitoramento (Security Dashboard & Dark Web)
 Foco na proatividade da segurança.
@@ -62,20 +64,14 @@ Foco na proatividade da segurança.
 
 ### Fase 4: Compartilhamento, Teams & Corporativo
 Foco em funcionalidades colaborativas usando a infraestrutura do Google Drive.
-- [ ] **Compartilhamento de Senhas Pessoais e Empresariais:**
-  - Compartilhar item específico criando um arquivo criptografado separado e compartilhando via permissões do Drive.
-  - Pastas Compartilhadas: Sincronização de arquivos CSV específicos de pastas do Drive (ex: `family-passwords.csv`, `team-passwords.csv`).
-- [ ] **Acesso de Emergência:**
-  - Configurar contatos de confiança (entes queridos) que podem solicitar acesso ao cofre de senhas em caso de emergência.
-- [ ] **Gerenciamento de Usuários e Integração de Diretórios (Business):**
-  - Controle centralizado de políticas, integração com Active Directory/LDAP e Logon Único (SSO Federado).
-- [ ] **Login Federado:**
-  - Permita que os usuários façam login com suas credenciais de identidade federada.
-- [ ] **Workstation MFA:**
-  - Expansão da autenticação multifatorial para estações de trabalho (Login seguro no Windows/Mac).
-- [ ] **SaaS Protect:**
-  - Monitoramento e restrição a aplicativos SaaS perigosos ou não homologados.
-- [ ] **Autenticação multifatorial (MFA):** Suporte nativo a 2FA (TOTP, YubiKey) e chaves de segurança.
+- [ ] **Compartilhamento Pessoal (Personal Password Sharing):** Compartilhamento de credenciais com amigos e familiares sem abrir mão do controle de acesso.
+- [ ] **Compartilhamento Empresarial (Business Password Sharing):** Compartilhamento de senhas corporativas com membros da equipe, freelancers e fornecedores.
+- [ ] **Acesso de Emergência:** Conceda a um contato de confiança ou a um ente querido acesso ao cofre de senhas em caso de emergência.
+- [ ] **Gerenciamento de Usuários:** Controle da segurança, contas e políticas da empresa em uma única plataforma (Business).
+- [ ] **Integração de Diretórios:** Integração com o diretório de usuários existente (AD/LDAP) para automatizar provisionamento.
+- [ ] **Login Federado:** Permita que os usuários façam login com suas credenciais de identidade federada.
+- [ ] **Workstation MFA:** Expansão da autenticação multifatorial para estações de trabalho (Login em Windows/Mac).
+- [ ] **SaaS Protect:** Medidas para controlar o uso de SaaS e lidar com riscos relacionados a credenciais não homologadas.
 
 ### Fase 5: Expansão Multiplataforma
 Levar o cofre para fora do navegador com experiência nativa.
@@ -91,11 +87,13 @@ Levar o cofre para fora do navegador com experiência nativa.
   - **APK:** Geração automatizada de APK via GitHub Actions.
 - [ ] **App iOS:**
   - Salvar e preencher automaticamente no iPhone e iPad.
-- [ ] **Salvar e preencher automaticamente em outros Navegadores:**
+- [ ] **Salvar e preencher automaticamente em outros Navegadores e Dispositivos:**
   - [x] Google Chrome
   - [x] Mozilla Firefox
   - [ ] Apple Safari
   - [ ] Microsoft Edge
+  - [ ] Android (Autofill framework nativo)
+  - [ ] iPhone e iPad (iOS Autofill)
 
 ## Detalhes Técnicos
 
