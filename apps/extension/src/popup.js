@@ -385,16 +385,12 @@ function renderVault(vault) {
 
   // Group by folder
   const grouped = Object.create(null);
-    }
-    ul.classList.add('folder-list');
-function normalizeSite(siteInput) {
-  const trimmed = siteInput.trim();
-  if (!trimmed) {
-    summary.classList.add('folder-summary');
   return withoutProtocol.replace(/\/+$/, '').toLowerCase();
     ul.classList.add('folder-list');
 }
 
+    ul.classList.add('folder-list');
+    summary.classList.add('folder-summary');
     ul.classList.add('folder-list');
     summary.classList.add('folder-summary');
     ul.classList.add('folder-list');
