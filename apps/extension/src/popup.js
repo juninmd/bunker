@@ -385,12 +385,6 @@ function renderVault(vault) {
 
   // Group by folder
   const grouped = Object.create(null);
-    credentialList.append(details);
-    ul.classList.add('folder-list');
-    if (Object.keys(grouped).length > 0) {
-      const header = document.createElement('div');
-      header.textContent = 'Sem Pasta';
-    summary.classList.add('folder-summary');
     }
     ul.classList.add('folder-list');
 function normalizeSite(siteInput) {
@@ -401,6 +395,8 @@ function normalizeSite(siteInput) {
     ul.classList.add('folder-list');
 }
 
+    ul.classList.add('folder-list');
+    summary.classList.add('folder-summary');
     ul.classList.add('folder-list');
     summary.classList.add('folder-summary');
     ul.classList.add('folder-list');
