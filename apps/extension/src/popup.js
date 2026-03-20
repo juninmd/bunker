@@ -385,12 +385,6 @@ function renderVault(vault) {
 
   // Group by folder
   const grouped = Object.create(null);
-        removeButton.className = 'danger small';
-        removeButton.textContent = 'Remover';
-        removeButton.addEventListener('click', () => {
-          handleDeleteCredential(item.id);
-        });
-
         actionsDiv.append(editButton, removeButton);
 
         li.append(siteEl, userEl, actionsDiv);
@@ -425,6 +419,8 @@ function normalizeSite(siteInput) {
     ul.classList.add('folder-list');
 }
 
+    ul.classList.add('folder-list');
+    summary.classList.add('folder-summary');
     ul.classList.add('folder-list');
     summary.classList.add('folder-summary');
     ul.classList.add('folder-list');
