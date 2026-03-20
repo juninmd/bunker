@@ -385,12 +385,6 @@ function renderVault(vault) {
 
   // Group by folder
   const grouped = Object.create(null);
-        editButton.addEventListener('click', () => {
-          handleEditCredential(item.id);
-        });
-
-        const removeButton = document.createElement('button');
-        removeButton.type = 'button';
         removeButton.className = 'danger small';
         removeButton.textContent = 'Remover';
         removeButton.addEventListener('click', () => {
@@ -431,6 +425,8 @@ function normalizeSite(siteInput) {
     ul.classList.add('folder-list');
 }
 
+    ul.classList.add('folder-list');
+    summary.classList.add('folder-summary');
     ul.classList.add('folder-list');
     summary.classList.add('folder-summary');
     ul.classList.add('folder-list');
