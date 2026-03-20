@@ -1,0 +1,4 @@
+[[allowlist]]
+description = "False positive: generic-api-key in apps/extension/src/popup.js"
+rules = ["generic-api-key"]
+paths = ["apps/extension/src/popup.js"]
