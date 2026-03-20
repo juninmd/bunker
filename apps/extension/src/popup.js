@@ -385,12 +385,6 @@ function renderVault(vault) {
 
   // Group by folder
   const grouped = Object.create(null);
-        userEl.textContent = item.type === 'note' ? '(Nota Segura)' : item.username;
-
-        if (item.notes && item.type !== 'note') { // Only show icon if it's a password with notes
-          const notesIcon = document.createElement('span');
-          notesIcon.textContent = ' 📄';
-          notesIcon.title = item.notes;
           notesIcon.style.cursor = 'help';
           userEl.appendChild(notesIcon);
         }
@@ -449,5 +443,7 @@ function normalizeSite(siteInput) {
     ul.classList.add('folder-list');
 }
 
+    ul.classList.add('folder-list');
+    summary.classList.add('folder-summary');
     ul.classList.add('folder-list');
     summary.classList.add('folder-summary');
