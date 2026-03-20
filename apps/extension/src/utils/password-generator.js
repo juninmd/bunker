@@ -78,11 +78,11 @@ export function generateUsername(length = 12) {
         throw new Error('Length must be at least 1');
     }
 
-    let username = getRandomChar(letters); // First character must be a letter
+    const usernameChars = [getRandomChar(letters)]; // First character must be a letter
 
     for (let i = 1; i < length; i++) {
-        username += getRandomChar(allowedChars);
+        usernameChars.push(getRandomChar(allowedChars));
     }
 
-    return username;
+    return usernameChars.join('');
 }
