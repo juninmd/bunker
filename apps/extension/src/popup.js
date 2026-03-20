@@ -385,12 +385,6 @@ function renderVault(vault) {
 
   // Group by folder
   const grouped = Object.create(null);
-
-        const editButton = document.createElement('button');
-        editButton.type = 'button';
-        editButton.className = 'secondary small'; // Assuming small class or I can add inline style
-        editButton.textContent = 'Edit';
-        editButton.style.marginRight = '5px';
         editButton.addEventListener('click', () => {
           handleEditCredential(item.id);
         });
@@ -437,6 +431,8 @@ function normalizeSite(siteInput) {
     ul.classList.add('folder-list');
 }
 
+    ul.classList.add('folder-list');
+    summary.classList.add('folder-summary');
     ul.classList.add('folder-list');
     summary.classList.add('folder-summary');
     ul.classList.add('folder-list');
