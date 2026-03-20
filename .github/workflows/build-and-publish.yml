@@ -1,8 +1,9 @@
 name: Build and Publish Artifacts
 
-# Roda na criacao da tag gerada pelo release-please.
-# Empacota a extensao e futuramente apps mobile (APK) e desktop,
-# automatizando a criacao do artefato conforme requisito.
+# BunkerPass Artifact Builder
+# Acionado na criação de uma tag gerada pelo release-please.
+# Empacota a extensão (bunkerpass-extension), App Desktop e App Android (APK),
+# automatizando a criação da release de fato com todos os clientes.
 on:
   push:
     tags:
