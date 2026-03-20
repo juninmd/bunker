@@ -385,12 +385,6 @@ function renderVault(vault) {
 
   // Group by folder
   const grouped = Object.create(null);
-  const renderList = (items, container) => {
-    items
-      .slice()
-      .sort((a, b) => (a.site || '').localeCompare(b.site || ''))
-      .forEach((item) => {
-        const li = document.createElement('li');
 
         const siteEl = document.createElement('div');
         siteEl.className = 'item-site';
@@ -456,15 +450,9 @@ function renderVault(vault) {
     if (Object.keys(grouped).length > 0) {
       const header = document.createElement('div');
       header.textContent = 'Sem Pasta';
-      header.style.fontWeight = 'bold';
-      header.style.marginTop = '8px';
-      header.style.marginBottom = '4px';
-      credentialList.append(header);
+    summary.classList.add('folder-summary');
     }
-    renderList(noFolder, credentialList);
-  }
-}
-
+    ul.classList.add('folder-list');
 function normalizeSite(siteInput) {
   const trimmed = siteInput.trim();
   if (!trimmed) {
