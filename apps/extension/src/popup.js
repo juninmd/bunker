@@ -385,12 +385,6 @@ function renderVault(vault) {
 
   // Group by folder
   const grouped = Object.create(null);
-          notesIcon.style.cursor = 'help';
-          userEl.appendChild(notesIcon);
-        }
-
-        const actionsDiv = document.createElement('div');
-        actionsDiv.className = 'item-actions'; // For CSS styling if needed
 
         const editButton = document.createElement('button');
         editButton.type = 'button';
@@ -443,6 +437,8 @@ function normalizeSite(siteInput) {
     ul.classList.add('folder-list');
 }
 
+    ul.classList.add('folder-list');
+    summary.classList.add('folder-summary');
     ul.classList.add('folder-list');
     summary.classList.add('folder-summary');
     ul.classList.add('folder-list');
