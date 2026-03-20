@@ -395,7 +395,3 @@ function renderVault(vault) {
     summary.classList.add('folder-summary');
     ul.classList.add('folder-list');
     summary.classList.add('folder-summary');
-    ul.classList.add('folder-list');
-    summary.classList.add('folder-summary');
-    ul.classList.add('folder-list');
-    summary.classList.add('folder-summary');
