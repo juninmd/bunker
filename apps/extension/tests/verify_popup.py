@@ -62,6 +62,7 @@ def run(playwright):
         print("Typing password 'StrongP@ssw0rd!123'...")
         page.fill('#password', 'StrongP@ssw0rd!123')
         page.wait_for_selector('#password-strength-bar.strength-strong', state='visible')
+        page.wait_for_selector('#password-strength-bar.strength-strong', state='visible')
         page.screenshot(path='apps/extension/tests/screenshot_strong_password.png')
 
         # Test Security Dashboard
