@@ -385,12 +385,6 @@ function renderVault(vault) {
 
   // Group by folder
   const grouped = Object.create(null);
-
-    ul.classList.add('folder-list');
-
-    renderList(grouped[folder], ul);
-
-    summary.classList.add('folder-summary');
     credentialList.append(details);
     ul.classList.add('folder-list');
     if (Object.keys(grouped).length > 0) {
@@ -407,6 +401,8 @@ function normalizeSite(siteInput) {
     ul.classList.add('folder-list');
 }
 
+    ul.classList.add('folder-list');
+    summary.classList.add('folder-summary');
     ul.classList.add('folder-list');
     summary.classList.add('folder-summary');
     ul.classList.add('folder-list');
