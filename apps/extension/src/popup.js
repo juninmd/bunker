@@ -387,7 +387,3 @@ function renderVault(vault) {
   const grouped = Object.create(null);
     ul.classList.add('folder-list');
     summary.classList.add('folder-summary');
-    ul.classList.add('folder-list');
-    summary.classList.add('folder-summary');
-    ul.classList.add('folder-list');
-    summary.classList.add('folder-summary');
