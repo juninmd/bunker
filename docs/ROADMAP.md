@@ -33,9 +33,9 @@ Foco nas funcionalidades essenciais de um gerenciador de senhas.
 
 ### Fase 2: Paridade de Features (LastPass Replacement)
 Foco em igualar as funcionalidades de conveniência e organização.
-- [ ] **Organização por Pastas/Grupos:**
-  - Implementar campo `grouping` no schema e UI.
-  - Visualização hierárquica no Popup.
+- [x] **Organização por Pastas/Grupos:**
+  - [x] Implementar campo `grouping` no schema e UI.
+  - [x] Visualização hierárquica no Popup.
 - [ ] **Tipos de Itens Distintos:**
   - **Notas Seguras:** Suporte dedicado para notas criptografadas (não apenas campo extra).
   - **Endereços e Cartões:** Perfis de preenchimento de formulários (Form Fills).
