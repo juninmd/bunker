@@ -385,12 +385,6 @@ function renderVault(vault) {
 
   // Group by folder
   const grouped = Object.create(null);
-    } else {
-      noFolder.push(item);
-    }
-  });
-
-  // Helper to render a list of items into a container
   const renderList = (items, container) => {
     items
       .slice()
@@ -456,15 +450,9 @@ function renderVault(vault) {
 
     renderList(grouped[folder], ul);
 
-    details.append(summary, ul);
-    // Expand by default if searching
-    if (searchInput.value.trim()) details.open = true;
-
+    summary.classList.add('folder-summary');
     credentialList.append(details);
-  });
-
-  // Render items without folder
-  if (noFolder.length > 0) {
+    ul.classList.add('folder-list');
     if (Object.keys(grouped).length > 0) {
       const header = document.createElement('div');
       header.textContent = 'Sem Pasta';
