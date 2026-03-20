@@ -385,12 +385,6 @@ function renderVault(vault) {
 
   // Group by folder
   const grouped = Object.create(null);
-
-        const siteEl = document.createElement('div');
-        siteEl.className = 'item-site';
-
-        if (item.type === 'note') {
-           siteEl.textContent = '📝 ' + item.site; // item.site holds Title for notes
         } else {
            siteEl.textContent = item.site;
         }
@@ -456,13 +450,7 @@ function renderVault(vault) {
 function normalizeSite(siteInput) {
   const trimmed = siteInput.trim();
   if (!trimmed) {
-    return '';
-  }
-
-  const withoutProtocol = trimmed.replace(/^https?:\/\//i, '');
+    summary.classList.add('folder-summary');
   return withoutProtocol.replace(/\/+$/, '').toLowerCase();
-}
-
-function setStatus(message) {
-  statusEl.textContent = message;
+    ul.classList.add('folder-list');
 }
