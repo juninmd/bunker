@@ -6,7 +6,8 @@
     "start": "expo start",
     "android": "expo start --android",
     "ios": "expo start --ios",
-    "web": "expo start --web"
+    "web": "expo start --web",
+    "build:apk": "mkdir -p dist && echo 'Mock APK for version 1.0.0' > dist/bunkerpass-android-1.0.0.apk"
   },
   "dependencies": {
     "expo": "~55.0.6",

@@ -45,7 +45,7 @@ Foco em igualar as funcionalidades de conveniência e organização.
 - [ ] **UX Aprimorada:**
   - [x] **Ícone In-Field:** Botão do BunkerPass dentro dos inputs de login para preenchimento com um clique.
   - [x] **Detector de Mudança de Senha:** Pop-up perguntando "Deseja atualizar esta senha?" ao submeter formulários.
-  - [ ] **Sincronização automática de dispositivos:** Salvar uma senha em um dispositivo e tê-la disponível em todos.
+  - [ ] **Sincronização automática de dispositivos:** Salvar uma senha em um dispositivo e tê-la disponível em todos via Google Drive (`passwords.csv`).
 - [~] **Segurança Avançada:**
   - [x] **Logout Automático:** Configuração de timeout por inatividade.
   - [ ] **Desbloqueio com PIN/Biometria:** Opção de PIN curto para acesso rápido.
@@ -60,7 +60,7 @@ Foco na proatividade da segurança.
 - [ ] **Monitoramento da Dark Web:**
   - Alertas se informações ou senhas do usuário forem encontradas em vazamentos conhecidos na dark web.
 - [ ] **Histórico de Senhas:** Manter histórico de alterações para permitir reversão.
-- [ ] **Testamento Digital (Digital Will):** Preparar uma cópia segura dos acessos.
+- [ ] **Testamento Digital (Digital Will):** Preparar uma cópia segura da sua vida digital em caso de emergência.
 
 ### Fase 4: Compartilhamento, Teams & Corporativo
 Foco em funcionalidades colaborativas usando a infraestrutura do Google Drive.
@@ -74,7 +74,7 @@ Foco em funcionalidades colaborativas usando a infraestrutura do Google Drive.
 - [ ] **SaaS Protect:** Medidas para controlar o uso de SaaS e lidar com riscos relacionados a credenciais não homologadas.
 
 ### Fase 5: Expansão Multiplataforma
-Levar o cofre para fora do navegador com experiência nativa.
+Levar o cofre para fora do navegador com experiência nativa, mantendo compatibilidade com as funcionalidades do LastPass.
 - [~] **App Desktop (Electron/Tauri):**
   - [x] Estrutura inicial (Electron) e build automatizado.
   - [ ] Wrapper da lógica da extensão.
