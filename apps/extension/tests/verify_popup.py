@@ -66,13 +66,14 @@ def run(playwright):
         page.wait_for_selector('#password-strength-bar.strength-strong', state='visible')
         page.wait_for_selector('#password-strength-bar.strength-strong', state='visible')
         page.wait_for_selector('#password-strength-bar.strength-strong', state='visible')
+        page.wait_for_selector('#password-strength-bar.strength-strong', state='visible')
         page.screenshot(path='apps/extension/tests/screenshot_strong_password.png')
 
-        # Test Security Dashboard
         statTotal = page.inner_text('#statTotal')
         assert statTotal == '0'
         assert page.inner_text('#statWeak') == '0'
         assert page.inner_text('#statReused') == '0'
+        print(f"Total Passwords in Dashboard: {statTotal}")
         print(f"Total Passwords in Dashboard: {statTotal}")
         print(f"Total Passwords in Dashboard: {statTotal}")
         print(f"Total Passwords in Dashboard: {statTotal}")
