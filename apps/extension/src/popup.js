@@ -384,13 +384,7 @@ function renderVault(vault) {
   }
 
   // Group by folder
-  const grouped = {};
-  const noFolder = [];
-
-  visibleVault.forEach(item => {
-    if (item.grouping && item.grouping !== 'Deleted') {
-      if (!grouped[item.grouping]) grouped[item.grouping] = [];
-      grouped[item.grouping].push(item);
+  const grouped = Object.create(null);
     } else {
       noFolder.push(item);
     }
@@ -456,15 +450,9 @@ function renderVault(vault) {
   Object.keys(grouped).sort().forEach(folder => {
     const details = document.createElement('details');
     const summary = document.createElement('summary');
-    summary.textContent = `📁 ${folder} (${grouped[folder].length})`;
-    summary.style.cursor = 'pointer';
-    summary.style.fontWeight = 'bold';
-    summary.style.marginBottom = '4px';
+    summary.classList.add('folder-summary');
 
-    const ul = document.createElement('ul');
-    ul.style.paddingLeft = '10px';
-    ul.style.listStyle = 'none';
-    ul.style.margin = '4px 0 12px 0';
+    ul.classList.add('folder-list');
 
     renderList(grouped[folder], ul);
 
