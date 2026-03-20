@@ -385,10 +385,6 @@ function renderVault(vault) {
 
   // Group by folder
   const grouped = Object.create(null);
-  return withoutProtocol.replace(/\/+$/, '').toLowerCase();
-    ul.classList.add('folder-list');
-}
-
     ul.classList.add('folder-list');
     summary.classList.add('folder-summary');
     ul.classList.add('folder-list');
