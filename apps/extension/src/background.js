@@ -40,7 +40,7 @@ function lockVault() {
 
 // Reset autolock on any session key update (which happens on unlock)
 chrome.storage.session.onChanged.addListener((changes) => {
-  if (changes.sessionKey && changes.sessionKey.newValue) {
+  if ('sessionKey' in changes && changes.sessionKey.newValue !== undefined) {
     resetAutoLock();
   }
 });
@@ -69,10 +69,11 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
           const credentials = decrypted.filter(item =>
             (!item.type || item.type === 'password') &&
             !item.deletedAt &&
-            item.site && (domain === item.site || domain.endsWith('.' + item.site))
+            item.site && item.site.includes(domain)
           );
           sendResponse({ credentials });
         } catch (e) {
+          console.error('Decryption failed for vault access', e.message);
           sendResponse({ error: 'DECRYPT_FAILED' });
         }
       });
@@ -104,6 +105,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                   );
                   sendResponse({ password: cred ? cred.password : null });
               } catch (e) {
+                  console.error('Decryption failed for credential check', e.message);
                   sendResponse({ error: 'DECRYPT_FAILED' });
               }
           });
@@ -125,6 +127,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                   try {
                       vault = await decryptWithKey(localResult['bunkerpass.vault'], sessionResult.sessionKey);
                   } catch (e) {
+                      console.error('Decryption failed prior to save', e.message);
                       sendResponse({ error: 'DECRYPT_FAILED' });
                       return;
                   }
