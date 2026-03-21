@@ -5,6 +5,7 @@ name: Release Please
 # gera tags automaticamente ao aprovar o PR, e mantém
 # o versionamento no README sempre atualizado.
 # Integrado via scripts/update-readme.js e release-please.
+# O diferencial é manter a documentação e releases perfeitamente sincronizadas.
 on:
   push:
     branches:

@@ -42,6 +42,7 @@ export async function decryptPayload(payload, masterPassword, salt) {
   return JSON.parse(new TextDecoder().decode(plaintext));
 }
 
+// Helper to encrypt data with AES-GCM
 export async function encryptWithKey(data, key) {
   const iv = crypto.getRandomValues(new Uint8Array(12));
   const plaintext = new TextEncoder().encode(JSON.stringify(data));

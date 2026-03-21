@@ -11,6 +11,7 @@ export class SyncService {
     this.VAULT_SCHEMA_VERSION = 1;
   }
 
+  // Realiza a sincronização bidirecional do cofre e do arquivo .csv no Google Drive
   async sync() {
     if (!this.vaultService.cryptoKey) {
       throw new Error('Vault locked');
