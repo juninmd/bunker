@@ -69,7 +69,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
           const credentials = decrypted.filter(item =>
             (!item.type || item.type === 'password') &&
             !item.deletedAt &&
-            item.site && item.site.includes(domain)
+            item.site && (domain === item.site || domain.endsWith('.' + item.site))
           );
           sendResponse({ credentials });
         } catch (e) {
