@@ -23,6 +23,7 @@
       box-shadow: 0 4px 12px rgba(0,0,0,0.1);
       text-align: center;
       max-width: 500px;
+      width: 100%;
     }
     h1 {
       margin-top: 0;
@@ -40,14 +41,65 @@
       font-size: 14px;
       margin-top: 20px;
     }
+    input[type="password"] {
+      width: calc(100% - 20px);
+      padding: 10px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    button {
+      background-color: #1a73e8;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+      margin-top: 10px;
+    }
+    button:hover {
+      background-color: #1557b0;
+    }
+    .hidden {
+      display: none;
+    }
   </style>
 </head>
 <body>
-  <div class="container">
+  <div class="container" id="login-section">
     <h1>BunkerPass Desktop</h1>
-    <p>Bem-vindo ao BunkerPass (App Nativo). Suas senhas serão sincronizadas em tempo real com seu Google Drive através do arquivo <strong>passwords.csv</strong>.</p>
-    <p>Esta interface servirá como alternativa ao LastPass, provendo um cofre robusto para acesso offline e rápido.</p>
-    <span class="badge">Sincronização Ativa</span>
+    <p>Bem-vindo ao BunkerPass (App Nativo). Suas senhas serão sincronizadas offline com seu Google Drive através do arquivo <strong>passwords.csv</strong>.</p>
+    <input type="password" id="masterPassword" placeholder="Senha mestra" />
+    <br/>
+    <button id="unlockBtn">Desbloquear</button>
   </div>
+
+  <div class="container hidden" id="vault-section">
+    <h1>BunkerPass Desktop</h1>
+    <p>Cofre offline desbloqueado com sucesso.</p>
+    <p>Esta interface servirá como alternativa ao LastPass, provendo um cofre robusto para acesso rápido, sincronizado com seu <strong>Google Drive</strong> via CSV.</p>
+
+    <div style="text-align: left; margin-top: 20px; background: #fafafa; padding: 15px; border-radius: 4px; border: 1px solid #eee;">
+      <strong>Mock Vault:</strong>
+      <ul style="padding-left: 20px; margin-bottom: 0;">
+        <li>google.com (test@gmail.com)</li>
+        <li>github.com (dev_user)</li>
+        <li>bank.com (12345678)</li>
+      </ul>
+    </div>
+
+    <span class="badge">Sincronização Ativa (Google Drive)</span>
+  </div>
+
+  <script>
+    document.getElementById('unlockBtn').addEventListener('click', () => {
+      const pwd = document.getElementById('masterPassword').value;
+      if (pwd.length > 0) {
+        document.getElementById('login-section').classList.add('hidden');
+        document.getElementById('vault-section').classList.remove('hidden');
+      }
+    });
+  </script>
 </body>
 </html>

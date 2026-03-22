@@ -45,11 +45,11 @@ Foco em igualar as funcionalidades de conveniência e organização.
 - [ ] **UX Aprimorada:**
   - [x] **Ícone In-Field:** Botão do BunkerPass dentro dos inputs de login para preenchimento com um clique.
   - [x] **Detector de Mudança de Senha:** Pop-up perguntando "Deseja atualizar esta senha?" ao submeter formulários.
-  - [ ] **Sincronização automática de dispositivos:** Salvar uma senha em um dispositivo e tê-la disponível em todos via Google Drive (`passwords.csv`).
+  - [ ] **Sincronização automática de dispositivos (Device Sync):** Salvar uma senha em um dispositivo e tê-la disponível em todos via Google Drive (`passwords.csv`).
 - [~] **Segurança Avançada:**
   - [x] **Logout Automático:** Configuração de timeout por inatividade.
   - [ ] **Desbloqueio com PIN/Biometria:** Opção de PIN curto para acesso rápido.
-  - [ ] **Login sem senha no cofre:** Usar biometria/passkey para dispensar digitação de senha mestre.
+  - [ ] **Login sem senha no cofre (Passwordless):** Usar biometria/passkey para dispensar digitação de senha mestre.
   - [ ] **Recuperação de Conta:** Mecanismo seguro de recuperação para senha mestre esquecida.
 
 ### Fase 3: Auditoria e Monitoramento (Security Dashboard & Dark Web)
@@ -66,7 +66,7 @@ Foco na proatividade da segurança.
 Foco em funcionalidades colaborativas usando a infraestrutura do Google Drive.
 - [ ] **Compartilhamento Pessoal (Personal Password Sharing):** Compartilhamento de credenciais com amigos e familiares sem abrir mão do controle de acesso.
 - [ ] **Compartilhamento Empresarial (Business Password Sharing):** Compartilhamento de senhas corporativas com membros da equipe, freelancers e fornecedores.
-- [ ] **Acesso de Emergência:** Conceda a um contato de confiança ou a um ente querido acesso ao cofre de senhas em caso de emergência.
+- [ ] **Acesso de Emergência (Emergency Access):** Conceda a um contato de confiança ou a um ente querido acesso ao cofre de senhas em caso de emergência.
 - [ ] **Gerenciamento de Usuários:** Controle da segurança, contas e políticas da empresa em uma única plataforma (Business).
 - [ ] **Integração de Diretórios:** Integração com o diretório de usuários existente (AD/LDAP) para automatizar provisionamento.
 - [ ] **Login Federado:** Permita que os usuários façam login com suas credenciais de identidade federada.

@@ -18,14 +18,14 @@
 - [ ] **Extensão e Autofill Avançado**: Salvar e preencher automaticamente em Firefox, Chrome, Safari, Android e iOS.
 - [ ] **Gerador de Senhas e Usuários**: Criação de senhas e usernames seguros e customizáveis.
 - [ ] **Notas Seguras**: Armazenar informações adicionais como cartões e notas Wi-Fi.
-- [ ] **Sincronização Automática**: Entre múltiplos dispositivos e navegadores.
+- [ ] **Sincronização Automática (Device Sync)**: Entre múltiplos dispositivos e navegadores.
 - [ ] **Login sem Senha (Passwordless)**: Acessar o cofre sem digitar a senha mestra.
 - [ ] **Chaves de Acesso (Passkeys)**: Criar, armazenar e gerenciar passkeys.
 
 ## 🛡️ Phase 4: Advanced Security & Enterprise
 - [ ] **Auditoria e Monitoramento**: Painel de Segurança (Security Dashboard) e Monitoramento da Dark Web.
 - [ ] **Compartilhamento**: Compartilhamento de senhas pessoais e empresariais de forma segura.
-- [ ] **Gestão e Controle**: Acesso de emergência e Testamento Digital.
+- [ ] **Gestão e Controle**: Acesso de emergência e Testamento Digital (Digital Will).
 - [ ] **Administração e Diretórios**: Gerenciamento de Usuários com Integração de Diretórios.
 - [ ] **Segurança Avançada**: Workstation MFA, Login federado e SaaS Protect.
 
