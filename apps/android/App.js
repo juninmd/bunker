@@ -11,6 +11,7 @@ const MOCK_VAULT = [
 export default function App() {
   const [isUnlocked, setIsUnlocked] = useState(false);
   const [masterPassword, setMasterPassword] = useState('');
+  const [vaultItems, setVaultItems] = useState(MOCK_VAULT);
 
   const renderItem = useCallback(({ item }) => (
     <TouchableOpacity style={styles.item}>
@@ -54,14 +55,23 @@ export default function App() {
 
       <View style={styles.actions}>
         <Button
-          title="Sincronizar com Google Drive"
-          onPress={() => alert('Sincronizando passwords.csv offline...')}
+          title="Sincronizar com Google Drive (.csv)"
+          onPress={() => {
+            // Mock offline Google Drive CSV sync
+            setTimeout(() => {
+              setVaultItems([
+                ...vaultItems,
+                { id: Math.random().toString(), title: 'google-drive-sync.com', username: 'synced_offline' }
+              ]);
+              alert('Cofre atualizado via passwords.csv (Google Drive)');
+            }, 500);
+          }}
           color="#1a73e8"
         />
       </View>
 
       <FlatList
-        data={MOCK_VAULT}
+        data={vaultItems}
         renderItem={renderItem}
         keyExtractor={item => item.id}
         style={styles.list}

@@ -1,4 +1,4 @@
-const { app, BrowserWindow } = require('electron');
+const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
 
 function createWindow() {
@@ -17,6 +17,15 @@ function createWindow() {
 }
 
 app.whenReady().then(() => {
+  // Configuração inicial para a funcionalidade de Sincronização Google Drive (.csv)
+  ipcMain.handle('sync-drive-csv', async (event, args) => {
+    console.log('[BunkerPass Desktop] Simulando sincronização do arquivo passwords.csv do Google Drive...');
+    const mockData = [
+      { url: 'https://mock.com', username: 'admin', password: '123', grouping: 'Personal' }
+    ];
+    return { success: true, data: mockData, message: 'Google Drive CSV sync mock concluído com acesso offline.' };
+  });
+
   createWindow();
 
   app.on('activate', () => {
