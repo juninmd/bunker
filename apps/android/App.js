@@ -5,7 +5,7 @@ import { useCallback, useState } from 'react';
 const MOCK_VAULT = [
   { id: '1', title: 'google.com', username: 'test@gmail.com' },
   { id: '2', title: 'github.com', username: 'dev_user' },
-  { id: '3', title: 'bank.com', username: '12345678' }
+  { id: '3', title: 'bank.com', username: 'admin_user' }
 ];
 
 export default function App() {

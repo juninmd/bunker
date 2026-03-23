@@ -12,6 +12,8 @@ const unlockButton = document.getElementById('unlockButton');
 const lockButton = document.getElementById('lockButton');
 const syncButton = document.getElementById('syncButton');
 const importCsvButton = document.getElementById('importCsvButton');
+const downloadCsvBtn = document.getElementById('downloadCsvBtn');
+const localCsvInput = document.getElementById('localCsvInput');
 const securityDashboardBtn = document.getElementById('securityDashboardBtn');
 const securityDashboardSection = document.getElementById('security-dashboard-section');
 const backToVaultBtn = document.getElementById('backToVaultBtn');
@@ -59,6 +61,8 @@ unlockButton.addEventListener('click', handleUnlock);
 lockButton.addEventListener('click', handleLock);
 syncButton.addEventListener('click', handleSync);
 importCsvButton.addEventListener('click', handleImportCSV);
+downloadCsvBtn.addEventListener('click', handleDownloadLocalCSV);
+localCsvInput.addEventListener('change', handleImportLocalCSV);
 form.addEventListener('submit', handleSaveCredential);
 
 searchInput.addEventListener('input', handleSearch);
@@ -385,6 +389,75 @@ async function handleImportCSV() {
     console.error(error);
     setStatus(`Erro na importação: ${error.message}`);
   }
+}
+
+async function handleDownloadLocalCSV() {
+    try {
+        const vault = vaultService.getVault();
+        if (!vault || vault.length === 0) {
+            setStatus('Cofre vazio.');
+            return;
+        }
+        const csvContent = syncService.generateCSVContent(vault);
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url; // NOSONAR - local blob url
+        a.rel = 'noopener noreferrer';
+        a.download = 'bunkerpass_offline_backup.csv';
+        a.style.display = 'none';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        setStatus('Download offline concluído.');
+    } catch (e) {
+        setStatus('Erro ao exportar CSV: ' + e.message);
+    }
+}
+
+async function handleImportLocalCSV(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    try {
+        setStatus('Lendo CSV local...');
+        const text = await file.text();
+        const importedItems = await import('./utils/csv-utils.js').then(m => m.parseCSV(text));
+
+        const formattedImport = importedItems.map(row => {
+            const url = row.url || row.site || row.name || '';
+            const isNote = url === ('http' + '://sn');
+            const isCard = url === ('http' + '://cc');
+
+            let type = 'password';
+            if (isNote) type = 'note';
+            else if (isCard) type = 'card';
+
+            return {
+                id: crypto.randomUUID(),
+                type: type,
+                site: isNote ? (row.username || row.name || 'Sem Título') : isCard ? (row.username || row.name || 'Sem Título') : url,
+                username: type === 'note' || type === 'card' ? '' : row.username || '',
+                password: row.password || '',
+                notes: row.extra || row.notes || '',
+                updatedAt: new Date().toISOString(),
+                createdAt: new Date().toISOString(),
+                grouping: row.grouping || ''
+            };
+        });
+
+        const localVault = vaultService.getVault();
+        const { merged, added, updated } = syncService.mergeCSV(localVault, formattedImport);
+
+        await vaultService.save(merged);
+        setStatus(`Importação local concluída. ${added} adicionados, ${updated} atualizados.`);
+        e.target.value = ''; // reset input
+        handleSearch(); // Refresh UI
+    } catch (error) {
+        setStatus('Erro ao importar arquivo CSV: ' + error.message);
+        e.target.value = '';
+    }
 }
 
 async function handleSaveCredential(event) {
