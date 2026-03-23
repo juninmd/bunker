@@ -80,6 +80,13 @@
         </div>
         <button id="syncButton">Sincronizar com Google Drive</button>
         <button id="importCsvButton" class="secondary" style="margin-top: 8px;">Importar CSV do Drive</button>
+        <div style="display: flex; gap: 8px; margin-top: 8px;">
+          <button id="downloadCsvBtn" class="secondary" style="flex: 1;">Baixar .csv (Offline)</button>
+          <label class="secondary button-label" style="flex: 1; text-align: center; cursor: pointer; padding: 8px; background: #eee; border: 1px solid #ccc; border-radius: 4px;">
+            Importar .csv Local
+            <input type="file" id="localCsvInput" accept=".csv" style="display: none;" />
+          </label>
+        </div>
         <div id="last-sync" class="last-sync"></div>
         <button id="securityDashboardBtn" class="secondary">Painel de Segurança</button>
         <button id="lockButton" class="secondary">Bloquear</button>

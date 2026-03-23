@@ -3,7 +3,7 @@ name: Release Please
 # BunkerPass Release Automation
 # Este workflow cria e automatiza a geração das releases de forma integrada.
 # Gere tags automaticamente ao aprovar o PR, mantendo versionamento alinhado.
-# Matenha o readme atualizado executando um script.
+# Mantenha o readme atualizado executando um script.
 # Integrado via scripts/update-readme.js e release-please.
 on:
   push:
@@ -26,11 +26,7 @@ jobs:
           release-type: simple
           package-name: bunkerpass
 
-      - name: Generate Tags Automatically
-        if: ${{ steps.release.outputs.release_created }}
-        run: echo "Gere tags automaticamente (gerada pela action google-github-actions/release-please-action)"
-
-      - name: Matenha o readme atualizado
+      - name: Update README (Mantenha o readme atualizado)
         if: ${{ steps.release.outputs.release_created }}
         run: |
           # Geração automatizada das releases e atualização do README
