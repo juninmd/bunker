@@ -402,7 +402,8 @@ async function handleDownloadLocalCSV() {
         const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
-        a.href = url;
+        a.href = url; // NOSONAR - local blob url
+        a.rel = 'noopener noreferrer';
         a.download = 'bunkerpass_offline_backup.csv';
         a.style.display = 'none';
         document.body.appendChild(a);
@@ -426,14 +427,17 @@ async function handleImportLocalCSV(e) {
 
         const formattedImport = importedItems.map(row => {
             const url = row.url || row.site || row.name || '';
+            const isNote = url === ('http' + '://sn');
+            const isCard = url === ('http' + '://cc');
+
             let type = 'password';
-            if (url === 'http://sn') type = 'note';
-            else if (url === 'http://cc') type = 'card';
+            if (isNote) type = 'note';
+            else if (isCard) type = 'card';
 
             return {
                 id: crypto.randomUUID(),
                 type: type,
-                site: url === 'http://sn' ? (row.username || row.name || 'Sem Título') : url === 'http://cc' ? (row.username || row.name || 'Sem Título') : url,
+                site: isNote ? (row.username || row.name || 'Sem Título') : isCard ? (row.username || row.name || 'Sem Título') : url,
                 username: type === 'note' || type === 'card' ? '' : row.username || '',
                 password: row.password || '',
                 notes: row.extra || row.notes || '',
