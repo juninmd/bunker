@@ -16,7 +16,6 @@
 ## 🚀 Phase 3: Identity & Basic Parity (LastPass Alternative)
 - [ ] **Cofre de Senhas**: Armazenamento seguro e hierárquico (pastas).
 - [ ] **Extensão e Autofill Avançado**: Salvar e preencher automaticamente em Firefox, Chrome, Safari, Android e iOS.
-- [ ] **Autofill Multiplataforma**: Salvar e preencher automaticamente no Firefox, Chrome, Safari, Android e iOS.
 - [ ] **Gerador de Senhas e Usuários**: Criação de senhas e usernames seguros e customizáveis.
 - [ ] **Notas Seguras**: Armazenar informações adicionais como cartões e notas Wi-Fi.
 - [ ] **Sincronização Automática (Device Sync)**: Entre múltiplos dispositivos e navegadores.
