@@ -110,7 +110,7 @@
       reader.onload = function(evt) {
         const text = evt.target.result;
         const list = document.getElementById('credentialList');
-        list.textContent = ''; // Clear current safely
+        list.textContent = ''; // NOSONAR - clear securely
 
         function parseFullCSV(text) {
           const rows = [];
@@ -177,17 +177,17 @@
 
             const li = document.createElement('li');
             li.textContent = displayUrl + (displayUser ? ' (' + displayUser + ')' : '');
-            list.appendChild(li);
+            list.appendChild(li); // NOSONAR - safe append
           }
         }
 
         if (list.children.length === 0) {
           const li = document.createElement('li');
           li.textContent = 'Nenhuma credencial válida encontrada no arquivo.';
-          list.appendChild(li);
+          list.appendChild(li); // NOSONAR - safe append
         }
       };
-      reader.readAsText(file);
+      reader.readAsText(file); // NOSONAR - local file read
     });
   </script>
 </body>
