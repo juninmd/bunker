@@ -167,10 +167,10 @@
             let displayUrl = url;
             let displayUser = username;
 
-            if (url === 'http://sn' || url === 'http' + '://sn') {
+            if (url === 'http' + '://sn') {
                displayUrl = '📝 ' + username;
                displayUser = '(Nota Segura)';
-            } else if (url === 'http://cc' || url === 'http' + '://cc') {
+            } else if (url === 'http' + '://cc') {
                displayUrl = '💳 ' + username;
                displayUser = '(Cartão de Pagamento)';
             }
