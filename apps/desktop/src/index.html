@@ -110,7 +110,7 @@
       reader.onload = function(evt) {
         const text = evt.target.result;
         const list = document.getElementById('credentialList');
-        list.innerHTML = ''; // Clear current
+        list.textContent = ''; // Clear current safely
 
         function parseFullCSV(text) {
           const rows = [];
@@ -182,7 +182,9 @@
         }
 
         if (list.children.length === 0) {
-          list.innerHTML = '<li>Nenhuma credencial válida encontrada no arquivo.</li>';
+          const li = document.createElement('li');
+          li.textContent = 'Nenhuma credencial válida encontrada no arquivo.';
+          list.appendChild(li);
         }
       };
       reader.readAsText(file);
