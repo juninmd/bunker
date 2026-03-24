@@ -81,11 +81,12 @@
     <p>Esta interface servirá como alternativa ao LastPass, provendo um cofre robusto para acesso rápido, sincronizado com seu <strong>Google Drive</strong> via CSV.</p>
 
     <div style="text-align: left; margin-top: 20px; background: #fafafa; padding: 15px; border-radius: 4px; border: 1px solid #eee;">
-      <strong>Mock Vault:</strong>
-      <ul style="padding-left: 20px; margin-bottom: 0;">
-        <li>google.com (test@gmail.com)</li>
-        <li>github.com (dev_user)</li>
-        <li>bank.com (admin_user)</li>
+      <strong>Leitura Offline de passwords.csv:</strong>
+      <input type="file" id="csvFileInput" accept=".csv" style="display:block; margin-top: 10px; margin-bottom: 10px;" />
+
+      <strong>Cofre (Offline):</strong>
+      <ul id="credentialList" style="padding-left: 20px; margin-bottom: 0; max-height: 300px; overflow-y: auto;">
+        <li>Nenhuma credencial carregada. Importe o arquivo CSV.</li>
       </ul>
     </div>
 
@@ -99,6 +100,92 @@
         document.getElementById('login-section').classList.add('hidden');
         document.getElementById('vault-section').classList.remove('hidden');
       }
+    });
+
+    document.getElementById('csvFileInput').addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        const text = evt.target.result;
+        const list = document.getElementById('credentialList');
+        list.innerHTML = ''; // Clear current
+
+        function parseFullCSV(text) {
+          const rows = [];
+          let currentRow = [];
+          let currentVal = '';
+          let inQuotes = false;
+
+          for (let i = 0; i < text.length; i++) {
+            const char = text[i];
+            if (char === '"') {
+              if (inQuotes && text[i+1] === '"') {
+                currentVal += '"';
+                i++; // skip escaped quote
+              } else {
+                inQuotes = !inQuotes;
+              }
+            } else if (char === ',' && !inQuotes) {
+              currentRow.push(currentVal);
+              currentVal = '';
+            } else if ((char === '\n' || char === '\r') && !inQuotes) {
+              if (char === '\r' && text[i+1] === '\n') {
+                i++; // skip \n of \r\n
+              }
+              currentRow.push(currentVal);
+              rows.push(currentRow);
+              currentRow = [];
+              currentVal = '';
+            } else {
+              currentVal += char;
+            }
+          }
+
+          // push last row if not empty
+          if (currentVal !== '' || currentRow.length > 0) {
+            currentRow.push(currentVal);
+            rows.push(currentRow);
+          }
+
+          return rows;
+        }
+
+        const rows = parseFullCSV(text);
+
+        // Assume first line is header, so start at i=1
+        for(let i = 1; i < rows.length; i++) {
+          const cols = rows[i];
+          if (cols.length >= 3 && cols[0]) {
+            const url = cols[0].trim();
+            const username = cols[1] ? cols[1].trim() : '';
+
+            const grouping = cols[5] ? cols[5].trim() : '';
+            if (grouping === 'Deleted') continue;
+
+            let displayUrl = url;
+            let displayUser = username;
+
+            if (url === 'http://sn' || url === 'http' + '://sn') {
+               displayUrl = '📝 ' + username;
+               displayUser = '(Nota Segura)';
+            } else if (url === 'http://cc' || url === 'http' + '://cc') {
+               displayUrl = '💳 ' + username;
+               displayUser = '(Cartão de Pagamento)';
+            }
+
+            const li = document.createElement('li');
+            li.textContent = displayUrl + (displayUser ? ' (' + displayUser + ')' : '');
+            list.appendChild(li);
+          }
+        }
+
+        if (list.children.length === 0) {
+          list.innerHTML = '<li>Nenhuma credencial válida encontrada no arquivo.</li>';
+        }
+      };
+      reader.readAsText(file);
     });
   </script>
 </body>

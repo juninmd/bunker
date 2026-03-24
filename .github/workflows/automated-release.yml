@@ -1,10 +1,9 @@
-name: Release Please
+name: Geração Automatizada de Releases e Tags
 
 # BunkerPass Release Automation
-# Este workflow cria e automatiza a geração das releases de forma integrada.
-# Gere tags automaticamente ao aprovar o PR, mantendo versionamento alinhado.
-# Mantenha o readme atualizado executando um script.
-# Integrado via scripts/update-readme.js e release-please.
+# 1. Geração automatizada das releases (Release Please)
+# 2. Gera tags automaticamente ao aprovar o PR (Release Please)
+# 3. Mantém o README atualizado executando update-readme.js
 on:
   push:
     branches:
@@ -18,21 +17,25 @@ jobs:
   release-please:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-      - uses: google-github-actions/release-please-action@v4
+      - name: Geração Automatizada de Releases e Tags
+        uses: google-github-actions/release-please-action@v4
         id: release
         with:
           release-type: simple
           package-name: bunkerpass
 
-      - name: Update README (Mantenha o readme atualizado)
+      - name: Mantenha o README atualizado
         if: ${{ steps.release.outputs.release_created }}
         run: |
-          # Geração automatizada das releases e atualização do README
+          # Atualização automatizada do README
           node scripts/update-readme.js
           git config user.name github-actions[bot]
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
           git add README.md apps/extension/manifest.json
-          git commit -m "chore: update readme and manifest version to ${{ steps.release.outputs.version }}"
+          git commit -m "chore: atualiza readme e manifest version para ${{ steps.release.outputs.version }}"
           git push
