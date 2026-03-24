@@ -168,6 +168,7 @@ def run(playwright):
         print(f"Total Passwords in Dashboard: {statTotal}")
         print(f"Total Passwords in Dashboard: {statTotal}")
         print(f"Total Passwords in Dashboard: {statTotal}")
+        print(f"Total Passwords in Dashboard: {statTotal}")
 
         page.screenshot(path='apps/extension/tests/screenshot_security_dashboard.png')
 
