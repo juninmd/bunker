@@ -18,20 +18,22 @@
 - [ ] **Extensão e Autofill Avançado**: Salvar e preencher automaticamente em Firefox, Chrome, Safari, Android e iOS.
 - [ ] **Gerador de Senhas e Usuários**: Criação de senhas e usernames seguros e customizáveis.
 - [ ] **Notas Seguras**: Armazenar informações adicionais como cartões e notas Wi-Fi.
+- [ ] **Endereços e Cartões**: Armazenamento de perfis para preenchimento de formulários (Form Fills) e dados bancários.
 - [ ] **Sincronização Automática (Device Sync)**: Entre múltiplos dispositivos e navegadores.
-- [ ] **Login sem Senha (Passwordless)**: Acessar o cofre sem digitar a senha mestra.
-- [ ] **Chaves de Acesso (Passkeys)**: Criar, armazenar e gerenciar passkeys.
+- [ ] **Login sem Senha (Passwordless)**: Acessar o cofre sem digitar a senha mestra, usando WebAuthn ou Biometria.
+- [ ] **Chaves de Acesso (Passkeys)**: Suporte nativo para criar, armazenar e gerenciar passkeys.
 
 ## 🛡️ Phase 4: Advanced Security & Enterprise
-- [ ] **Painel de Segurança**: Auditoria de senhas fracas, reutilizadas e antigas.
-- [ ] **Monitoramento da Dark Web**: Alertas sobre credenciais vazadas.
-- [ ] **Compartilhamento**: Compartilhamento de senhas pessoais e empresariais de forma segura.
-- [ ] **Acesso de Emergência**: Acesso para contatos de confiança.
-- [ ] **Testamento Digital (Digital Will)**: Acesso em caso de falecimento.
-- [ ] **Integração de Diretórios**: Gerenciamento de Usuários com Integração de Diretórios (AD/LDAP).
-- [ ] **Workstation MFA**: Login seguro no sistema operacional.
-- [ ] **Login federado**: Logon único (SSO).
-- [ ] **SaaS Protect**: Controle e monitoramento do uso de SaaS.
+- [ ] **Painel de Segurança**: Auditoria de senhas fracas, reutilizadas e antigas (Security Score).
+- [ ] **Monitoramento da Dark Web**: Alertas se informações ou senhas do usuário forem encontradas em vazamentos.
+- [ ] **Compartilhamento**: Compartilhamento Pessoal (Personal) e Empresarial (Business) de senhas de forma segura.
+- [ ] **Acesso de Emergência (Emergency Access)**: Conceder a um contato de confiança acesso ao cofre em caso de emergência.
+- [ ] **Testamento Digital (Digital Will)**: Preparar e transferir o acesso em caso de falecimento.
+- [ ] **Integração de Diretórios**: Gerenciamento de Usuários com Integração de Diretórios existentes (AD/LDAP).
+- [ ] **Workstation MFA**: Login seguro no sistema operacional (Windows/Mac).
+- [ ] **Login federado**: Logon único (SSO) para acessos integrados.
+- [ ] **SaaS Protect**: Controle, visibilidade e monitoramento do uso de aplicativos SaaS.
+- [ ] **Recuperação de Conta**: Mecanismo seguro de recuperação para senha mestre esquecida.
 
 ## 🎯 v1.0 Milestone
 A production-ready monorepo framework that serves as the gold standard for high-integrity, secure application management, acting as a complete open-source alternative to LastPass.
