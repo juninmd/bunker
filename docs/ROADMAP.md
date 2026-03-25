@@ -72,6 +72,7 @@ Foco em funcionalidades colaborativas usando a infraestrutura do Google Drive.
 - [ ] **Login Federado:** Permita que os usuários façam login com suas credenciais de identidade federada.
 - [ ] **Workstation MFA:** Expansão da autenticação multifatorial para estações de trabalho (Login em Windows/Mac).
 - [ ] **SaaS Protect:** Medidas para controlar o uso de SaaS e lidar com riscos relacionados a credenciais não homologadas.
+- [ ] **Recuperação de Conta:** Mecanismo seguro de recuperação para senha mestre esquecida.
 
 ### Fase 5: Expansão Multiplataforma
 Levar o cofre para fora do navegador com experiência nativa, mantendo compatibilidade com as funcionalidades do LastPass.
