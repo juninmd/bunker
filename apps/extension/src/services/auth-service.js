@@ -17,7 +17,7 @@ export class AuthService {
       challenge: challenge,
       rp: {
         name: "BunkerPass",
-        id: window.location.hostname
+        id: chrome.runtime.id
       },
       user: {
         id: userId,
@@ -77,9 +77,9 @@ export class AuthService {
         publicKey: publicKeyCredentialRequestOptions
       });
 
-      // Verification logic of the assertion signature would happen here.
-      // If successful, the background script or vault service could release the session key.
-      return !!assertion;
+      // TODO: Implement verification of the assertion signature. This is a critical security step.
+      // For now, throwing an error to prevent insecure use.
+      throw new Error("WebAuthn assertion verification not implemented.");
     } catch (error) {
       console.error("Error during WebAuthn authentication:", error);
       throw error;
