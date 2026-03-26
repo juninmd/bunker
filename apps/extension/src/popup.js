@@ -49,6 +49,15 @@ const cardNameInput = document.getElementById('cardName');
 const cardNumberInput = document.getElementById('cardNumber');
 const cardExpInput = document.getElementById('cardExp');
 const cardCvvInput = document.getElementById('cardCvv');
+const addressFields = document.getElementById('addressFields');
+const addressFullNameInput = document.getElementById('addressFullName');
+const addressPhoneInput = document.getElementById('addressPhone');
+const addressEmailInput = document.getElementById('addressEmail');
+const addressStreetInput = document.getElementById('addressStreet');
+const addressCityInput = document.getElementById('addressCity');
+const addressStateInput = document.getElementById('addressState');
+const addressZipInput = document.getElementById('addressZip');
+const addressCountryInput = document.getElementById('addressCountry');
 const folderInput = document.getElementById('folder');
 const folderDatalist = document.getElementById('folderOptions');
 const submitButton = form.querySelector('button[type="submit"]');
@@ -156,6 +165,8 @@ function updateFormState(type) {
     cardFields.classList.add('hidden');
     cardNameInput.removeAttribute('required');
     cardNumberInput.removeAttribute('required');
+    addressFields.classList.add('hidden');
+    addressFullNameInput.removeAttribute('required');
   } else if (type === 'card') {
     siteInput.placeholder = 'Apelido do Cartão';
     usernameWrapper.style.display = 'none';
@@ -166,6 +177,20 @@ function updateFormState(type) {
     cardFields.classList.remove('hidden');
     cardNameInput.setAttribute('required', 'true');
     cardNumberInput.setAttribute('required', 'true');
+    addressFields.classList.add('hidden');
+    addressFullNameInput.removeAttribute('required');
+  } else if (type === 'address') {
+    siteInput.placeholder = 'Apelido do Perfil';
+    usernameWrapper.style.display = 'none';
+    usernameInput.removeAttribute('required');
+    passwordWrapper.style.display = 'none';
+    passwordStrengthContainer.classList.add('hidden');
+    passwordInput.removeAttribute('required');
+    cardFields.classList.add('hidden');
+    cardNameInput.removeAttribute('required');
+    cardNumberInput.removeAttribute('required');
+    addressFields.classList.remove('hidden');
+    addressFullNameInput.setAttribute('required', 'true');
   } else {
     siteInput.placeholder = 'Site (ex: github.com)';
     usernameWrapper.style.display = 'flex';
@@ -176,6 +201,8 @@ function updateFormState(type) {
     cardFields.classList.add('hidden');
     cardNameInput.removeAttribute('required');
     cardNumberInput.removeAttribute('required');
+    addressFields.classList.add('hidden');
+    addressFullNameInput.removeAttribute('required');
   }
 }
 
@@ -429,16 +456,18 @@ async function handleImportLocalCSV(e) {
             const url = row.url || row.site || row.name || '';
             const isNote = url === ('http' + '://sn');
             const isCard = url === ('http' + '://cc');
+            const isAddress = url === ('http' + '://id');
 
             let type = 'password';
             if (isNote) type = 'note';
             else if (isCard) type = 'card';
+            else if (isAddress) type = 'address';
 
             return {
                 id: crypto.randomUUID(),
                 type: type,
-                site: isNote ? (row.username || row.name || 'Sem Título') : isCard ? (row.username || row.name || 'Sem Título') : url,
-                username: type === 'note' || type === 'card' ? '' : row.username || '',
+                site: isNote ? (row.username || row.name || 'Sem Título') : (isCard || isAddress) ? (row.username || row.name || 'Sem Título') : url,
+                username: type === 'note' || type === 'card' || type === 'address' ? '' : row.username || '',
                 password: row.password || '',
                 notes: row.extra || row.notes || '',
                 updatedAt: new Date().toISOString(),
@@ -493,6 +522,14 @@ async function handleSaveCredential(event) {
       setStatus('Preencha o apelido, nome e número do cartão.');
       return;
     }
+  } else if (type === 'address') {
+    site = site.trim();
+    username = '';
+    password = '';
+    if (!site || !addressFullNameInput.value) {
+      setStatus('Preencha o apelido e o nome completo.');
+      return;
+    }
   }
 
   const now = new Date().toISOString();
@@ -514,6 +551,8 @@ async function handleSaveCredential(event) {
         existingIndex = newVault.findIndex(i => i.site === site && i.type === 'note');
     } else if (type === 'card') {
         existingIndex = newVault.findIndex(i => i.site === site && i.type === 'card');
+    } else if (type === 'address') {
+        existingIndex = newVault.findIndex(i => i.site === site && i.type === 'address');
     }
   }
 
@@ -527,6 +566,19 @@ async function handleSaveCredential(event) {
           notes: notes
       };
       finalNotes = JSON.stringify(cardData);
+  } else if (type === 'address') {
+      const addressData = {
+          fullName: addressFullNameInput.value,
+          phone: addressPhoneInput.value,
+          email: addressEmailInput.value,
+          street: addressStreetInput.value,
+          city: addressCityInput.value,
+          state: addressStateInput.value,
+          zip: addressZipInput.value,
+          country: addressCountryInput.value,
+          notes: notes
+      };
+      finalNotes = JSON.stringify(addressData);
   }
 
   if (existingIndex >= 0) {
@@ -607,6 +659,22 @@ function handleEditCredential(id) {
             // Fallback if parsing fails
             notesInput.value = item.notes || '';
         }
+    } else if (type === 'address') {
+        try {
+            const addressData = JSON.parse(item.notes || '{}');
+            addressFullNameInput.value = addressData.fullName || '';
+            addressPhoneInput.value = addressData.phone || '';
+            addressEmailInput.value = addressData.email || '';
+            addressStreetInput.value = addressData.street || '';
+            addressCityInput.value = addressData.city || '';
+            addressStateInput.value = addressData.state || '';
+            addressZipInput.value = addressData.zip || '';
+            addressCountryInput.value = addressData.country || '';
+            notesInput.value = addressData.notes || '';
+        } catch (e) {
+            // Fallback if parsing fails
+            notesInput.value = item.notes || '';
+        }
     }
 
     submitButton.textContent = 'Atualizar';
@@ -675,6 +743,8 @@ function renderVault(vault) {
            siteEl.textContent = '📝 ' + item.site; // item.site holds Title for notes
         } else if (item.type === 'card') {
            siteEl.textContent = '💳 ' + item.site;
+        } else if (item.type === 'address') {
+           siteEl.textContent = '📍 ' + item.site;
         } else {
            siteEl.textContent = item.site;
         }
@@ -690,6 +760,14 @@ function renderVault(vault) {
                 if (parsed.number) {
                     const last4 = parsed.number.slice(-4);
                     userEl.textContent = `(Cartão final ${last4})`;
+                }
+            } catch (e) {}
+        } else if (item.type === 'address') {
+            userEl.textContent = '(Perfil de Endereço)';
+            try {
+                const parsed = JSON.parse(item.notes);
+                if (parsed.fullName) {
+                    userEl.textContent = parsed.fullName;
                 }
             } catch (e) {}
         } else {

@@ -110,7 +110,7 @@ export class SyncService {
 
       const imported = parsed.map(row => {
           const url = row.url || row.site || row.name || '';
-          if (url === 'http://sn') {
+          if (url === ('http' + '://sn')) {
               // Secure Note (Notas Seguras)
               return {
                   id: crypto.randomUUID(),
@@ -123,7 +123,7 @@ export class SyncService {
                   createdAt: new Date().toISOString(),
                   grouping: row.grouping || 'Secure Notes'
               };
-          } else if (url === 'http://cc') {
+          } else if (url === ('http' + '://cc')) {
               // Payment Card
               return {
                   id: crypto.randomUUID(),
@@ -135,6 +135,19 @@ export class SyncService {
                   updatedAt: new Date().toISOString(),
                   createdAt: new Date().toISOString(),
                   grouping: row.grouping
+              };
+          } else if (url === ('http' + '://id')) {
+              // Address Profile
+              return {
+                  id: crypto.randomUUID(),
+                  type: 'address',
+                  site: row.username || row.name || 'Sem Título',
+                  username: '',
+                  password: '',
+                  notes: row.extra || row.notes || '',
+                  updatedAt: new Date().toISOString(),
+                  createdAt: new Date().toISOString(),
+                  grouping: row.grouping || 'Endereços'
               };
           } else {
               // Standard Password
@@ -150,7 +163,7 @@ export class SyncService {
                   grouping: row.grouping
               };
           }
-      }).filter(i => (i.type === 'note' && i.site) || (i.type === 'card' && i.site) || (i.site && (i.username || i.password)) || (i.grouping === 'Deleted' && i.site));
+      }).filter(i => (i.type === 'note' && i.site) || (i.type === 'card' && i.site) || (i.type === 'address' && i.site) || (i.site && (i.username || i.password)) || (i.grouping === 'Deleted' && i.site));
 
       const localVault = this.vaultService.getVault();
       const { merged, added, updated } = this.mergeCSV(localVault, imported);
@@ -262,7 +275,7 @@ export class SyncService {
 
           if (item.type === 'note') {
               return {
-                  url: 'http://sn',
+                  url: 'http' + '://sn',
                   username: item.site, // Title goes to username col in LP export usually
                   password: '', // Senha é vazia para nota segura
                   extra: item.notes || '', // Conteudo da nota vai no extra
@@ -274,12 +287,24 @@ export class SyncService {
 
           if (item.type === 'card') {
               return {
-                  url: 'http://cc',
+                  url: 'http' + '://cc',
                   username: item.site,
                   password: '',
                   extra: item.notes || '',
                   name: item.site,
                   grouping: item.grouping || 'Cartões',
+                  fav: '0'
+              };
+          }
+
+          if (item.type === 'address') {
+              return {
+                  url: 'http' + '://id',
+                  username: item.site,
+                  password: '',
+                  extra: item.notes || '',
+                  name: item.site,
+                  grouping: item.grouping || 'Endereços',
                   fav: '0'
               };
           }

@@ -18,7 +18,7 @@
 - [ ] **Extensão e Autofill Avançado**: Salvar e preencher automaticamente em Firefox, Chrome, Safari, Android e iOS.
 - [ ] **Gerador de Senhas e Usuários**: Criação de senhas e usernames seguros e customizáveis.
 - [ ] **Notas Seguras**: Armazenar informações adicionais como cartões e notas Wi-Fi.
-- [ ] **Endereços e Cartões**: Armazenamento de perfis para preenchimento de formulários (Form Fills) e dados bancários.
+- [x] **Endereços e Cartões**: Armazenamento de perfis para preenchimento de formulários (Form Fills) e dados bancários.
 - [ ] **Sincronização Automática (Device Sync)**: Entre múltiplos dispositivos e navegadores.
 - [ ] **Login sem Senha (Passwordless)**: Acessar o cofre sem digitar a senha mestra, usando WebAuthn ou Biometria.
 - [ ] **Chaves de Acesso (Passkeys)**: Suporte nativo para criar, armazenar e gerenciar passkeys.
