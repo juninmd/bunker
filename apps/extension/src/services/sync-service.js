@@ -1,5 +1,5 @@
 import { GoogleDriveService } from './google-drive.js';
-import { generateCSV, parseCSV } from '../utils/csv-utils.js';
+import { generateCSV, parseCSV, mapCSVRowToVaultItem, mapVaultItemToCSVRow } from '../utils/csv-utils.js';
 import { decryptWithKey, encryptWithKey } from '../utils/crypto.js';
 
 export class SyncService {
@@ -109,48 +109,11 @@ export class SyncService {
       const parsed = parseCSV(content);
 
       const imported = parsed.map(row => {
-          const url = row.url || row.site || row.name || '';
-          if (url === 'http://sn') {
-              // Secure Note (Notas Seguras)
-              return {
-                  id: crypto.randomUUID(),
-                  type: 'note',
-                  site: row.username || row.name || 'Sem Título', // Title is often in username or name for notes
-                  username: '',
-                  password: '',
-                  notes: row.extra || row.notes || row.password || '',
-                  updatedAt: new Date().toISOString(),
-                  createdAt: new Date().toISOString(),
-                  grouping: row.grouping || 'Secure Notes'
-              };
-          } else if (url === 'http://cc') {
-              // Payment Card
-              return {
-                  id: crypto.randomUUID(),
-                  type: 'card',
-                  site: row.username || row.name || 'Sem Título',
-                  username: '',
-                  password: '',
-                  notes: row.extra || row.notes || '',
-                  updatedAt: new Date().toISOString(),
-                  createdAt: new Date().toISOString(),
-                  grouping: row.grouping
-              };
-          } else {
-              // Standard Password
-              return {
-                  id: crypto.randomUUID(),
-                  type: 'password',
-                  site: url,
-                  username: row.username || '',
-                  password: row.password || '',
-                  notes: row.extra || row.notes || '',
-                  updatedAt: new Date().toISOString(),
-                  createdAt: new Date().toISOString(),
-                  grouping: row.grouping
-              };
-          }
-      }).filter(i => (i.type === 'note' && i.site) || (i.type === 'card' && i.site) || (i.site && (i.username || i.password)) || (i.grouping === 'Deleted' && i.site));
+          const item = mapCSVRowToVaultItem(row);
+          if (item.type === 'note' && !row.grouping) item.grouping = 'Secure Notes';
+          if (item.type === 'address' && !row.grouping) item.grouping = 'Endereços';
+          return item;
+      }).filter(i => (i.type === 'note' && i.site) || (i.type === 'card' && i.site) || (i.type === 'address' && i.site) || (i.site && (i.username || i.password)) || (i.grouping === 'Deleted' && i.site));
 
       const localVault = this.vaultService.getVault();
       const { merged, added, updated } = this.mergeCSV(localVault, imported);
@@ -246,55 +209,7 @@ export class SyncService {
   generateCSVContent(vault) {
       // LastPass CSV format: url,username,password,extra,name,grouping,fav
       const headers = ['url', 'username', 'password', 'extra', 'name', 'grouping', 'fav'];
-
-      const data = vault.map(item => {
-          if (item.deletedAt) {
-              return {
-                  url: item.site,
-                  username: item.username || item.site, // Keep identifier
-                  password: '', // Clear sensitive
-                  extra: '', // Clear sensitive
-                  name: item.site,
-                  grouping: 'Deleted', // Mark as deleted
-                  fav: '0'
-              };
-          }
-
-          if (item.type === 'note') {
-              return {
-                  url: 'http://sn',
-                  username: item.site, // Title goes to username col in LP export usually
-                  password: '', // Senha é vazia para nota segura
-                  extra: item.notes || '', // Conteudo da nota vai no extra
-                  name: item.site,
-                  grouping: item.grouping || 'Secure Notes',
-                  fav: '0'
-              };
-          }
-
-          if (item.type === 'card') {
-              return {
-                  url: 'http://cc',
-                  username: item.site,
-                  password: '',
-                  extra: item.notes || '',
-                  name: item.site,
-                  grouping: item.grouping || 'Cartões',
-                  fav: '0'
-              };
-          }
-
-          return {
-              url: item.site,
-              username: item.username,
-              password: item.password,
-              extra: item.notes || '',
-              name: item.site,
-              grouping: item.grouping || '',
-              fav: '0'
-          };
-      });
-
+      const data = vault.map(mapVaultItemToCSVRow);
       return generateCSV(data, headers);
   }
 }

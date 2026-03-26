@@ -37,9 +37,9 @@ Foco em igualar as funcionalidades de conveniência e organização.
   - Implementar campo `grouping` no schema e UI.
   - Visualização hierárquica no Popup.
 - [x] **Gerador de nome de usuário:** Gerar nomes de usuário aleatórios e exclusivos.
-- [ ] **Tipos de Itens Distintos:**
-  - **Notas Seguras:** Suporte dedicado para notas criptografadas e anotações financeiras, rascunhos ou Wi-Fi.
-  - **Endereços e Cartões:** Perfis de preenchimento de formulários (Form Fills).
+- [x] **Tipos de Itens Distintos:**
+  - [x] **Notas Seguras:** Suporte dedicado para notas criptografadas e anotações financeiras, rascunhos ou Wi-Fi.
+  - [x] **Endereços e Cartões:** Perfis de preenchimento de formulários (Form Fills).
   - [x] **Cartões de Pagamento:** Armazenamento seguro de CVV e dados bancários.
 - [ ] **Chaves de Acesso (Passkeys):** Suporte nativo para criar, armazenar e gerenciar passkeys (WebAuthn), acelerando logins.
 - [ ] **UX Aprimorada:**

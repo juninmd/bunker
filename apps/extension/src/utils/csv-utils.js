@@ -121,3 +121,83 @@ export function parseCSV(content) {
   }
   return result;
 }
+
+/**
+ * Maps a raw CSV row object to a standard Vault item object.
+ * Identifies item types based on URL prefixes.
+ * @param {Object} row
+ * @returns {Object} A formatted vault item.
+ */
+export function mapCSVRowToVaultItem(row) {
+    const url = row.url || row.site || row.name || '';
+    const isNote = url === ('http' + '://sn');
+    const isCard = url === ('http' + '://cc');
+    const isAddress = url === ('http' + '://id');
+
+    let type = 'password';
+    if (isNote) type = 'note';
+    else if (isCard) type = 'card';
+    else if (isAddress) type = 'address';
+
+    return {
+        id: crypto.randomUUID(),
+        type: type,
+        site: isNote ? (row.username || row.name || 'Sem Título') : (isCard || isAddress) ? (row.username || row.name || 'Sem Título') : url,
+        username: type === 'note' || type === 'card' || type === 'address' ? '' : row.username || '',
+        password: row.password || '',
+        notes: row.extra || row.notes || row.password || '', // fallback to row.password for notes as extra safety
+        updatedAt: new Date().toISOString(),
+        createdAt: new Date().toISOString(),
+        grouping: row.grouping || ''
+    };
+}
+
+/**
+ * Maps a standard Vault item object to a CSV row object for export.
+ * @param {Object} item
+ * @returns {Object} A formatted CSV row.
+ */
+export function mapVaultItemToCSVRow(item) {
+    if (item.deletedAt) {
+        return {
+            url: item.site,
+            username: item.username || item.site, // Keep identifier
+            password: '', // Clear sensitive
+            extra: '', // Clear sensitive
+            name: item.site,
+            grouping: 'Deleted', // Mark as deleted
+            fav: '0'
+        };
+    }
+
+    const typeMapping = {
+        'note': { url: 'http' + '://sn', grouping: 'Secure Notes' },
+        'card': { url: 'http' + '://cc', grouping: 'Cartões' },
+        'address': { url: 'http' + '://id', grouping: 'Endereços' }
+    };
+
+    const typeConfig = typeMapping[item.type];
+
+    if (typeConfig) {
+        return {
+            url: typeConfig.url,
+            username: item.site,
+            password: '',
+            extra: item.notes || '',
+            name: item.site,
+            grouping: item.grouping || typeConfig.grouping,
+            fav: '0'
+        };
+    }
+
+    // Default password type
+    return {
+        url: item.site,
+        username: item.username,
+        password: item.password,
+        extra: item.notes || '',
+        name: item.site,
+        grouping: item.grouping || '',
+        fav: '0'
+    };
+}
