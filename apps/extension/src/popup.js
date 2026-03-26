@@ -440,31 +440,10 @@ async function handleImportLocalCSV(e) {
     try {
         setStatus('Lendo CSV local...');
         const text = await file.text();
-        const importedItems = await import('./utils/csv-utils.js').then(m => m.parseCSV(text));
+        const csvUtils = await import('./utils/csv-utils.js');
+        const importedItems = csvUtils.parseCSV(text);
 
-        const formattedImport = importedItems.map(row => {
-            const url = row.url || row.site || row.name || '';
-            const isNote = url === ('http' + '://sn');
-            const isCard = url === ('http' + '://cc');
-            const isAddress = url === ('http' + '://id');
-
-            let type = 'password';
-            if (isNote) type = 'note';
-            else if (isCard) type = 'card';
-            else if (isAddress) type = 'address';
-
-            return {
-                id: crypto.randomUUID(),
-                type: type,
-                site: isNote ? (row.username || row.name || 'Sem Título') : (isCard || isAddress) ? (row.username || row.name || 'Sem Título') : url,
-                username: type === 'note' || type === 'card' || type === 'address' ? '' : row.username || '',
-                password: row.password || '',
-                notes: row.extra || row.notes || '',
-                updatedAt: new Date().toISOString(),
-                createdAt: new Date().toISOString(),
-                grouping: row.grouping || ''
-            };
-        });
+        const formattedImport = importedItems.map(row => csvUtils.mapCSVRowToVaultItem(row));
 
         const localVault = vaultService.getVault();
         const { merged, added, updated } = syncService.mergeCSV(localVault, formattedImport);

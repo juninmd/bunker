@@ -1,5 +1,5 @@
 import { GoogleDriveService } from './google-drive.js';
-import { generateCSV, parseCSV } from '../utils/csv-utils.js';
+import { generateCSV, parseCSV, mapCSVRowToVaultItem } from '../utils/csv-utils.js';
 import { decryptWithKey, encryptWithKey } from '../utils/crypto.js';
 
 export class SyncService {
@@ -109,60 +109,10 @@ export class SyncService {
       const parsed = parseCSV(content);
 
       const imported = parsed.map(row => {
-          const url = row.url || row.site || row.name || '';
-          if (url === ('http' + '://sn')) {
-              // Secure Note (Notas Seguras)
-              return {
-                  id: crypto.randomUUID(),
-                  type: 'note',
-                  site: row.username || row.name || 'Sem Título', // Title is often in username or name for notes
-                  username: '',
-                  password: '',
-                  notes: row.extra || row.notes || row.password || '',
-                  updatedAt: new Date().toISOString(),
-                  createdAt: new Date().toISOString(),
-                  grouping: row.grouping || 'Secure Notes'
-              };
-          } else if (url === ('http' + '://cc')) {
-              // Payment Card
-              return {
-                  id: crypto.randomUUID(),
-                  type: 'card',
-                  site: row.username || row.name || 'Sem Título',
-                  username: '',
-                  password: '',
-                  notes: row.extra || row.notes || '',
-                  updatedAt: new Date().toISOString(),
-                  createdAt: new Date().toISOString(),
-                  grouping: row.grouping
-              };
-          } else if (url === ('http' + '://id')) {
-              // Address Profile
-              return {
-                  id: crypto.randomUUID(),
-                  type: 'address',
-                  site: row.username || row.name || 'Sem Título',
-                  username: '',
-                  password: '',
-                  notes: row.extra || row.notes || '',
-                  updatedAt: new Date().toISOString(),
-                  createdAt: new Date().toISOString(),
-                  grouping: row.grouping || 'Endereços'
-              };
-          } else {
-              // Standard Password
-              return {
-                  id: crypto.randomUUID(),
-                  type: 'password',
-                  site: url,
-                  username: row.username || '',
-                  password: row.password || '',
-                  notes: row.extra || row.notes || '',
-                  updatedAt: new Date().toISOString(),
-                  createdAt: new Date().toISOString(),
-                  grouping: row.grouping
-              };
-          }
+          const item = mapCSVRowToVaultItem(row);
+          if (item.type === 'note' && !row.grouping) item.grouping = 'Secure Notes';
+          if (item.type === 'address' && !row.grouping) item.grouping = 'Endereços';
+          return item;
       }).filter(i => (i.type === 'note' && i.site) || (i.type === 'card' && i.site) || (i.type === 'address' && i.site) || (i.site && (i.username || i.password)) || (i.grouping === 'Deleted' && i.site));
 
       const localVault = this.vaultService.getVault();
