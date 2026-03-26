@@ -1,5 +1,5 @@
 import { GoogleDriveService } from './google-drive.js';
-import { generateCSV, parseCSV, mapCSVRowToVaultItem } from '../utils/csv-utils.js';
+import { generateCSV, parseCSV, mapCSVRowToVaultItem, mapVaultItemToCSVRow } from '../utils/csv-utils.js';
 import { decryptWithKey, encryptWithKey } from '../utils/crypto.js';
 
 export class SyncService {
@@ -209,67 +209,7 @@ export class SyncService {
   generateCSVContent(vault) {
       // LastPass CSV format: url,username,password,extra,name,grouping,fav
       const headers = ['url', 'username', 'password', 'extra', 'name', 'grouping', 'fav'];
-
-      const data = vault.map(item => {
-          if (item.deletedAt) {
-              return {
-                  url: item.site,
-                  username: item.username || item.site, // Keep identifier
-                  password: '', // Clear sensitive
-                  extra: '', // Clear sensitive
-                  name: item.site,
-                  grouping: 'Deleted', // Mark as deleted
-                  fav: '0'
-              };
-          }
-
-          if (item.type === 'note') {
-              return {
-                  url: 'http' + '://sn',
-                  username: item.site, // Title goes to username col in LP export usually
-                  password: '', // Senha é vazia para nota segura
-                  extra: item.notes || '', // Conteudo da nota vai no extra
-                  name: item.site,
-                  grouping: item.grouping || 'Secure Notes',
-                  fav: '0'
-              };
-          }
-
-          if (item.type === 'card') {
-              return {
-                  url: 'http' + '://cc',
-                  username: item.site,
-                  password: '',
-                  extra: item.notes || '',
-                  name: item.site,
-                  grouping: item.grouping || 'Cartões',
-                  fav: '0'
-              };
-          }
-
-          if (item.type === 'address') {
-              return {
-                  url: 'http' + '://id',
-                  username: item.site,
-                  password: '',
-                  extra: item.notes || '',
-                  name: item.site,
-                  grouping: item.grouping || 'Endereços',
-                  fav: '0'
-              };
-          }
-
-          return {
-              url: item.site,
-              username: item.username,
-              password: item.password,
-              extra: item.notes || '',
-              name: item.site,
-              grouping: item.grouping || '',
-              fav: '0'
-          };
-      });
-
+      const data = vault.map(mapVaultItemToCSVRow);
       return generateCSV(data, headers);
   }
 }

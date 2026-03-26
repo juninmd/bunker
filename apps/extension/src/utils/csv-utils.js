@@ -151,3 +151,53 @@ export function mapCSVRowToVaultItem(row) {
         grouping: row.grouping || ''
     };
 }
+
+/**
+ * Maps a standard Vault item object to a CSV row object for export.
+ * @param {Object} item
+ * @returns {Object} A formatted CSV row.
+ */
+export function mapVaultItemToCSVRow(item) {
+    if (item.deletedAt) {
+        return {
+            url: item.site,
+            username: item.username || item.site, // Keep identifier
+            password: '', // Clear sensitive
+            extra: '', // Clear sensitive
+            name: item.site,
+            grouping: 'Deleted', // Mark as deleted
+            fav: '0'
+        };
+    }
+
+    const typeMapping = {
+        'note': { url: 'http' + '://sn', grouping: 'Secure Notes' },
+        'card': { url: 'http' + '://cc', grouping: 'Cartões' },
+        'address': { url: 'http' + '://id', grouping: 'Endereços' }
+    };
+
+    const typeConfig = typeMapping[item.type];
+
+    if (typeConfig) {
+        return {
+            url: typeConfig.url,
+            username: item.site,
+            password: '',
+            extra: item.notes || '',
+            name: item.site,
+            grouping: item.grouping || typeConfig.grouping,
+            fav: '0'
+        };
+    }
+
+    // Default password type
+    return {
+        url: item.site,
+        username: item.username,
+        password: item.password,
+        extra: item.notes || '',
+        name: item.site,
+        grouping: item.grouping || '',
+        fav: '0'
+    };
+}
