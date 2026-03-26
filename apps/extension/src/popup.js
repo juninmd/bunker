@@ -728,7 +728,7 @@ function renderVault(vault) {
                 } else if (item.type === 'address' && parsed.fullName) {
                     typeLabel = parsed.fullName;
                 }
-            } catch (e) {}
+} catch (e) { console.warn('Failed to parse address notes:', e); }
         }
         userEl.textContent = typeLabel;
 
