@@ -54,7 +54,7 @@ jobs:
             # Run local build script for mock artifact or real build
             # We mock the build for now as eas build requires auth
             npm run build:apk || echo "Mock APK" > bunkerpass-android-${{ steps.version.outputs.value }}.apk
-            cp *.apk ../../dist/bunkerpass-android-${{ steps.version.outputs.value }}.apk
+            cp dist/*.apk ../../dist/ || cp *.apk ../../dist/ || true
           else
             echo "Android source not found, generating placeholder."
             echo "Android APK placeholder for version ${{ steps.version.outputs.value }}" > dist/bunkerpass-android-${{ steps.version.outputs.value }}.apk

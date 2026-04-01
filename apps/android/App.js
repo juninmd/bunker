@@ -58,6 +58,23 @@ export default function App() {
           onPress={() => alert('Sincronizando passwords.csv offline...')}
           color="#1a73e8"
         />
+        <View style={styles.buttonRow}>
+          <Button
+            title="Painel de Segurança"
+            onPress={() => alert('Painel de Segurança em desenvolvimento')}
+            color="#34a853"
+          />
+          <Button
+            title="Gerador"
+            onPress={() => alert('Gerador de Senhas em desenvolvimento')}
+            color="#fbbc05"
+          />
+          <Button
+            title="Compartilhamento"
+            onPress={() => alert('Compartilhamento em desenvolvimento')}
+            color="#ea4335"
+          />
+        </View>
       </View>
 
       <FlatList
@@ -120,6 +137,12 @@ const styles = StyleSheet.create({
   },
   actions: {
     padding: 20,
+    gap: 10,
+  },
+  buttonRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 10,
   },
   list: {
     paddingHorizontal: 20,

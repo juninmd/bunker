@@ -73,9 +73,10 @@ Foco em funcionalidades colaborativas usando a infraestrutura do Google Drive.
 - [ ] **Workstation MFA:** Expansão da autenticação multifatorial para estações de trabalho (Login em Windows/Mac).
 - [ ] **SaaS Protect:** Medidas para controlar o uso de SaaS e lidar com riscos relacionados a credenciais não homologadas.
 - [ ] **Recuperação de Conta:** Mecanismo seguro de recuperação para senha mestre esquecida.
+- [ ] **Testamento Digital (Digital Will):** Deixar uma cópia da sua vida digital em caso de emergência.
 
 ### Fase 5: Expansão Multiplataforma
-Levar o cofre para fora do navegador com experiência nativa, mantendo compatibilidade com as funcionalidades do LastPass.
+Levar o cofre para fora do navegador com experiência nativa, mantendo compatibilidade com as funcionalidades do LastPass. O grande diferencial é a sincronização com o Google Drive, salvando as senhas off-line em uma planilha `.csv`.
 - [~] **App Desktop (Electron/Tauri):**
   - [x] Estrutura inicial (Electron) e build automatizado.
   - [ ] Wrapper da lógica da extensão.
