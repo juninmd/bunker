@@ -1,19 +1,44 @@
-name: Build and Publish Artifacts
+name: BunkerPass Release Process
 
-# BunkerPass Artifact Builder
-# Acionado na criação de uma tag gerada pelo release-please.
-# Empacota a extensão (bunkerpass-extension), App Desktop e App Android (APK),
-# automatizando a criação da release de fato com todos os clientes e atualizando as tags.
 on:
   push:
+    branches:
+      - main
     tags:
       - 'v*.*.*'
 
 permissions:
   contents: write
+  pull-requests: write
 
 jobs:
-  build-and-release:
+  automated-release:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Release Please
+        uses: google-github-actions/release-please-action@v4
+        id: release
+        with:
+          release-type: simple
+          package-name: bunkerpass
+
+      - name: Update README and Version
+        if: ${{ steps.release.outputs.release_created }}
+        run: |
+          node scripts/update-readme.js
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add README.md apps/extension/manifest.json
+          git commit -m "chore: update readme and manifest version to ${{ steps.release.outputs.version }}" || echo "No changes to commit"
+          git push
+
+  build-artifacts:
+    if: startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -30,16 +55,10 @@ jobs:
         run: |
           mkdir -p dist
           if [ -d "apps/desktop" ]; then
-            echo "Packaging desktop app..."
             cd apps/desktop
-            # Install dependencies if package.json exists
-            if [ -f "package.json" ]; then
-              npm install
-            fi
-            # Create a zip of the source for now (MVP Desktop)
+            if [ -f "package.json" ]; then npm install; fi
             zip -r ../../dist/bunkerpass-desktop-${{ steps.version.outputs.value }}.zip . -x "node_modules/*" ".git/*" "dist/*"
           else
-            echo "Desktop app source not found, skipping."
             echo "Desktop Placeholder" > dist/bunkerpass-desktop-${{ steps.version.outputs.value }}.txt
           fi
 
@@ -47,17 +66,12 @@ jobs:
         run: |
           mkdir -p dist
           if [ -f "apps/android/package.json" ]; then
-            echo "Building Android APK..."
             cd apps/android
-            # Install dependencies and build APK using EAS/Expo or Gradle
             npm install
-            # Run local build script for mock artifact or real build
-            # We mock the build for now as eas build requires auth
             npm run build:apk || echo "Mock APK" > bunkerpass-android-${{ steps.version.outputs.value }}.apk
-            cp *.apk ../../dist/bunkerpass-android-${{ steps.version.outputs.value }}.apk
+            cp dist/*.apk ../../dist/ || cp *.apk ../../dist/ || true
           else
-            echo "Android source not found, generating placeholder."
-            echo "Android APK placeholder for version ${{ steps.version.outputs.value }}" > dist/bunkerpass-android-${{ steps.version.outputs.value }}.apk
+            echo "Android APK placeholder" > dist/bunkerpass-android-${{ steps.version.outputs.value }}.apk
           fi
 
       - name: Generate checksums
@@ -70,5 +84,4 @@ jobs:
         with:
           tag_name: ${{ github.ref_name }}
           generate_release_notes: true
-          files: |
-            dist/*
+          files: dist/*

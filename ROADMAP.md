@@ -14,8 +14,8 @@
 - [ ] **E2E Integration**: Testes de verificação entre aplicações.
 
 ## 🚀 Phase 3: Identity & Basic Parity (LastPass Alternative)
-- [ ] **Cofre de Senhas**: Armazenamento seguro e hierárquico (pastas).
-- [ ] **Extensão e Autofill Avançado**: Salvar e preencher automaticamente em Firefox, Chrome, Safari, Android e iOS.
+- [ ] **Cofre de Senhas**: Armazenamento seguro e hierárquico (pastas) e Notas Seguras. O diferencial é o salvamento off-line das senhas no Google Drive em uma planilha `.csv`.
+- [ ] **Extensão e Autofill Avançado**: Salvar e preencher automaticamente no Firefox, Chrome, Safari, Android e iOS.
 - [ ] **Gerador de Senhas e Usuários**: Criação de senhas e usernames seguros e customizáveis.
 - [ ] **Notas Seguras**: Armazenar informações adicionais como cartões e notas Wi-Fi.
 - [x] **Endereços e Cartões**: Armazenamento de perfis para preenchimento de formulários (Form Fills) e dados bancários.
