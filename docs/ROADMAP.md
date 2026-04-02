@@ -97,6 +97,25 @@ Levar o cofre para fora do navegador com experiência nativa, mantendo compatibi
   - [ ] Android (Autofill framework nativo)
   - [ ] iPhone e iPad (iOS Autofill)
 
+### Funcionalidades mapeadas do LastPass (Recapitulação)
+- **Gerador de Senhas (Password Generator)**: Criar senhas seguras automaticamente.
+- **Gerador de Nomes de Usuário (Username Generator)**: Criar nomes de usuário aleatórios e exclusivos.
+- **Chaves de Acesso (Passkeys)**: Logins mais rápidos e seguros usando WebAuthn.
+- **Monitoramento da Dark Web (Dark Web Monitoring)**: Alertas contra vazamento de senhas.
+- **Painel de Segurança (Security Dashboard)**: Auditoria e avaliação de força das senhas.
+- **Compartilhamento (Password Sharing)**: Opções Pessoal (Personal) e Empresarial (Business).
+- **Sincronização de Dispositivos (Device Sync)**: Manter senhas atualizadas em todos os aparelhos.
+- **Acesso de Emergência (Emergency Access)**: Conceder acesso a terceiros de confiança.
+- **Notas Seguras (Secure Notes)**: Guarda segura para dados sensíveis.
+- **Testamento Digital (Digital Will)**: Transferência segura da vida digital após falecimento.
+- **Login sem senha (Passwordless Login)**: Acesso via biometria ou aplicativo autenticador.
+- **Gerenciamento de Usuários (User Management)**: Controle administrativo para empresas.
+- **SaaS Protect**: Proteção para aplicações em nuvem corporativas.
+- **Integração de Diretórios (Directory Integration)**: Conexão com AD/LDAP para provisionamento.
+- **Login Federado (Federated Login)**: SSO integrado.
+- **Workstation MFA**: Autenticação multifator no nível do sistema operacional.
+- **Autofill Multiplataforma**: Suporte para preenchimento em Chrome, Android, iOS, Safari, Firefox.
+
 ## Detalhes Técnicos
 
 ### Estratégia de Sync com CSV

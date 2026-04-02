@@ -1,16 +1,13 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, Button, FlatList, TouchableOpacity, TextInput } from 'react-native';
+import { StyleSheet, Text, View, Button, FlatList, TouchableOpacity, TextInput, ActivityIndicator } from 'react-native';
 import { useCallback, useState } from 'react';
-
-const MOCK_VAULT = [
-  { id: '1', title: 'google.com', username: 'test@gmail.com' },
-  { id: '2', title: 'github.com', username: 'dev_user' },
-  { id: '3', title: 'bank.com', username: 'admin_user' }
-];
+import { SyncService } from './src/SyncService';
 
 export default function App() {
   const [isUnlocked, setIsUnlocked] = useState(false);
   const [masterPassword, setMasterPassword] = useState('');
+  const [vaultData, setVaultData] = useState([]);
+  const [isSyncing, setIsSyncing] = useState(false);
 
   const renderItem = useCallback(({ item }) => (
     <TouchableOpacity style={styles.item}>
@@ -53,11 +50,21 @@ export default function App() {
       </View>
 
       <View style={styles.actions}>
-        <Button
-          title="Sincronizar com Google Drive"
-          onPress={() => alert('Sincronizando passwords.csv offline...')}
-          color="#1a73e8"
-        />
+        {isSyncing ? (
+           <ActivityIndicator size="small" color="#1a73e8" />
+        ) : (
+           <Button
+             title="Sincronizar com Google Drive (CSV)"
+             onPress={async () => {
+               setIsSyncing(true);
+               const data = await SyncService.syncWithGoogleDrive();
+               setVaultData(data);
+               setIsSyncing(false);
+               alert('Sincronizado com passwords.csv no Drive!');
+             }}
+             color="#1a73e8"
+           />
+        )}
         <View style={styles.buttonRow}>
           <Button
             title="Painel de Segurança"
@@ -78,10 +85,11 @@ export default function App() {
       </View>
 
       <FlatList
-        data={MOCK_VAULT}
+        data={vaultData.length > 0 ? vaultData : []}
         renderItem={renderItem}
         keyExtractor={item => item.id}
         style={styles.list}
+        ListEmptyComponent={<Text style={{textAlign: 'center', marginTop: 20}}>Nenhuma senha. Clique em Sincronizar.</Text>}
       />
 
       <StatusBar style="auto" />

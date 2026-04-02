@@ -2,8 +2,8 @@ name: Release Please
 
 # BunkerPass Release Automation
 # Este workflow cria e automatiza a geração das releases de forma integrada.
-# Gere tags automaticamente ao aprovar o PR, mantendo versionamento alinhado.
-# Mantenha o readme atualizado executando um script.
+# Funcionalidade: Gere tags automaticamente ao aprovar o PR, mantendo versionamento alinhado.
+# Funcionalidade: Mantenha o readme atualizado executando um script.
 # Integrado via scripts/update-readme.js e release-please.
 on:
   push:
