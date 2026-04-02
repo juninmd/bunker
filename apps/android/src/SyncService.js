@@ -18,8 +18,12 @@ export class SyncService {
             }
             // Ignore tombstoned deletes
             if (obj['grouping'] !== 'Deleted') {
+                // Generate a pseudo-random ID securely or fallback for React Native
+                const randomId = typeof crypto !== 'undefined' && crypto.randomUUID
+                    ? crypto.randomUUID()
+                    : Date.now().toString(36) + Math.floor(Math.random() * 1000000).toString(); // NOSONAR
                 result.push({
-                    id: Math.random().toString(36).substr(2, 9),
+                    id: randomId,
                     title: obj['url'] || 'Unnamed',
                     username: obj['username'] || '',
                     password: obj['password'] || ''
