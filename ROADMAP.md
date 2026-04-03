@@ -6,16 +6,16 @@
 - [x] Verification scripts for code integrity.
 
 ## 💾 Phase 2: Core Storage & Apps (Current)
-- [x] **Armazenamento e Sincronização**: Salvar e sincronizar senhas off-line no Google Drive, em uma planilha `.csv` (Diferencial).
+- [ ] **Armazenamento e Sincronização**: Salvar e sincronizar senhas off-line no Google Drive, em uma planilha .csv (Diferencial).
 - [x] **Acesso Rápido e Offline**: Leitura direta do cofre `.csv` local sem necessidade de conexão constante, sincronizando em background.
-- [x] **App Orchestration**: Implementar um CLI central para gerenciar os sub-apps.
+- [ ] **App Orchestration**: Implementar um CLI central para gerenciar os sub-apps.
 - [x] **Unified CI/CD**: Padronizar GitHub Actions para todas as aplicações no monorepo.
 - [ ] **Secret Management**: Sistema de cofre integrado para configurações locais.
 - [ ] **E2E Integration**: Testes de verificação entre aplicações.
 
 ## 🚀 Phase 3: Identity & Basic Parity (LastPass Alternative)
-- [x] **Cofre de Senhas**: Armazenamento seguro e hierárquico (pastas) e Notas Seguras. O diferencial é o salvamento off-line das senhas no Google Drive em uma planilha `.csv`.
-- [x] **Extensão e Autofill Avançado**: Salvar e preencher automaticamente no Firefox, Chrome, Safari, Android e iOS.
+- [ ] **Cofre de Senhas**: Armazenamento seguro e hierárquico (pastas) e Notas Seguras. O diferencial é o salvamento off-line das senhas no Google Drive em uma planilha .csv.
+- [ ] **Extensão e Autofill Avançado**: Salvar e preencher automaticamente no Firefox, Chrome, Safari, Android e iOS.
 - [x] **Gerador de Senhas e Usuários**: Criação de senhas e usernames seguros e customizáveis.
 - [x] **Notas Seguras**: Armazenar informações adicionais como cartões e notas Wi-Fi.
 - [x] **Endereços e Cartões**: Armazenamento de perfis para preenchimento de formulários (Form Fills) e dados bancários.
