@@ -82,6 +82,23 @@ export default function App() {
             color="#ea4335"
           />
         </View>
+        <View style={styles.buttonRow}>
+          <Button
+            title="Dark Web"
+            onPress={() => alert('Monitoramento Dark Web em desenvolvimento')}
+            color="#666666"
+          />
+          <Button
+            title="SaaS Protect"
+            onPress={() => alert('SaaS Protect em desenvolvimento')}
+            color="#666666"
+          />
+          <Button
+            title="Testamento"
+            onPress={() => alert('Testamento Digital em desenvolvimento')}
+            color="#666666"
+          />
+        </View>
       </View>
 
       <FlatList

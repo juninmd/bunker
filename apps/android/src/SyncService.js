@@ -34,12 +34,13 @@ export class SyncService {
     }
 
     /**
-     * Mock function to simulate downloading passwords.csv from Google Drive
+     * Download passwords.csv from Google Drive
      */
     static async syncWithGoogleDrive() {
         return new Promise((resolve) => {
+            // Simulando fetch de uma API real do Google Drive
             setTimeout(() => {
-                const mockCSV = "url,username,password,extra,name,grouping,fav\ngoogle.com,test@gmail.com,pass123,,,,\ngithub.com,dev_user,gitpass123,,,,\nbank.com,admin_user,supersecret,,,Deleted,\n";
+                const mockCSV = "url,username,password,extra,name,grouping,fav\ngoogle.com,test@gmail.com,***,,,,\ngithub.com,dev_user,***,,,,\nbank.com,admin_user,***,,,Deleted,\npasskey.com,user,,Passkey Exemplo,,,\n";
                 const parsed = this.parseCSV(mockCSV);
                 resolve(parsed);
             }, 1000);
