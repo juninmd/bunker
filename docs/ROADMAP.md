@@ -97,24 +97,30 @@ Levar o cofre para fora do navegador com experiência nativa, mantendo compatibi
   - [ ] Android (Autofill framework nativo)
   - [ ] iPhone e iPad (iOS Autofill)
 
-### Funcionalidades mapeadas do LastPass (Recapitulação)
-- **Gerador de Senhas (Password Generator)**: Criar senhas seguras automaticamente.
-- **Gerador de Nomes de Usuário (Username Generator)**: Criar nomes de usuário aleatórios e exclusivos.
-- **Chaves de Acesso (Passkeys)**: Logins mais rápidos e seguros usando WebAuthn.
-- **Monitoramento da Dark Web (Dark Web Monitoring)**: Alertas contra vazamento de senhas.
-- **Painel de Segurança (Security Dashboard)**: Auditoria e avaliação de força das senhas.
-- **Compartilhamento (Password Sharing)**: Opções Pessoal (Personal) e Empresarial (Business).
-- **Sincronização de Dispositivos (Device Sync)**: Manter senhas atualizadas em todos os aparelhos.
-- **Acesso de Emergência (Emergency Access)**: Conceder acesso a terceiros de confiança.
-- **Notas Seguras (Secure Notes)**: Guarda segura para dados sensíveis.
-- **Testamento Digital (Digital Will)**: Transferência segura da vida digital após falecimento.
-- **Login sem senha (Passwordless Login)**: Acesso via biometria ou aplicativo autenticador.
-- **Gerenciamento de Usuários (User Management)**: Controle administrativo para empresas.
-- **SaaS Protect**: Proteção para aplicações em nuvem corporativas.
-- **Integração de Diretórios (Directory Integration)**: Conexão com AD/LDAP para provisionamento.
-- **Login Federado (Federated Login)**: SSO integrado.
+### Funcionalidades mapeadas do LastPass (Recapitulação Detalhada)
+- **Gerador de Senhas (Password Generator)**: Criar senhas fortes, exclusivas e resistentes a hackers.
+- **Gerador de Nomes de Usuário (Username Generator)**: Gerar nomes de usuário aleatórios para proteger identidade online.
+- **Chaves de Acesso (Passkeys)**: Logins mais rápidos, fáceis e seguros (WebAuthn).
+- **Monitoramento da Dark Web (Dark Web Monitoring)**: Alerta imediato se informações pessoais forem encontradas na dark web.
+- **Painel de Segurança (Security Dashboard)**: Notificações de senhas fracas, reutilizadas e antigas.
+- **Compartilhamento de Senhas Pessoais**: Compartilhar senhas de forma segura com familiares e amigos.
+- **Compartilhamento Empresarial**: Compartilhamento com equipes, freelancers e fornecedores.
+- **Sincronização Automática (Device Sync)**: Salve uma senha em um dispositivo e ela será sincronizada em todos os dispositivos.
+- **Acesso de Emergência (Emergency Access)**: Conceda acesso a um contato de confiança em caso de emergência.
+- **Notas Seguras (Secure Notes)**: Armazene anotações adicionais como logins de Wi-Fi e informações bancárias.
+- **Testamento Digital (Digital Will)**: Deixe uma cópia da sua vida digital.
+- **Login sem senha no cofre (Passwordless Login)**: Acesse o cofre sem digitar a senha mestre.
+- **Gerenciamento de Usuários (User Management)**: Controle de segurança, contas e políticas da empresa.
+- **SaaS Protect**: Controle o uso de SaaS, bloqueando aplicativos perigosos.
+- **Integração de Diretórios (Directory Integration)**: Automatizar gerenciamento de usuários integrando ao diretório existente.
+- **Login Federado (Federated Login)**: Login com credenciais de identidade federada.
 - **Workstation MFA**: Autenticação multifator no nível do sistema operacional.
-- **Autofill Multiplataforma**: Suporte para preenchimento em Chrome, Android, iOS, Safari, Firefox.
+- **Autofill no Google Chrome**: Substitua o gerenciador de senhas do Chrome.
+- **Autofill no Android**: Crie, salve e preencha senhas no Android.
+- **Autofill no iPhone e iPad**: Aproveite o LastPass no iOS.
+- **Autofill no Safari**: Acesse o cofre enquanto navega no Safari.
+- **Autofill no Mozilla Firefox**: Salve e preencha senhas no Firefox.
+- **Armazenamento Google Drive (O Diferencial)**: Diferente do LastPass, o BunkerPass salva as senhas em um cofre no Google Drive (`.csv` offline), garantindo que apenas o usuário detenha as chaves de sua vida digital.
 
 ## Detalhes Técnicos
 

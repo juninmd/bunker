@@ -5,6 +5,7 @@ name: Release Please
 # Funcionalidade: Gere tags automaticamente ao aprovar o PR, mantendo versionamento alinhado.
 # Funcionalidade: Mantenha o readme atualizado executando um script.
 # Integrado via scripts/update-readme.js e release-please.
+# Adicionando suporte explícito para automatizar as releases, tags e readme.
 on:
   push:
     branches:
