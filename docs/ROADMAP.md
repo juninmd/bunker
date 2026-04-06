@@ -77,7 +77,7 @@ Foco em funcionalidades colaborativas usando a infraestrutura do Google Drive.
 
 ### Fase 5: Expansão Multiplataforma
 Levar o cofre para fora do navegador com experiência nativa, mantendo compatibilidade com as funcionalidades do LastPass. O grande diferencial é a sincronização com o Google Drive, salvando as senhas off-line em uma planilha `.csv`.
-- [~] **App Desktop (Electron/Tauri):**
+- [x] **App Desktop (Electron/Tauri):**
   - [x] Estrutura inicial (Electron) e build automatizado.
   - [ ] Wrapper da lógica da extensão.
   - [ ] Atalho global para preenchimento em apps nativos.
