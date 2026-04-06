@@ -6,9 +6,9 @@
 - [x] Verification scripts for code integrity.
 
 ## 💾 Phase 2: Core Storage & Apps (Current)
-- [ ] **Armazenamento e Sincronização**: Salvar e sincronizar senhas off-line no Google Drive, em uma planilha .csv (Diferencial).
+- [x] **Armazenamento e Sincronização**: Salvar e sincronizar senhas off-line no Google Drive, em uma planilha .csv (Diferencial).
 - [x] **Acesso Rápido e Offline**: Leitura direta do cofre `.csv` local sem necessidade de conexão constante, sincronizando em background.
-- [ ] **App Orchestration**: Implementar um CLI central para gerenciar os sub-apps.
+- [x] **App Orchestration**: Implementar um CLI central para gerenciar os sub-apps.
 - [x] **Unified CI/CD**: Padronizar GitHub Actions para todas as aplicações no monorepo.
 - [ ] **Secret Management**: Sistema de cofre integrado para configurações locais.
 - [ ] **E2E Integration**: Testes de verificação entre aplicações.
