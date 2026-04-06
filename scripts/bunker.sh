@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Bunker Orchestration CLI
 # Manages the monorepo apps: extension, desktop, android
@@ -8,13 +8,13 @@ if [ -z "$1" ]; then
   exit 1
 fi
 
-APP=$1
-CMD=${2:-start}
+APP="$1"
+CMD="${2:-start}"
 
 case "$APP" in
   extension)
     echo "Managing Extension..."
-    cd apps/extension || exit
+    cd "$(dirname "$0")/../apps/extension" || exit
     if [ "$CMD" = "start" ]; then
       echo "No specific start command for extension. Did you mean build?"
     elif [ "$CMD" = "build" ]; then
@@ -25,7 +25,7 @@ case "$APP" in
     ;;
   desktop)
     echo "Managing Desktop App..."
-    cd apps/desktop || exit
+    cd "$(dirname "$0")/../apps/desktop" || exit
     if [ "$CMD" = "start" ]; then
       npm start
     elif [ "$CMD" = "build" ]; then
@@ -36,7 +36,7 @@ case "$APP" in
     ;;
   android)
     echo "Managing Android App..."
-    cd apps/android || exit
+    cd "$(dirname "$0")/../apps/android" || exit
     if [ "$CMD" = "start" ]; then
       npm start
     elif [ "$CMD" = "build" ]; then
