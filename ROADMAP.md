@@ -29,10 +29,13 @@
 - [ ] **Compartilhamento**: Compartilhamento Pessoal (Personal) e Empresarial (Business) de senhas de forma segura.
 - [ ] **Acesso de Emergência (Emergency Access)**: Conceder a um contato de confiança acesso ao cofre em caso de emergência.
 - [ ] **Testamento Digital (Digital Will)**: Preparar e transferir o acesso em caso de falecimento.
+- [ ] **Gerenciamento de Usuários**: Controle a segurança, as contas e as políticas da sua empresa em uma única plataforma.
 - [ ] **Integração de Diretórios**: Gerenciamento de Usuários com Integração de Diretórios existentes (AD/LDAP).
 - [ ] **Workstation MFA**: Login seguro no sistema operacional (Windows/Mac).
 - [ ] **Login federado**: Logon único (SSO) para acessos integrados.
 - [ ] **SaaS Protect**: Controle, visibilidade e monitoramento do uso de aplicativos SaaS.
+- [ ] **Monitoramento de SaaS**: Visão ampla do uso do SaaS e sombra de TI.
+- [ ] **Recursos Essenciais de Acesso Seguro**: Controle abrangente e monitoramento focado.
 - [ ] **Recuperação de Conta**: Mecanismo seguro de recuperação para senha mestre esquecida.
 
 ## 🎯 v1.0 Milestone
