@@ -99,6 +99,40 @@ export default function App() {
             color="#666666"
           />
         </View>
+        <View style={styles.buttonRow}>
+          <Button
+            title="Diretórios"
+            onPress={() => alert('Integração de Diretórios em desenvolvimento')}
+            color="#666666"
+          />
+          <Button
+            title="Sem Senha"
+            onPress={() => alert('Login sem senha em desenvolvimento')}
+            color="#666666"
+          />
+          <Button
+            title="Passkeys"
+            onPress={() => alert('Chaves de Acesso em desenvolvimento')}
+            color="#666666"
+          />
+        </View>
+        <View style={styles.buttonRow}>
+          <Button
+            title="Federação"
+            onPress={() => alert('Login federado em desenvolvimento')}
+            color="#666666"
+          />
+          <Button
+            title="MFA Estação"
+            onPress={() => alert('Workstation MFA em desenvolvimento')}
+            color="#666666"
+          />
+          <Button
+            title="Emergência"
+            onPress={() => alert('Acesso de Emergência em desenvolvimento')}
+            color="#666666"
+          />
+        </View>
       </View>
 
       <FlatList

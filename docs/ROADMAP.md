@@ -49,7 +49,7 @@ Foco em igualar as funcionalidades de conveniência e organização.
 - [~] **Segurança Avançada:**
   - [x] **Logout Automático:** Configuração de timeout por inatividade.
   - [ ] **Desbloqueio com PIN/Biometria:** Opção de PIN curto para acesso rápido.
-  - [ ] **Login sem senha no cofre (Passwordless):** Usar biometria/passkey para dispensar digitação de senha mestre.
+  - [ ] **Login sem senha no cofre (Passwordless):** Acessar facilmente seu cofre de senhas sem precisar digitar a senha mestre.
   - [ ] **Recuperação de Conta:** Mecanismo seguro de recuperação para senha mestre esquecida.
 
 ### Fase 3: Auditoria e Monitoramento (Security Dashboard & Dark Web)
@@ -58,22 +58,20 @@ Foco na proatividade da segurança.
   - Análise de força das senhas (fracas, antigas).
   - Identificação de senhas reutilizadas.
 - [ ] **Monitoramento da Dark Web:**
-  - Alertas se informações ou senhas do usuário forem encontradas em vazamentos conhecidos na dark web.
+  - Receber alerta imediato se informações pessoais forem encontradas na dark web.
 - [ ] **Histórico de Senhas:** Manter histórico de alterações para permitir reversão.
-- [ ] **Testamento Digital (Digital Will):** Preparar uma cópia segura da sua vida digital em caso de emergência.
+- [ ] **Testamento Digital (Digital Will):** Deixar uma cópia segura da sua vida digital em caso de emergência.
 
 ### Fase 4: Compartilhamento, Teams & Corporativo
 Foco em funcionalidades colaborativas usando a infraestrutura do Google Drive.
-- [ ] **Compartilhamento Pessoal (Personal Password Sharing):** Compartilhamento de credenciais com amigos e familiares sem abrir mão do controle de acesso.
-- [ ] **Compartilhamento Empresarial (Business Password Sharing):** Compartilhamento de senhas corporativas com membros da equipe, freelancers e fornecedores.
+- [ ] **Compartilhamento Pessoal (Personal Password Sharing):** Compartilhar senhas de forma segura com familiares e amigos sem abrir mão do controle de acesso.
+- [ ] **Compartilhamento Empresarial (Business Password Sharing):** Compartilhar senhas empresariais de forma segura com membros da equipe, freelancers e fornecedores.
 - [ ] **Acesso de Emergência (Emergency Access):** Conceda a um contato de confiança ou a um ente querido acesso ao cofre de senhas em caso de emergência.
-- [ ] **Gerenciamento de Usuários:** Controle da segurança, contas e políticas da empresa em uma única plataforma (Business).
-- [ ] **Integração de Diretórios:** Integração com o diretório de usuários existente (AD/LDAP) para automatizar provisionamento.
-- [ ] **Login Federado:** Permita que os usuários façam login com suas credenciais de identidade federada.
-- [ ] **Workstation MFA:** Expansão da autenticação multifatorial para estações de trabalho (Login em Windows/Mac).
-- [ ] **SaaS Protect:** Medidas para controlar o uso de SaaS e lidar com riscos relacionados a credenciais não homologadas.
-- [ ] **Recuperação de Conta:** Mecanismo seguro de recuperação para senha mestre esquecida.
-- [ ] **Testamento Digital (Digital Will):** Deixar uma cópia da sua vida digital em caso de emergência.
+- [ ] **Gerenciamento de Usuários (User Management):** Controle a segurança, as contas e as políticas da sua empresa em uma única plataforma (Business).
+- [ ] **Integração de Diretórios (Directory Integration):** Integre o BunkerPass ao seu diretório de usuários existente para automatizar o gerenciamento de usuários.
+- [ ] **Login Federado (Federated Login):** Permita que os usuários façam login com suas credenciais de identidade federada.
+- [ ] **Workstation MFA:** Expanda a autenticação para a estação de trabalho para simplificar logins e aumentar a segurança.
+- [ ] **SaaS Protect:** Tome medidas imediatas para controlar o uso de SaaS, bloquear ou restringir aplicativos perigosos.
 
 ### Fase 5: Expansão Multiplataforma
 Levar o cofre para fora do navegador com experiência nativa, mantendo compatibilidade com as funcionalidades do LastPass. O grande diferencial é a sincronização com o Google Drive, salvando as senhas off-line em uma planilha `.csv`.
