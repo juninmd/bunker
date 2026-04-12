@@ -15,6 +15,7 @@
 - **Automation Scripts**: Comprehensive shell and python scripts for management and verification.
 - **Release Automation**: Integrated with `release-please` para geração automatizada de tags e atualizações do `README.md`.
 - **Sincronização com Google Drive**: O diferencial é o salvamento off-line das senhas no Google Drive, em uma planilha `.csv`.
+- **GitHub Actions Integration**: Automated generation of releases and tags, keeping the README.md updated via scripts.
 
 ## 🛠️ BunkerPass (Substituto do LastPass)
 

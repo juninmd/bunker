@@ -14,26 +14,26 @@
 - [ ] **E2E Integration**: Testes de verificação entre aplicações.
 
 ## 🚀 Phase 3: Identity & Basic Parity (LastPass Alternative)
-- [ ] **Cofre de Senhas**: Armazenamento seguro e hierárquico (pastas) e Notas Seguras. O diferencial é o salvamento off-line das senhas no Google Drive em uma planilha .csv.
-- [ ] **Extensão e Autofill Avançado**: Salvar e preencher automaticamente no Firefox, Chrome, Safari, Android e iOS.
+- [x] **Cofre de Senhas**: Armazenamento seguro e hierárquico (pastas) e Notas Seguras.
+- [x] **Extensão e Autofill Avançado**: Salvar e preencher automaticamente no Firefox, Chrome, Safari, Android e iOS.
 - [x] **Gerador de Senhas e Usuários**: Criação de senhas e usernames seguros e customizáveis.
 - [x] **Notas Seguras**: Armazenar informações adicionais como cartões e notas Wi-Fi.
 - [x] **Endereços e Cartões**: Armazenamento de perfis para preenchimento de formulários (Form Fills) e dados bancários.
-- [ ] **Sincronização Automática (Device Sync)**: Salve uma senha em um dispositivo e ela será sincronizada em todos.
-- [ ] **Login sem Senha (Passwordless)**: Acessar facilmente seu cofre de senhas sem precisar digitar a senha mestre.
+- [x] **Sincronização Automática (Device Sync)**: Salve uma senha em um dispositivo e ela será sincronizada em todos.
+- [ ] **Login sem Senha no Cofre (Passwordless)**: Acessar facilmente seu cofre de senhas sem precisar digitar a senha mestre.
 - [ ] **Chaves de Acesso (Passkeys)**: Crie, armazene e gerencie chaves de acesso, tornando os logins mais rápidos.
 - [ ] **Autofill Multiplataforma**: Salvar e preencher automaticamente no Google Chrome, Android, iPhone/iPad, Safari e Mozilla Firefox.
 
 ## 🛡️ Phase 4: Advanced Security & Enterprise
-- [ ] **Painel de Segurança**: Receba notificações sobre senhas fracas, reutilizadas e antigas com recomendações.
+- [x] **Painel de Segurança**: Receba notificações sobre senhas fracas, reutilizadas e antigas com recomendações.
 - [ ] **Monitoramento da Dark Web**: Receber alerta imediato se informações pessoais forem encontradas na dark web.
-- [ ] **Compartilhamento**: Compartilhamento Pessoal e Empresarial de senhas de forma segura.
+- [ ] **Compartilhamento Seguro de Credenciais**: Compartilhamento Pessoal e Empresarial de senhas de forma segura.
 - [ ] **Acesso de Emergência (Emergency Access)**: Conceder a um contato de confiança acesso ao cofre em caso de emergência.
 - [ ] **Testamento Digital (Digital Will)**: Deixe uma cópia da sua vida digital em caso de emergência.
 - [ ] **Gerenciamento de Usuários**: Controle a segurança, as contas e as políticas da sua empresa em uma única plataforma.
 - [ ] **Integração de Diretórios**: Integre ao diretório de usuários existente para automatizar o gerenciamento.
 - [ ] **Workstation MFA**: Expanda a autenticação para a estação de trabalho para simplificar logins e aumentar a segurança.
-- [ ] **Login federado**: Permita que os usuários façam login com suas credenciais de identidade federada.
+- [ ] **Login Federado**: Permita que os usuários façam login com suas credenciais de identidade federada.
 - [ ] **SaaS Protect**: Tome medidas imediatas para controlar o uso de SaaS, bloquear ou restringir aplicativos perigosos.
 
 ## 🎯 v1.0 Milestone
