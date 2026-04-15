@@ -49,7 +49,7 @@ Foco em igualar as funcionalidades de conveniência e organização.
 - [~] **Segurança Avançada:**
   - [x] **Logout Automático:** Configuração de timeout por inatividade.
   - [ ] **Desbloqueio com PIN/Biometria:** Opção de PIN curto para acesso rápido.
-  - [ ] **Login sem senha no cofre (Passwordless):** Acessar facilmente seu cofre de senhas sem precisar digitar a senha mestre.
+  - [x] **Login sem senha no cofre (Passwordless):** Acessar facilmente seu cofre de senhas sem precisar digitar a senha mestre via WebAuthn PRF.
   - [ ] **Recuperação de Conta:** Mecanismo seguro de recuperação para senha mestre esquecida.
 
 ### Fase 3: Auditoria e Monitoramento (Security Dashboard & Dark Web)

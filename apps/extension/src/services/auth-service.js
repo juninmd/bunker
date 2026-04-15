@@ -11,6 +11,7 @@ export class AuthService {
     }
 
     const challenge = crypto.getRandomValues(new Uint8Array(32));
+    const prfSalt = crypto.getRandomValues(new Uint8Array(32));
     const userId = new TextEncoder().encode(username);
 
     const publicKeyCredentialCreationOptions = {
@@ -29,7 +30,15 @@ export class AuthService {
         { alg: -257, type: "public-key" } // RS256
       ],
       authenticatorSelection: {
-        userVerification: "preferred"
+        authenticatorAttachment: "platform",
+        userVerification: "required"
+      },
+      extensions: {
+        prf: {
+          eval: {
+            first: prfSalt
+          }
+        }
       },
       timeout: 60000,
       attestation: "none"
@@ -39,9 +48,21 @@ export class AuthService {
       const credential = await navigator.credentials.create({
         publicKey: publicKeyCredentialCreationOptions
       });
-      // In a full implementation, you'd securely store the credential ID and public key
-      // (potentially wrapped by a derived master key if syncing to drive).
-      return credential;
+
+      const extensionResults = credential.getClientExtensionResults();
+      if (!extensionResults.prf || !extensionResults.prf.enabled) {
+        throw new Error("A extensão PRF do WebAuthn não é suportada por este dispositivo/navegador.");
+      }
+
+      // Convert rawId to Base64 for easier storage
+      const rawIdBytes = new Uint8Array(credential.rawId);
+      const rawIdB64 = btoa(String.fromCharCode(...rawIdBytes));
+      const saltB64 = btoa(String.fromCharCode(...prfSalt));
+
+      return {
+        credentialId: rawIdB64,
+        salt: saltB64
+      };
     } catch (error) {
       console.error("Error during WebAuthn registration:", error);
       throw error;
@@ -50,15 +71,18 @@ export class AuthService {
 
   /**
    * Authenticates the user via WebAuthn for Passwordless login.
-   * @param {Uint8Array} credentialId The credential ID to authenticate against.
-   * @returns {Promise<boolean>} True if authentication succeeded.
+   * @param {string} credentialIdB64 The base64-encoded credential ID.
+   * @param {string} saltB64 The base64-encoded salt used during registration.
+   * @returns {Promise<Uint8Array>} The derived PRF key.
    */
-  static async authenticatePasswordless(credentialId) {
+  static async authenticatePasswordless(credentialIdB64, saltB64) {
     if (!window.PublicKeyCredential) {
       throw new Error("WebAuthn is not supported in this browser.");
     }
 
     const challenge = crypto.getRandomValues(new Uint8Array(32));
+    const credentialId = Uint8Array.from(atob(credentialIdB64), c => c.charCodeAt(0));
+    const prfSalt = Uint8Array.from(atob(saltB64), c => c.charCodeAt(0));
 
     const publicKeyCredentialRequestOptions = {
       challenge: challenge,
@@ -68,7 +92,14 @@ export class AuthService {
           type: "public-key"
         }
       ],
-      userVerification: "preferred",
+      userVerification: "required",
+      extensions: {
+        prf: {
+          eval: {
+            first: prfSalt
+          }
+        }
+      },
       timeout: 60000
     };
 
@@ -77,9 +108,12 @@ export class AuthService {
         publicKey: publicKeyCredentialRequestOptions
       });
 
-      // TODO: Implement verification of the assertion signature. This is a critical security step.
-      // For now, throwing an error to prevent insecure use.
-      throw new Error("WebAuthn assertion verification not implemented.");
+      const extensionResults = assertion.getClientExtensionResults();
+      if (!extensionResults.prf || !extensionResults.prf.results || !extensionResults.prf.results.first) {
+         throw new Error("Falha ao obter a chave PRF do autenticador.");
+      }
+
+      return new Uint8Array(extensionResults.prf.results.first);
     } catch (error) {
       console.error("Error during WebAuthn authentication:", error);
       throw error;
