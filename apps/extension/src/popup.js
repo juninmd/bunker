@@ -1,6 +1,8 @@
 import { VaultService } from './services/vault-service.js';
 import { SyncService } from './services/sync-service.js';
+import { AuthService } from './services/auth-service.js';
 import { generatePassword, generateUsername } from './utils/password-generator.js';
+import { deriveKey, encryptWithKey, decryptWithKey, bytesToBase64, base64ToBytes } from './utils/crypto.js';
 
 const vaultService = new VaultService();
 const syncService = new SyncService(vaultService);
@@ -9,7 +11,9 @@ const unlockSection = document.getElementById('unlock-section');
 const vaultSection = document.getElementById('vault-section');
 const statusEl = document.getElementById('status');
 const unlockButton = document.getElementById('unlockButton');
+const unlockBiometricsBtn = document.getElementById('unlockBiometricsBtn');
 const lockButton = document.getElementById('lockButton');
+const setupPasswordlessBtn = document.getElementById('setupPasswordlessBtn');
 const syncButton = document.getElementById('syncButton');
 const importCsvButton = document.getElementById('importCsvButton');
 const downloadCsvBtn = document.getElementById('downloadCsvBtn');
@@ -67,7 +71,9 @@ const passwordStrengthBar = document.getElementById('password-strength-bar');
 const passwordStrengthText = document.getElementById('password-strength-text');
 
 unlockButton.addEventListener('click', handleUnlock);
+unlockBiometricsBtn.addEventListener('click', handleUnlockBiometrics);
 lockButton.addEventListener('click', handleLock);
+setupPasswordlessBtn.addEventListener('click', handleSetupPasswordless);
 syncButton.addEventListener('click', handleSync);
 importCsvButton.addEventListener('click', handleImportCSV);
 downloadCsvBtn.addEventListener('click', handleDownloadLocalCSV);
@@ -332,13 +338,94 @@ function updateFolderOptions(vault) {
   });
 }
 
-async function handleUnlock() {
-  const masterPassword = masterPasswordInput.value.trim();
-  if (!masterPassword) {
-    setStatus('Informe a senha mestra.');
-    return;
+async function checkBiometrics() {
+  const credentialId = await vaultService.getStorage('bunkerpass.passwordless.credentialId');
+  if (credentialId) {
+    unlockBiometricsBtn.classList.remove('hidden');
   }
+}
 
+// Initial check for biometrics when popup loads
+document.addEventListener('DOMContentLoaded', checkBiometrics);
+
+async function handleSetupPasswordless() {
+  try {
+    const username = 'BunkerPassUser';
+    const prfData = await AuthService.registerPasswordless(username);
+
+    // Encrypt the master password using the PRF derived key (which we don't have yet from register,
+    // actually register doesn't return the PRF derived key directly, it only setups the salt.
+    // Wait, the PRF extension on registration doesn't guarantee a key is returned unless we evaluate it.
+    // Let's encrypt the master password using a randomly generated device key, and encrypt that device key with PRF?
+    // Actually, WebAuthn PRF registration DOES NOT return the PRF key in most implementations.
+    // Let's authenticate immediately to get the PRF key to encrypt the master password!
+    setStatus('Autenticando biometria para concluir configuração...');
+
+    const prfKeyBytes = await AuthService.authenticatePasswordless(prfData.credentialId, prfData.salt);
+
+    // Import PRF key
+    const prfCryptoKey = await crypto.subtle.importKey(
+      'raw',
+      prfKeyBytes,
+      { name: 'AES-GCM', length: 256 },
+      true,
+      ['encrypt', 'decrypt']
+    );
+
+    // Encrypt the master password
+    // Get it from the input since vaultService might not expose it directly or safely
+    const currentMasterPassword = document.getElementById('masterPassword').value.trim() || vaultService.masterPassword;
+    if (!currentMasterPassword) {
+      throw new Error("Senha mestra não encontrada. Desbloqueie o cofre novamente para configurar.");
+    }
+    const payload = { masterPassword: currentMasterPassword };
+    const encryptedMasterPassword = await encryptWithKey(payload, prfCryptoKey);
+
+    // Save everything to local storage
+    await vaultService.setStorage('bunkerpass.passwordless.credentialId', prfData.credentialId);
+    await vaultService.setStorage('bunkerpass.passwordless.salt', prfData.salt);
+    await vaultService.setStorage('bunkerpass.passwordless.encryptedData', encryptedMasterPassword);
+
+    setStatus('Login sem senha configurado com sucesso!');
+  } catch (error) {
+    console.error(error);
+    setStatus('Falha ao configurar login sem senha: ' + error.message);
+  }
+}
+
+async function handleUnlockBiometrics() {
+  try {
+    const credentialId = await vaultService.getStorage('bunkerpass.passwordless.credentialId');
+    const salt = await vaultService.getStorage('bunkerpass.passwordless.salt');
+    const encryptedData = await vaultService.getStorage('bunkerpass.passwordless.encryptedData');
+
+    if (!credentialId || !salt || !encryptedData) {
+      setStatus('Login sem senha não configurado adequadamente.');
+      return;
+    }
+
+    setStatus('Aguardando biometria...');
+    const prfKeyBytes = await AuthService.authenticatePasswordless(credentialId, salt);
+
+    const prfCryptoKey = await crypto.subtle.importKey(
+      'raw',
+      prfKeyBytes,
+      { name: 'AES-GCM', length: 256 },
+      true,
+      ['encrypt', 'decrypt']
+    );
+
+    const decrypted = await decryptWithKey(encryptedData, prfCryptoKey);
+
+    // Use the decrypted master password to unlock the vault
+    await doUnlock(decrypted.masterPassword);
+  } catch (error) {
+    console.error(error);
+    setStatus('Falha na autenticação biométrica.');
+  }
+}
+
+async function doUnlock(masterPassword) {
   try {
     await vaultService.unlock(masterPassword);
     handleSearch();
@@ -358,11 +445,21 @@ async function handleUnlock() {
 
     unlockSection.classList.add('hidden');
     vaultSection.classList.remove('hidden');
-    setStatus('Cofre desbloqueado (modo offline).');
+    setStatus('Cofre desbloqueado.');
   } catch (e) {
     console.error(e);
     setStatus('Senha mestra inválida ou cofre corrompido.');
   }
+}
+
+async function handleUnlock() {
+  const masterPassword = masterPasswordInput.value.trim();
+  if (!masterPassword) {
+    setStatus('Informe a senha mestra.');
+    return;
+  }
+
+  await doUnlock(masterPassword);
 }
 
 function handleLock() {

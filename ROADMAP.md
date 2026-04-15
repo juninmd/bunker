@@ -20,7 +20,7 @@
 - [x] **Notas Seguras**: Armazenar informações adicionais como cartões e notas Wi-Fi.
 - [x] **Endereços e Cartões**: Armazenamento de perfis para preenchimento de formulários (Form Fills) e dados bancários.
 - [x] **Sincronização Automática (Device Sync)**: Salve uma senha em um dispositivo e ela será sincronizada em todos.
-- [ ] **Login sem Senha no Cofre (Passwordless)**: Acessar facilmente seu cofre de senhas sem precisar digitar a senha mestre.
+- [x] **Login sem Senha no Cofre (Passwordless)**: Acessar facilmente seu cofre de senhas sem precisar digitar a senha mestre via WebAuthn PRF.
 - [ ] **Chaves de Acesso (Passkeys)**: Crie, armazene e gerencie chaves de acesso, tornando os logins mais rápidos.
 - [ ] **Autofill Multiplataforma**: Salvar e preencher automaticamente no Google Chrome, Android, iPhone/iPad, Safari e Mozilla Firefox.
 

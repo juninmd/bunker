@@ -18,10 +18,7 @@ async function testCSV() {
     const headers = ['site', 'username', 'password', 'extra'];
 
     const csv = generateCSV(data, headers);
-    // console.log('Generated CSV:', csv);
-
     const parsed = parseCSV(csv);
-    // console.log('Parsed CSV:', parsed);
 
     assert.strictEqual(parsed.length, 2);
     assert.strictEqual(parsed[0].site, 'google.com');
@@ -41,16 +38,9 @@ async function testCrypto() {
         credentials: [{ id: 1, site: 'example.com', password: 'secret' }]
     };
 
-    // 1. Derive key
     const key = await deriveKey(masterPassword, salt);
-
-    // 2. Encrypt with key
     const encrypted = await encryptWithKey(payload, key);
-    // console.log('Encrypted payload:', encrypted);
-
-    // 3. Decrypt with key
     const decrypted = await decryptWithKey(encrypted, key);
-    // console.log('Decrypted payload:', decrypted);
 
     assert.deepStrictEqual(decrypted, payload);
     console.log('Crypto (Key-based) Test Passed ✅');
@@ -60,6 +50,8 @@ async function testCrypto() {
     try {
         await testCSV();
         await testCrypto();
+        console.log('Running test_passwordless.mjs...');
+        await import('./test_passwordless.mjs');
         console.log('All tests passed! 🚀');
     } catch (e) {
         console.error('Test failed:', e);
