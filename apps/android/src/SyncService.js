@@ -2,29 +2,73 @@ export class SyncService {
     /**
      * Parse the standard LastPass-compatible BunkerPass CSV format
      */
-    static parseCSV(text) {
-        const lines = text.split('\n');
-        const result = [];
-        if (lines.length === 0) return result;
+    static parseCSVLines(str) {
+        const arr = [];
+        let quote = false;
+        let row = [];
+        let col = '';
 
-        const headers = lines[0].split(',').map(h => h.trim());
-        for (let i = 1; i < lines.length; i++) {
-            if (!lines[i].trim()) continue;
-            // Simple split handling, assumes no commas in values for MVP
-            const currentline = lines[i].split(',');
-            const obj = {};
-            for (let j = 0; j < headers.length; j++) {
-                obj[headers[j]] = currentline[j] ? currentline[j].trim() : '';
+        str = str.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+
+        for (let cIndex = 0; cIndex < str.length; cIndex++) {
+            let c = str[cIndex];
+            let cc = str[cIndex + 1];
+
+            if (c === '"') {
+                if (quote && cc === '"') {
+                    col += '"';
+                    cIndex++;
+                } else {
+                    quote = !quote;
+                }
+            } else if (c === ',' && !quote) {
+                row.push(col);
+                col = '';
+            } else if (c === '\n' && !quote) {
+                row.push(col);
+                col = '';
+                arr.push(row);
+                row = [];
+            } else {
+                col += c;
             }
-            // Ignore tombstoned deletes
+        }
+
+        if (col.length > 0 || row.length > 0) {
+             row.push(col);
+             arr.push(row);
+        }
+
+        return arr;
+    }
+
+    static parseCSV(text) {
+        const result = [];
+        const lines = this.parseCSVLines(text);
+        if (lines.length < 2) return result;
+
+        const headerRow = lines[0];
+        if (!headerRow) return result;
+
+        const headers = headerRow.map(h => h.trim());
+
+        for (let i = 1; i < lines.length; i++) {
+            const currentLine = lines[i];
+            if (!currentLine) continue;
+            if (currentLine.length === 0 || (currentLine.length === 1 && currentLine[0] === '')) continue;
+
+            const obj = {};
+            headers.forEach((header, index) => {
+                obj[header] = currentLine[index] !== undefined ? currentLine[index] : '';
+            });
+
             if (obj['grouping'] !== 'Deleted') {
-                // Generate a pseudo-random ID securely or fallback for React Native
                 const randomId = typeof crypto !== 'undefined' && crypto.randomUUID
                     ? crypto.randomUUID()
                     : Date.now().toString(36) + Math.floor(Math.random() * 1000000).toString(); // NOSONAR
                 result.push({
                     id: randomId,
-                    title: obj['url'] || 'Unnamed',
+                    title: obj['url'] || obj['site'] || obj['name'] || 'Unnamed',
                     username: obj['username'] || '',
                     password: obj['password'] || ''
                 });
