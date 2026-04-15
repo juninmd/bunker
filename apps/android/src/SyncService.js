@@ -8,7 +8,7 @@ export class SyncService {
         let row = [];
         let col = '';
 
-        str = str.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+        str = str.replace(/\r\n|\r/g, '\n');
 
         for (let cIndex = 0; cIndex < str.length; cIndex++) {
             let c = str[cIndex];
