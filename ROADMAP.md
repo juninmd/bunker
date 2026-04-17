@@ -27,7 +27,8 @@
 ## 🛡️ Phase 4: Advanced Security & Enterprise
 - [x] **Painel de Segurança**: Receba notificações sobre senhas fracas, reutilizadas e antigas com recomendações.
 - [ ] **Monitoramento da Dark Web**: Receber alerta imediato se informações pessoais forem encontradas na dark web.
-- [ ] **Compartilhamento Seguro de Credenciais**: Compartilhamento Pessoal e Empresarial de senhas de forma segura.
+- [ ] **Compartilhamento de Senhas Pessoais**: Compartilhar senhas de forma segura com familiares e amigos.
+- [ ] **Compartilhamento Empresarial**: Compartilhar senhas empresariais de forma segura com membros da equipe, freelancers e fornecedores.
 - [ ] **Acesso de Emergência (Emergency Access)**: Conceder a um contato de confiança acesso ao cofre em caso de emergência.
 - [ ] **Testamento Digital (Digital Will)**: Deixe uma cópia da sua vida digital em caso de emergência.
 - [ ] **Gerenciamento de Usuários**: Controle a segurança, as contas e as políticas da sua empresa em uma única plataforma.
