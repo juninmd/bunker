@@ -57,7 +57,7 @@ Foco na proatividade da segurança.
 - [x] **Painel de Segurança (Security Score):**
   - Análise de força das senhas (fracas, antigas).
   - Identificação de senhas reutilizadas.
-- [ ] **Monitoramento da Dark Web:**
+- [ ] **Monitoramento da Dark Web (Dark Web Monitoring):**
   - Receber alerta imediato se informações pessoais forem encontradas na dark web.
 - [ ] **Histórico de Senhas:** Manter histórico de alterações para permitir reversão.
 - [ ] **Testamento Digital (Digital Will):** Deixar uma cópia segura da sua vida digital em caso de emergência.
@@ -79,14 +79,14 @@ Levar o cofre para fora do navegador com experiência nativa, mantendo compatibi
   - [x] Estrutura inicial (Electron) e build automatizado.
   - [ ] Wrapper da lógica da extensão.
   - [ ] Atalho global para preenchimento em apps nativos.
-  - [ ] Funcionamento offline robusto com `file://` ou SQLite local.
+  - [ ] Funcionamento offline robusto com leitura de `passwords.csv`.
 - [ ] **App Android (React Native/Expo):**
-  - Salvar e preencher automaticamente credenciais (Integração com Autofill Framework do Android).
-  - Acesso biométrico (Fingerprint/FaceID) para desbloqueio.
-  - Sincronização automática de dispositivos via Google Drive.
-  - **APK:** Geração automatizada de APK via GitHub Actions.
+  - [ ] Salvar e preencher automaticamente credenciais (Integração com Autofill Framework do Android).
+  - [ ] Acesso biométrico (Fingerprint/FaceID) para desbloqueio.
+  - [ ] Sincronização automática de dispositivos via Google Drive.
+  - [ ] **APK:** Geração automatizada de APK via GitHub Actions.
 - [ ] **App iOS:**
-  - Salvar e preencher automaticamente no iPhone e iPad.
+  - [ ] Salvar e preencher automaticamente no iPhone e iPad.
 - [ ] **Salvar e preencher automaticamente em outros Navegadores e Dispositivos:**
   - [x] Google Chrome
   - [x] Mozilla Firefox

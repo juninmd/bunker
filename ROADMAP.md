@@ -26,15 +26,15 @@
 
 ## 🛡️ Phase 4: Advanced Security & Enterprise
 - [x] **Painel de Segurança**: Receba notificações sobre senhas fracas, reutilizadas e antigas com recomendações.
-- [ ] **Monitoramento da Dark Web**: Receber alerta imediato se informações pessoais forem encontradas na dark web.
-- [ ] **Compartilhamento de Senhas Pessoais**: Compartilhar senhas de forma segura com familiares e amigos.
-- [ ] **Compartilhamento Empresarial**: Compartilhar senhas empresariais de forma segura com membros da equipe, freelancers e fornecedores.
+- [ ] **Monitoramento da Dark Web (Dark Web Monitoring)**: Receber alerta imediato se informações pessoais forem encontradas na dark web.
+- [ ] **Compartilhamento de Senhas Pessoais (Personal Password Sharing)**: Compartilhar senhas de forma segura com familiares e amigos.
+- [ ] **Compartilhamento Empresarial (Business Password Sharing)**: Compartilhar senhas empresariais de forma segura com membros da equipe, freelancers e fornecedores.
 - [ ] **Acesso de Emergência (Emergency Access)**: Conceder a um contato de confiança acesso ao cofre em caso de emergência.
 - [ ] **Testamento Digital (Digital Will)**: Deixe uma cópia da sua vida digital em caso de emergência.
-- [ ] **Gerenciamento de Usuários**: Controle a segurança, as contas e as políticas da sua empresa em uma única plataforma.
-- [ ] **Integração de Diretórios**: Integre ao diretório de usuários existente para automatizar o gerenciamento.
+- [ ] **Gerenciamento de Usuários (User Management)**: Controle a segurança, as contas e as políticas da sua empresa em uma única plataforma.
+- [ ] **Integração de Diretórios (Directory Integration)**: Integre ao diretório de usuários existente para automatizar o gerenciamento.
 - [ ] **Workstation MFA**: Expanda a autenticação para a estação de trabalho para simplificar logins e aumentar a segurança.
-- [ ] **Login Federado**: Permita que os usuários façam login com suas credenciais de identidade federada.
+- [ ] **Login Federado (Federated Login)**: Permita que os usuários façam login com suas credenciais de identidade federada.
 - [ ] **SaaS Protect**: Tome medidas imediatas para controlar o uso de SaaS, bloquear ou restringir aplicativos perigosos.
 
 ## 🎯 v1.0 Milestone
