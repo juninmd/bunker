@@ -37,5 +37,11 @@
 - [ ] **Login Federado (Federated Login)**: Permita que os usuários façam login com suas credenciais de identidade federada.
 - [ ] **SaaS Protect**: Tome medidas imediatas para controlar o uso de SaaS, bloquear ou restringir aplicativos perigosos.
 
+## 📱 Phase 5: Multi-Platform Expansion
+- [x] **App Desktop (Electron)**: Offline access framework, packaging and artifacts integration.
+- [ ] **App Android (Expo)**: Local credentials and auto-fill API support via APK artifact.
+- [ ] **App iOS**: Local credentials and native iOS Auto-fill integration.
+- [ ] **Autofill Browsers Integration**: Support for Edge and Safari.
+
 ## 🎯 v1.0 Milestone
 A production-ready monorepo framework that serves as the gold standard for high-integrity, secure application management, acting as a complete open-source alternative to LastPass.

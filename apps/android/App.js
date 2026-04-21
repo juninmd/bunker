@@ -72,6 +72,16 @@ export default function App() {
             color="#34a853"
           />
           <Button
+            title="Notas Seguras"
+            onPress={() => alert('Notas em desenvolvimento')}
+            color="#34a853"
+          />
+          <Button
+            title="Cartões"
+            onPress={() => alert('Cartões em desenvolvimento')}
+            color="#34a853"
+          />
+          <Button
             title="Gerador"
             onPress={() => alert('Gerador de Senhas em desenvolvimento')}
             color="#fbbc05"
