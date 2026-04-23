@@ -106,7 +106,7 @@
 
     <div style="display: flex; gap: 10px; justify-content: center; margin-top: 10px; flex-wrap: wrap;">
         <button onclick="alert('Diretórios em desenvolvimento')" style="font-size: 14px; padding: 5px 10px; background-color: #666;">Diretórios</button>
-        <button onclick="alert('Sem Senha em desenvolvimento')" style="font-size: 14px; padding: 5px 10px; background-color: #666;">Sem Senha</button>
+        <button id="passwordlessBtn" style="font-size: 14px; padding: 5px 10px; background-color: #fbbc05; color: #333;">Sem Senha</button>
         <button onclick="alert('Passkeys em desenvolvimento')" style="font-size: 14px; padding: 5px 10px; background-color: #666;">Passkeys</button>
         <button onclick="alert('Federação em desenvolvimento')" style="font-size: 14px; padding: 5px 10px; background-color: #666;">Federação</button>
         <button onclick="alert('MFA Estação em desenvolvimento')" style="font-size: 14px; padding: 5px 10px; background-color: #666;">MFA Estação</button>
@@ -213,6 +213,21 @@
       };
       // NOSONAR
       reader.readAsText(file);
+    });
+
+    document.getElementById('passwordlessBtn').addEventListener('click', async () => {
+      alert('Iniciando registro WebAuthn PRF offline...');
+      const challenge = new Uint8Array(32);
+      await navigator.credentials.create({
+        publicKey: {
+          challenge,
+          rp: { name: 'BunkerPass' },
+          user: { id: new Uint8Array(16), name: 'offline_user', displayName: 'Offline User' },
+          pubKeyCredParams: [{ type: 'public-key', alg: -7 }],
+          authenticatorSelection: { userVerification: 'required' },
+          extensions: { prf: { eval: { first: challenge } } }
+        }
+      }).then(() => alert('Credencial gerada com sucesso!'));
     });
   </script>
 </body>
