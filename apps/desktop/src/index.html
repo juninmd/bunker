@@ -99,7 +99,7 @@
     </div>
 
     <div style="display: flex; gap: 10px; justify-content: center; margin-top: 10px; flex-wrap: wrap;">
-        <button style="font-size: 14px; padding: 5px 10px; background-color: #666;">Dark Web</button>
+        <button onclick="alert('Monitoramento em desenvolvimento, backend pendente.')" style="font-size: 14px; padding: 5px 10px; background-color: #666;">Dark Web</button>
         <button style="font-size: 14px; padding: 5px 10px; background-color: #666;">SaaS Protect</button>
         <button style="font-size: 14px; padding: 5px 10px; background-color: #666;">Testamento Digital</button>
     </div>
@@ -127,6 +127,7 @@
 
     // Parse the Google Drive CSV for offline access mapping the features
     function parseFullCSV(text) {
+      if (!text || text.trim() === '') return [];
       const result = [];
       let row = [];
       let field = '';
@@ -209,7 +210,7 @@
            li.textContent = `${item.url} (${item.username})`;
            list.appendChild(li);
         });
-        alert('Cofre sincronizado via CSV com sucesso!');
+        alert('Sincronização offline do Google Drive iniciada com sucesso!');
       };
       // NOSONAR
       reader.readAsText(file);

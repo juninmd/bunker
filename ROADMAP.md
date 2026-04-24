@@ -16,11 +16,12 @@
 ## 🚀 Phase 3: Identity & Basic Parity (LastPass Alternative)
 - [x] **Cofre de Senhas**: Armazenamento seguro e hierárquico (pastas) e Notas Seguras.
 - [x] **Extensão e Autofill Avançado**: Salvar e preencher automaticamente no Firefox, Chrome, Safari, Android e iOS.
-- [x] **Gerador de Senhas e Usuários**: Criação de senhas e usernames seguros e customizáveis.
-- [x] **Notas Seguras**: Armazenar informações adicionais como cartões e notas Wi-Fi.
-- [x] **Endereços e Cartões**: Armazenamento de perfis para preenchimento de formulários (Form Fills) e dados bancários.
+- [x] **Gerador de Senhas (Password Generator)**: Criação de senhas seguras.
+- [x] **Gerador de Nomes de Usuário (Username Generator)**: Gerar nomes de usuário aleatórios.
+- [x] **Notas Seguras (Secure Notes)**: Armazenar informações adicionais como cartões e notas Wi-Fi.
+- [x] **Endereços e Cartões**: Armazenamento de perfis para preenchimento de formulários (Form Fills).
 - [x] **Sincronização Automática (Device Sync)**: Salve uma senha em um dispositivo e ela será sincronizada em todos.
-- [x] **Login sem Senha no Cofre (Passwordless)**: Acessar facilmente seu cofre de senhas sem precisar digitar a senha mestre via WebAuthn PRF.
+- [x] **Login sem Senha no Cofre (Passwordless)**: Acesso sem senha mestre.
 - [ ] **Chaves de Acesso (Passkeys)**: Suporte nativo para criar, armazenar e gerenciar passkeys (WebAuthn), acelerando logins.
 - [ ] **Autofill Multiplataforma**: Salvar e preencher automaticamente no Google Chrome, Android, iPhone/iPad, Safari e Mozilla Firefox.
 
@@ -37,7 +38,7 @@
 - [ ] **Login Federado (Federated Login)**: Permita que os usuários façam login com suas credenciais de identidade federada.
 - [ ] **SaaS Protect**: Tome medidas imediatas para controlar o uso de SaaS, bloquear ou restringir aplicativos perigosos.
 
-## 📱 Phase 5: Multi-Platform Expansion
+## 📱 Phase 5: Multi-Platform Expansion (Sync com Google Drive CSV)
 - [x] **App Desktop (Electron)**: Offline access framework, packaging and artifacts integration.
 - [ ] **App Android (Expo)**: Local credentials and auto-fill API support via APK artifact.
 - [ ] **App iOS**: Local credentials and native iOS Auto-fill integration.

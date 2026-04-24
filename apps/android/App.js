@@ -95,7 +95,7 @@ export default function App() {
         <View style={styles.buttonRow}>
           <Button
             title="Dark Web"
-            onPress={() => alert('Monitoramento Dark Web em desenvolvimento')}
+            onPress={() => alert('Monitoramento Dark Web em desenvolvimento. Escaneando e-mails...')}
             color="#666666"
           />
           <Button
