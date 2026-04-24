@@ -1,3 +1,4 @@
+// Helper script for automated README version updates via GitHub Actions
 const fs = require('fs');
 const path = require('path');
 

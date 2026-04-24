@@ -1,13 +1,44 @@
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View, Button, FlatList, TouchableOpacity, TextInput, ActivityIndicator } from 'react-native';
-import { useCallback, useState } from 'react';
+import { useCallback, useState, useEffect } from 'react';
+import * as WebBrowser from 'expo-web-browser';
+import * as Google from 'expo-auth-session/providers/google';
 import { SyncService } from './src/SyncService';
+
+WebBrowser.maybeCompleteAuthSession();
 
 export default function App() {
   const [isUnlocked, setIsUnlocked] = useState(false);
   const [masterPassword, setMasterPassword] = useState('');
   const [vaultData, setVaultData] = useState([]);
   const [isSyncing, setIsSyncing] = useState(false);
+  const [accessToken, setAccessToken] = useState('');
+
+  const [request, response, promptAsync] = Google.useAuthRequest({
+    androidClientId: 'YOUR_ANDROID_CLIENT_ID.apps.googleusercontent.com', // NOSONAR - Placeholder expected for local dev
+    scopes: ['https://www.googleapis.com/auth/drive.file'],
+  });
+
+  useEffect(() => {
+    if (response?.type === 'success') {
+      const { authentication } = response;
+      if (authentication && authentication.accessToken) {
+        setAccessToken(authentication.accessToken);
+      }
+    }
+  }, [response]);
+
+  const performOAuthLogin = async () => {
+    return new Promise((resolve, reject) => {
+      promptAsync().then(res => {
+        if (res.type === 'success' && res.authentication) {
+          resolve(res.authentication.accessToken);
+        } else {
+          reject(new Error('OAuth cancelado ou falhou.'));
+        }
+      }).catch(reject);
+    });
+  };
 
   const renderItem = useCallback(({ item }) => (
     <TouchableOpacity style={styles.item}>
@@ -58,11 +89,21 @@ export default function App() {
              onPress={async () => {
                setIsSyncing(true);
                try {
-                 const data = await SyncService.syncWithGoogleDrive('mock_oauth_token_123');
+                 let currentToken = accessToken;
+                 if (!currentToken) {
+                   currentToken = await performOAuthLogin();
+                   setAccessToken(currentToken);
+                 }
+                 const data = await SyncService.syncWithGoogleDrive(currentToken);
                  setVaultData(data);
                  alert('Sincronizado com passwords.csv no Drive!');
                } catch (e) {
-                 alert('Erro de sincronização. Usando mock offline.');
+                 console.error(e);
+                 alert('Erro na API. Fallback para mock offline.');
+                 setVaultData([
+                   { id: '1', title: 'google.com', username: 'test@gmail.com' },
+                   { id: '2', title: 'github.com', username: 'dev_user' }
+                 ]);
                }
                setIsSyncing(false);
              }}
