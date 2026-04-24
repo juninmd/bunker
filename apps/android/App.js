@@ -57,10 +57,14 @@ export default function App() {
              title="Sincronizar com Google Drive (CSV)"
              onPress={async () => {
                setIsSyncing(true);
-               const data = await SyncService.syncWithGoogleDrive();
-               setVaultData(data);
+               try {
+                 const data = await SyncService.syncWithGoogleDrive('mock_oauth_token_123');
+                 setVaultData(data);
+                 alert('Sincronizado com passwords.csv no Drive!');
+               } catch (e) {
+                 alert('Erro de sincronização. Usando mock offline.');
+               }
                setIsSyncing(false);
-               alert('Sincronizado com passwords.csv no Drive!');
              }}
              color="#1a73e8"
            />
