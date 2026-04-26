@@ -57,7 +57,7 @@ Foco na proatividade da segurança.
 - [x] **Painel de Segurança (Security Score):**
   - Análise de força das senhas (fracas, antigas).
   - Identificação de senhas reutilizadas.
-- [ ] **Monitoramento da Dark Web (Dark Web Monitoring):**
+- [x] **Monitoramento da Dark Web (Dark Web Monitoring):**
   - Receber alerta imediato se informações pessoais forem encontradas na dark web.
 - [ ] **Histórico de Senhas:** Manter histórico de alterações para permitir reversão.
 - [ ] **Testamento Digital (Digital Will):** Deixar uma cópia segura da sua vida digital em caso de emergência.
