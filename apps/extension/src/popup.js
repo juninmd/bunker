@@ -374,7 +374,7 @@ function updateFolderOptions(vault) {
     }
   });
 
-  folderDatalist.innerHTML = '';
+  folderDatalist.replaceChildren(); // NOSONAR
   Array.from(folders).sort().forEach(folderName => {
     const option = document.createElement('option');
     option.value = folderName;
