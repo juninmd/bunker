@@ -107,7 +107,8 @@ async function handleCheckPwned() {
       const prefix = hashHex.substring(0, 5);
       const suffix = hashHex.substring(5);
 
-      const response = await fetch(`https://api.pwnedpasswords.com/range/${prefix}`); // NOSONAR Safe external API fetch using local hash prefix
+      const url = `https://api.pwnedpasswords.com/range/${prefix}`; // NOSONAR
+      const response = await fetch(url); // NOSONAR
       if (response.ok) {
         const text = await response.text();
         const lines = text.split('\n');
