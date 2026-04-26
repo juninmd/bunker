@@ -100,14 +100,14 @@ async function handleCheckPwned() {
     try {
       // Create SHA-1 hash using crypto.subtle
       const msgBuffer = new TextEncoder().encode(item.password);
-      const hashBuffer = await crypto.subtle.digest('SHA-1', msgBuffer);
+      const hashBuffer = await crypto.subtle.digest('SHA-1', msgBuffer); // NOSONAR SHA-1 is required by HIBP k-anonymity API
       const hashArray = Array.from(new Uint8Array(hashBuffer));
       const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('').toUpperCase();
 
       const prefix = hashHex.substring(0, 5);
       const suffix = hashHex.substring(5);
 
-      const response = await fetch(`https://api.pwnedpasswords.com/range/${prefix}`);
+      const response = await fetch(`https://api.pwnedpasswords.com/range/${prefix}`); // NOSONAR Safe external API fetch using local hash prefix
       if (response.ok) {
         const text = await response.text();
         const lines = text.split('\n');
