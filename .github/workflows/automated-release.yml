@@ -12,18 +12,20 @@ on:
       - main
 
 permissions:
-  contents: write
-  pull-requests: write
+  contents: read
 
 jobs:
   release-please:
+    permissions:
+      contents: write
+      pull-requests: write
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - uses: google-github-actions/release-please-action@v4
+      - uses: googleapis/release-please-action@v4
         id: release
         with:
           release-type: simple
@@ -31,11 +33,13 @@ jobs:
 
       - name: Update README (Mantenha o readme atualizado)
         if: ${{ steps.release.outputs.release_created }}
+        env:
+          RELEASE_VERSION: ${{ steps.release.outputs.version }}
         run: |
           # Geração automatizada das releases e atualização do README
           node scripts/update-readme.js
           git config user.name github-actions[bot]
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
           git add README.md apps/extension/manifest.json
-          git commit -m "chore: update readme and manifest version to ${{ steps.release.outputs.version }}" || echo "No changes to commit"
+          git commit -m "chore: update readme and manifest version to $RELEASE_VERSION" || echo "No changes to commit"
           git push

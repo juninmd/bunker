@@ -26,7 +26,7 @@
 
 ## 🛡️ Phase 4: Advanced Security & Enterprise
 - [x] **Painel de Segurança**: Receba notificações sobre senhas fracas, reutilizadas e antigas com recomendações.
-- [ ] **Monitoramento da Dark Web (Dark Web Monitoring)**: Receber alerta imediato se informações pessoais forem encontradas na dark web.
+- [x] **Monitoramento da Dark Web (Dark Web Monitoring)**: Receber alerta imediato se informações pessoais forem encontradas na dark web.
 - [ ] **Compartilhamento de Senhas Pessoais (Personal Password Sharing)**: Compartilhar senhas de forma segura com familiares e amigos.
 - [ ] **Compartilhamento Empresarial (Business Password Sharing)**: Compartilhar senhas empresariais de forma segura com membros da equipe, freelancers e fornecedores.
 - [ ] **Acesso de Emergência (Emergency Access)**: Conceder a um contato de confiança acesso ao cofre em caso de emergência.

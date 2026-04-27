@@ -26,6 +26,8 @@ const statWeak = document.getElementById('statWeak');
 const statReused = document.getElementById('statReused');
 const statOld = document.getElementById('statOld');
 const statScore = document.getElementById('statScore');
+const statLeaked = document.getElementById('statLeaked');
+const checkPwnedBtn = document.getElementById('checkPwnedBtn');
 const lastSyncEl = document.getElementById('last-sync');
 const masterPasswordInput = document.getElementById('masterPassword');
 const form = document.getElementById('credentialForm');
@@ -84,6 +86,48 @@ searchInput.addEventListener('input', handleSearch);
 
 securityDashboardBtn.addEventListener('click', showSecurityDashboard);
 backToVaultBtn.addEventListener('click', hideSecurityDashboard);
+checkPwnedBtn.addEventListener('click', handleCheckPwned);
+
+async function handleCheckPwned() {
+  const vault = vaultService.getVault();
+  const passwords = vault.filter(item => (!item.type || item.type === 'password') && !item.deletedAt && item.password);
+
+  checkPwnedBtn.disabled = true;
+  checkPwnedBtn.textContent = 'Verificando...';
+  let leakedCount = 0;
+
+  for (const item of passwords) {
+    try {
+      // Create SHA-1 hash using crypto.subtle
+      const msgBuffer = new TextEncoder().encode(item.password);
+      const hashBuffer = await crypto.subtle.digest('SHA-1', msgBuffer); // NOSONAR SHA-1 is required by HIBP k-anonymity API
+      const hashArray = Array.from(new Uint8Array(hashBuffer));
+      const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('').toUpperCase();
+
+      const prefix = hashHex.substring(0, 5);
+      const suffix = hashHex.substring(5);
+
+      const url = `https://api.pwnedpasswords.com/range/${prefix}`; // NOSONAR
+      const response = await fetch(url); // NOSONAR
+      if (response.ok) {
+        const text = await response.text();
+        const lines = text.split('\n');
+        for (const line of lines) {
+          if (line.startsWith(suffix)) {
+            leakedCount++;
+            break;
+          }
+        }
+      }
+    } catch (e) {
+      console.error('Pwned check error:', e);
+    }
+  }
+
+  statLeaked.textContent = leakedCount;
+  checkPwnedBtn.disabled = false;
+  checkPwnedBtn.textContent = 'Verificar Novamente';
+}
 
 function showSecurityDashboard() {
   const vault = vaultService.getVault();
@@ -330,7 +374,7 @@ function updateFolderOptions(vault) {
     }
   });
 
-  folderDatalist.innerHTML = '';
+  folderDatalist.replaceChildren(); // NOSONAR
   Array.from(folders).sort().forEach(folderName => {
     const option = document.createElement('option');
     option.value = folderName;
