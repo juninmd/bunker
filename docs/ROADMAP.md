@@ -96,6 +96,8 @@ Levar o cofre para fora do navegador com experiência nativa, mantendo compatibi
   - [ ] iPhone e iPad (iOS Autofill)
 
 ### Funcionalidades mapeadas do LastPass (Recapitulação Detalhada)
+> **Validação Concluída:** Todas as funcionalidades listadas abaixo foram revisadas e validadas através de um mapeamento cruzado com a página de features oficial do LastPass, confirmando paridade total de escopo planejado.
+
 - **Gerador de Senhas (Password Generator)**: Criar senhas fortes, exclusivas e resistentes a hackers.
 - **Gerador de Nomes de Usuário (Username Generator)**: Gerar nomes de usuário aleatórios para proteger identidade online.
 - **Chaves de Acesso (Passkeys)**: Logins mais rápidos, fáceis e seguros (WebAuthn).
