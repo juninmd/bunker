@@ -23,7 +23,7 @@ O BunkerPass é um gerenciador de senhas multiplataforma, que armazena os dados 
 - Extensão (Firefox/Chrome)
 - App Desktop (Electron - offline)
 - Android APK (React Native / Expo)
-- Features de Paridade com o LastPass mapeadas no ROADMAP: Painel de Segurança, Passkeys, Login sem senha e SaaS Protect.
+- Features de Paridade com o LastPass mapeadas no ROADMAP: Painel de Segurança, Passkeys, Login sem senha, SaaS Protect, Monitoramento da Dark Web, Compartilhamento de Senhas (Pessoal/Empresarial), Sincronização Automática, Acesso de Emergência, Notas Seguras, Testamento Digital, Integração de Diretórios, Login Federado e Workstation MFA.
 
 ## 🛠️ Tech Stack
 
