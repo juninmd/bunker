@@ -2,12 +2,14 @@ import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View, Button, FlatList, TouchableOpacity, TextInput, ActivityIndicator } from 'react-native';
 import { useCallback, useState } from 'react';
 import { SyncService } from './src/SyncService';
+import { PasswordGenerator } from './src/PasswordGenerator';
 
 export default function App() {
   const [isUnlocked, setIsUnlocked] = useState(false);
   const [masterPassword, setMasterPassword] = useState('');
   const [vaultData, setVaultData] = useState([]);
   const [isSyncing, setIsSyncing] = useState(false);
+  const [showGenerator, setShowGenerator] = useState(false);
 
   const renderItem = useCallback(({ item }) => (
     <TouchableOpacity style={styles.item}>
@@ -83,7 +85,7 @@ export default function App() {
           />
           <Button
             title="Gerador"
-            onPress={() => alert('Gerador de Senhas em desenvolvimento')}
+            onPress={() => setShowGenerator(true)}
             color="#fbbc05"
           />
           <Button
@@ -145,13 +147,17 @@ export default function App() {
         </View>
       </View>
 
-      <FlatList
-        data={vaultData.length > 0 ? vaultData : []}
-        renderItem={renderItem}
-        keyExtractor={item => item.id}
-        style={styles.list}
-        ListEmptyComponent={<Text style={{textAlign: 'center', marginTop: 20}}>Nenhuma senha. Clique em Sincronizar.</Text>}
-      />
+      {showGenerator ? (
+        <PasswordGenerator onClose={() => setShowGenerator(false)} />
+      ) : (
+        <FlatList
+          data={vaultData.length > 0 ? vaultData : []}
+          renderItem={renderItem}
+          keyExtractor={item => item.id}
+          style={styles.list}
+          ListEmptyComponent={<Text style={{textAlign: 'center', marginTop: 20}}>Nenhuma senha. Clique em Sincronizar.</Text>}
+        />
+      )}
 
       <StatusBar style="auto" />
     </View>
