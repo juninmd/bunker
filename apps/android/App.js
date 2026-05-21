@@ -62,7 +62,7 @@ export default function App() {
                const data = await SyncService.syncWithGoogleDrive();
                setVaultData(data);
                setIsSyncing(false);
-               alert('Sincronizado com passwords.csv no Drive!');
+               console.log('Sincronizado com passwords.csv no Drive!');
              }}
              color="#1a73e8"
            />
@@ -70,17 +70,17 @@ export default function App() {
         <View style={styles.buttonRow}>
           <Button
             title="Painel de Segurança"
-            onPress={() => alert('Painel de Segurança em desenvolvimento')}
+            onPress={() => console.log('Painel de Segurança em desenvolvimento')}
             color="#34a853"
           />
           <Button
             title="Notas Seguras"
-            onPress={() => alert('Notas em desenvolvimento')}
+            onPress={() => console.log('Notas em desenvolvimento')}
             color="#34a853"
           />
           <Button
             title="Cartões"
-            onPress={() => alert('Cartões em desenvolvimento')}
+            onPress={() => console.log('Cartões em desenvolvimento')}
             color="#34a853"
           />
           <Button
@@ -90,58 +90,58 @@ export default function App() {
           />
           <Button
             title="Compartilhamento"
-            onPress={() => alert('Compartilhamento em desenvolvimento')}
+            onPress={() => console.log('Compartilhamento em desenvolvimento')}
             color="#ea4335"
           />
         </View>
         <View style={styles.buttonRow}>
           <Button
             title="Dark Web"
-            onPress={() => alert('Monitoramento Dark Web em desenvolvimento')}
+            onPress={() => console.log('Monitoramento Dark Web em desenvolvimento')}
             color="#666666"
           />
           <Button
             title="SaaS Protect"
-            onPress={() => alert('SaaS Protect em desenvolvimento')}
+            onPress={() => console.log('SaaS Protect em desenvolvimento')}
             color="#666666"
           />
           <Button
             title="Testamento"
-            onPress={() => alert('Testamento Digital em desenvolvimento')}
+            onPress={() => console.log('Testamento Digital em desenvolvimento')}
             color="#666666"
           />
         </View>
         <View style={styles.buttonRow}>
           <Button
             title="Diretórios"
-            onPress={() => alert('Integração de Diretórios em desenvolvimento')}
+            onPress={() => console.log('Integração de Diretórios em desenvolvimento')}
             color="#666666"
           />
           <Button
             title="Sem Senha"
-            onPress={() => alert('Login sem senha em desenvolvimento')}
+            onPress={() => console.log('Login sem senha em desenvolvimento')}
             color="#666666"
           />
           <Button
             title="Passkeys"
-            onPress={() => alert('Chaves de Acesso em desenvolvimento')}
+            onPress={() => console.log('Chaves de Acesso em desenvolvimento')}
             color="#666666"
           />
         </View>
         <View style={styles.buttonRow}>
           <Button
             title="Federação"
-            onPress={() => alert('Login federado em desenvolvimento')}
+            onPress={() => console.log('Login federado em desenvolvimento')}
             color="#666666"
           />
           <Button
             title="MFA Estação"
-            onPress={() => alert('Workstation MFA em desenvolvimento')}
+            onPress={() => console.log('Workstation MFA em desenvolvimento')}
             color="#666666"
           />
           <Button
             title="Emergência"
-            onPress={() => alert('Acesso de Emergência em desenvolvimento')}
+            onPress={() => console.log('Acesso de Emergência em desenvolvimento')}
             color="#666666"
           />
         </View>
