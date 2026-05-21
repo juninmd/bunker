@@ -192,7 +192,7 @@
     document.getElementById('importCsvBtn').addEventListener('click', () => {
       const fileInput = document.getElementById('csvFileInput');
       if (fileInput.files.length === 0) {
-        alert('Selecione o arquivo passwords.csv baixado do Google Drive.');
+        console.log('Selecione o arquivo passwords.csv baixado do Google Drive.');
         return;
       }
       const file = fileInput.files[0];
@@ -209,14 +209,14 @@
            li.textContent = `${item.url} (${item.username})`;
            list.appendChild(li);
         });
-        alert('Cofre sincronizado via CSV com sucesso!');
+        console.log('Cofre sincronizado via CSV com sucesso!');
       };
       // NOSONAR
       reader.readAsText(file);
     });
 
     document.getElementById('passwordlessBtn').addEventListener('click', async () => {
-      alert('Iniciando registro WebAuthn PRF offline...');
+      console.log('Iniciando registro WebAuthn PRF offline...');
       const challenge = new Uint8Array(32);
       await navigator.credentials.create({
         publicKey: {
@@ -227,14 +227,14 @@
           authenticatorSelection: { userVerification: 'required' },
           extensions: { prf: { eval: { first: challenge } } }
         }
-      }).then(() => alert('Credencial gerada com sucesso!'));
+      }).then(() => console.log('Credencial gerada com sucesso!'));
     });
 
-    document.getElementById('btn_diretorios')?.addEventListener('click', () => alert('Diretórios em desenvolvimento'));
-    document.getElementById('btn_passkeys')?.addEventListener('click', () => alert('Passkeys em desenvolvimento'));
-    document.getElementById('btn_federacao')?.addEventListener('click', () => alert('Federação em desenvolvimento'));
-    document.getElementById('btn_mfa')?.addEventListener('click', () => alert('MFA Estação em desenvolvimento'));
-    document.getElementById('btn_emergencia')?.addEventListener('click', () => alert('Emergência em desenvolvimento'));
+    document.getElementById('btn_diretorios')?.addEventListener('click', () => console.log('Diretórios em desenvolvimento'));
+    document.getElementById('btn_passkeys')?.addEventListener('click', () => console.log('Passkeys em desenvolvimento'));
+    document.getElementById('btn_federacao')?.addEventListener('click', () => console.log('Federação em desenvolvimento'));
+    document.getElementById('btn_mfa')?.addEventListener('click', () => console.log('MFA Estação em desenvolvimento'));
+    document.getElementById('btn_emergencia')?.addEventListener('click', () => console.log('Emergência em desenvolvimento'));
   </script>
 </body>
 </html>
