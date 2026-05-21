@@ -2,6 +2,10 @@
 
 Este documento descreve o plano de desenvolvimento do BunkerPass para se tornar uma alternativa completa ao LastPass, com foco em privacidade, controle de dados (Google Drive) e suporte multiplataforma.
 
+## Diferencial Exclusivo
+
+**O grande diferencial** do BunkerPass é o armazenamento e sincronização via Google Drive, operando com uma planilha `.csv` offline. Isso garante que você é o único dono dos seus dados, com rápido acesso offline e flexibilidade máxima, evitando lock-in de fornecedores corporativos.
+
 ## Visão Geral
 
 O objetivo é fornecer uma experiência similar ao LastPass, mas onde o usuário possui total controle sobre seus dados, armazenados no seu próprio Google Drive.

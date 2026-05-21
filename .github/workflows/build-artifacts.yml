@@ -1,0 +1,45 @@
+name: Build Artifacts
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Package Extension
+        run: |
+          mkdir -p dist
+          cd apps/extension
+          zip -r ../../dist/bunkerpass-extension-${{ github.ref_name }}.zip . -x "tests/*" -x "tsconfig.json"
+
+      - name: Build Desktop App
+        run: |
+          cd apps/desktop
+          npm install
+          # placeholder build logic for now until electron-builder is fully set up
+          zip -r ../../dist/bunkerpass-desktop-${{ github.ref_name }}.zip . -x "node_modules/*"
+
+      - name: Build Android APK
+        run: |
+          cd apps/android
+          npm install
+          npm run build:apk
+          cp dist/*.apk ../../dist/bunkerpass-android-${{ github.ref_name }}.apk
+
+      - name: Upload Release Assets
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*
