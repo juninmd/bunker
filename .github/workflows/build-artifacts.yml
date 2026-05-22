@@ -1,0 +1,47 @@
+name: Build and Upload Artifacts
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+permissions: read-all
+
+jobs:
+  build-artifacts:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Package Extension
+        run: |
+          bash scripts/package-extension.sh ${{ github.ref_name }}
+
+      - name: Package Desktop App (Mock)
+        run: |
+          mkdir -p dist
+          cd apps/desktop
+          zip -r ../../dist/bunkerpass-desktop-${{ github.ref_name }}.zip ./*
+          cd ../..
+
+      - name: Build Android APK
+        run: |
+          cd apps/android
+          npm install
+          npm run build:apk
+          cp dist/*.apk ../../dist/
+
+      - name: Upload Release Artifacts
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            dist/*.zip
+            dist/*.apk

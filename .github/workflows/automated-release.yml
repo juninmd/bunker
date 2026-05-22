@@ -1,0 +1,42 @@
+name: Automated Release
+
+on:
+  push:
+    branches:
+      - main
+
+permissions: read-all
+
+jobs:
+  release-please:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: googleapis/release-please-action@v4
+        id: release
+        with:
+          release-type: simple
+
+      - name: Checkout Code
+        if: ${{ steps.release.outputs.release_created }}
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node
+        if: ${{ steps.release.outputs.release_created }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Update README Version Badge
+        if: ${{ steps.release.outputs.release_created }}
+        run: |
+          node scripts/update-readme.js
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add README.md apps/extension/manifest.json
+          git commit -m "chore: update readme and manifest version [skip ci]" || echo "No changes to commit"
+          git push origin HEAD:main

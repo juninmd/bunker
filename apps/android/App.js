@@ -69,80 +69,9 @@ export default function App() {
         )}
         <View style={styles.buttonRow}>
           <Button
-            title="Painel de Segurança"
-            onPress={() => alert('Painel de Segurança em desenvolvimento')}
-            color="#34a853"
-          />
-          <Button
-            title="Notas Seguras"
-            onPress={() => alert('Notas em desenvolvimento')}
-            color="#34a853"
-          />
-          <Button
-            title="Cartões"
-            onPress={() => alert('Cartões em desenvolvimento')}
-            color="#34a853"
-          />
-          <Button
             title="Gerador"
             onPress={() => setShowGenerator(true)}
             color="#fbbc05"
-          />
-          <Button
-            title="Compartilhamento"
-            onPress={() => alert('Compartilhamento em desenvolvimento')}
-            color="#ea4335"
-          />
-        </View>
-        <View style={styles.buttonRow}>
-          <Button
-            title="Dark Web"
-            onPress={() => alert('Monitoramento Dark Web em desenvolvimento')}
-            color="#666666"
-          />
-          <Button
-            title="SaaS Protect"
-            onPress={() => alert('SaaS Protect em desenvolvimento')}
-            color="#666666"
-          />
-          <Button
-            title="Testamento"
-            onPress={() => alert('Testamento Digital em desenvolvimento')}
-            color="#666666"
-          />
-        </View>
-        <View style={styles.buttonRow}>
-          <Button
-            title="Diretórios"
-            onPress={() => alert('Integração de Diretórios em desenvolvimento')}
-            color="#666666"
-          />
-          <Button
-            title="Sem Senha"
-            onPress={() => alert('Login sem senha em desenvolvimento')}
-            color="#666666"
-          />
-          <Button
-            title="Passkeys"
-            onPress={() => alert('Chaves de Acesso em desenvolvimento')}
-            color="#666666"
-          />
-        </View>
-        <View style={styles.buttonRow}>
-          <Button
-            title="Federação"
-            onPress={() => alert('Login federado em desenvolvimento')}
-            color="#666666"
-          />
-          <Button
-            title="MFA Estação"
-            onPress={() => alert('Workstation MFA em desenvolvimento')}
-            color="#666666"
-          />
-          <Button
-            title="Emergência"
-            onPress={() => alert('Acesso de Emergência em desenvolvimento')}
-            color="#666666"
           />
         </View>
       </View>
