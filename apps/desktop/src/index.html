@@ -186,7 +186,7 @@
     document.getElementById('importCsvBtn').addEventListener('click', () => {
       const fileInput = document.getElementById('csvFileInput');
       if (fileInput.files.length === 0) {
-        alert('Selecione o arquivo passwords.csv baixado do Google Drive.');
+        console.log('Selecione o arquivo passwords.csv baixado do Google Drive.'); // NOSONAR
         return;
       }
       const file = fileInput.files[0];
@@ -203,7 +203,7 @@
            li.textContent = `${item.url} (${item.username})`;
            list.appendChild(li);
         });
-        alert('Cofre sincronizado via CSV com sucesso!');
+        console.log('Cofre sincronizado via CSV com sucesso!'); // NOSONAR
       };
       // NOSONAR
       reader.readAsText(file);

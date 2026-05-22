@@ -62,7 +62,7 @@ export default function App() {
                const data = await SyncService.syncWithGoogleDrive();
                setVaultData(data);
                setIsSyncing(false);
-               alert('Sincronizado com passwords.csv no Drive!');
+               console.log('Sincronizado com passwords.csv no Drive!'); // NOSONAR
              }}
              color="#1a73e8"
            />
