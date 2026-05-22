@@ -5,7 +5,8 @@ on:
     branches:
       - main
 
-permissions: read-all
+permissions:
+  contents: read
 
 jobs:
   release-please:
@@ -29,7 +30,7 @@ jobs:
         if: ${{ steps.release.outputs.release_created }}
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
 
       - name: Update README Version Badge
         if: ${{ steps.release.outputs.release_created }}
