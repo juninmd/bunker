@@ -1,3 +1,4 @@
+import * as Crypto from 'expo-crypto';
 import { parseCSV } from '../../extension/src/utils/csv-utils.js';
 import * as AuthSession from 'expo-auth-session';
 
@@ -53,9 +54,7 @@ export class SyncService {
 
             parsed.forEach(obj => {
                 if (obj['grouping'] !== 'Deleted') {
-                    const randomId = typeof crypto !== 'undefined' && crypto.randomUUID
-                        ? crypto.randomUUID()
-                        : Date.now().toString(36) + Math.floor(Math.random() * 1000000).toString(); // NOSONAR
+                    const randomId = Crypto.randomUUID();
 
                     vaultItems.push({
                         id: randomId,
@@ -79,9 +78,7 @@ export class SyncService {
 
                 parsed.forEach(obj => {
                     if (obj['grouping'] !== 'Deleted') {
-                        const randomId = typeof crypto !== 'undefined' && crypto.randomUUID
-                            ? crypto.randomUUID()
-                            : Date.now().toString(36) + Math.floor(Math.random() * 1000000).toString(); // NOSONAR
+                        const randomId = Crypto.randomUUID();
 
                         resultItems.push({
                             id: randomId,
