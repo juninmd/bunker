@@ -96,29 +96,29 @@ Levar o cofre para fora do navegador com experiência nativa, mantendo compatibi
   - [ ] iPhone e iPad (iOS Autofill)
 
 ### Funcionalidades mapeadas do LastPass (Recapitulação Detalhada da página oficial)
-- **Gerador de Senhas (Password Generator)**: Criar senhas fortes, exclusivas e resistentes a hackers.
-- **Gerador de Nomes de Usuário (Username Generator)**: Gerar nomes de usuário aleatórios para proteger identidade online.
-- **Chaves de Acesso (Passkeys)**: Logins mais rápidos, fáceis e seguros (WebAuthn).
-- **Monitoramento da Dark Web (Dark Web Monitoring)**: Alerta imediato se informações pessoais forem encontradas na dark web.
-- **Painel de Segurança (Security Dashboard)**: Notificações de senhas fracas, reutilizadas e antigas.
-- **Compartilhamento de Senhas Pessoais**: Compartilhar senhas de forma segura com familiares e amigos.
-- **Compartilhamento Empresarial**: Compartilhamento com equipes, freelancers e fornecedores.
-- **Sincronização Automática (Device Sync)**: Salve uma senha em um dispositivo e ela será sincronizada em todos os dispositivos.
-- **Acesso de Emergência (Emergency Access)**: Conceda acesso a um contato de confiança em caso de emergência.
-- **Notas Seguras (Secure Notes)**: Armazene anotações adicionais como logins de Wi-Fi e informações bancárias.
-- **Testamento Digital (Digital Will)**: Deixe uma cópia da sua vida digital.
-- **Login sem senha no cofre (Passwordless Login)**: Acesse o cofre sem digitar a senha mestre.
-- **Gerenciamento de Usuários (User Management)**: Controle de segurança, contas e políticas da empresa.
-- **SaaS Protect**: Controle o uso de SaaS, bloqueando aplicativos perigosos.
-- **Integração de Diretórios (Directory Integration)**: Automatizar gerenciamento de usuários integrando ao diretório existente.
-- **Login Federado (Federated Login)**: Login com credenciais de identidade federada.
-- **Workstation MFA**: Autenticação multifator no nível do sistema operacional.
-- **Autofill no Google Chrome**: Substitua o gerenciador de senhas do Chrome.
-- **Autofill no Android**: Crie, salve e preencha senhas no Android.
-- **Autofill no iPhone e iPad**: Aproveite o LastPass no iOS.
-- **Autofill no Safari**: Acesse o cofre enquanto navega no Safari.
-- **Autofill no Mozilla Firefox**: Salve e preencha senhas no Firefox.
-- **Armazenamento Google Drive (O Diferencial)**: Diferente do LastPass, o BunkerPass salva as senhas em um cofre no Google Drive (`.csv` offline), garantindo que apenas o usuário detenha as chaves de sua vida digital.
+- [x] **Gerador de Senhas (Password Generator)**: Criar senhas fortes, exclusivas e resistentes a hackers.
+- [x] **Gerador de Nomes de Usuário (Username Generator)**: Gerar nomes de usuário aleatórios para proteger identidade online.
+- [ ] **Chaves de Acesso (Passkeys)**: Logins mais rápidos, fáceis e seguros (WebAuthn).
+- [x] **Monitoramento da Dark Web (Dark Web Monitoring)**: Alerta imediato se informações pessoais forem encontradas na dark web.
+- [x] **Painel de Segurança (Security Dashboard)**: Notificações de senhas fracas, reutilizadas e antigas.
+- [ ] **Compartilhamento de Senhas Pessoais**: Compartilhar senhas de forma segura com familiares e amigos.
+- [ ] **Compartilhamento Empresarial**: Compartilhamento com equipes, freelancers e fornecedores.
+- [ ] **Sincronização Automática (Device Sync)**: Salve uma senha em um dispositivo e ela será sincronizada em todos os dispositivos.
+- [ ] **Acesso de Emergência (Emergency Access)**: Conceda acesso a um contato de confiança em caso de emergência.
+- [x] **Notas Seguras (Secure Notes)**: Armazene anotações adicionais como logins de Wi-Fi e informações bancárias.
+- [ ] **Testamento Digital (Digital Will)**: Deixe uma cópia da sua vida digital.
+- [x] **Login sem senha no cofre (Passwordless Login)**: Acesse o cofre sem digitar a senha mestre.
+- [ ] **Gerenciamento de Usuários (User Management)**: Controle de segurança, contas e políticas da empresa.
+- [ ] **SaaS Protect**: Controle o uso de SaaS, bloqueando aplicativos perigosos.
+- [ ] **Integração de Diretórios (Directory Integration)**: Automatizar gerenciamento de usuários integrando ao diretório existente.
+- [ ] **Login Federado (Federated Login)**: Login com credenciais de identidade federada.
+- [ ] **Workstation MFA**: Autenticação multifator no nível do sistema operacional.
+- [x] **Autofill no Google Chrome**: Substitua o gerenciador de senhas do Chrome.
+- [ ] **Autofill no Android**: Crie, salve e preencha senhas no Android.
+- [ ] **Autofill no iPhone e iPad**: Aproveite o LastPass no iOS.
+- [ ] **Autofill no Safari**: Acesse o cofre enquanto navega no Safari.
+- [x] **Autofill no Mozilla Firefox**: Salve e preencha senhas no Firefox.
+- [x] **Armazenamento Google Drive (O Diferencial)**: Diferente do LastPass, o BunkerPass salva as senhas em um cofre no Google Drive (`.csv` offline), garantindo que apenas o usuário detenha as chaves de sua vida digital.
 
 ## Detalhes Técnicos
 
