@@ -1,6 +1,6 @@
 [![Version](https://img.shields.io/badge/version-0.1.0-blue.svg)](https://github.com/juninmd/bunker/releases)
 
-# 🛡️ Bunker
+# 🛡️ DrivePass
 
 [![Status: Active](https://img.shields.io/badge/Status-Active-brightgreen.svg)]()
 [![Release: Latest](https://img.shields.io/github/v/release/juninmd/bunker)]()
@@ -17,13 +17,18 @@
 - **Sincronização com Google Drive**: O diferencial é o salvamento off-line das senhas no Google Drive, em uma planilha `.csv`.
 - **GitHub Actions Integration**: Automated generation of releases and tags, keeping the README.md updated via scripts.
 
-## 🛠️ BunkerPass (Substituto do LastPass)
+## 🛠️ DrivePass (Substituto do LastPass)
 
-O BunkerPass é um gerenciador de senhas multiplataforma, que armazena os dados em um `.csv` no Google Drive.
+O DrivePass é um gerenciador de senhas multiplataforma, que armazena os dados em um `.csv` no Google Drive.
 - Extensão (Firefox/Chrome)
 - App Desktop (Electron - offline)
 - Android APK (React Native / Expo)
 - Features de Paridade com o LastPass mapeadas no ROADMAP: Painel de Segurança, Passkeys, Login sem senha e SaaS Protect.
+
+### 🔄 Status Atual (Modo CRON)
+- **Progresso Atual**: Setup de CI/CD para release multiplataforma concluído. Nomenclatura ajustada para DrivePass.
+- **Bugs/Limitações**: O build real do APK do Android precisará de configuração do EAS (Expo Application Services) na action. Atualmente utilizando Mock APK.
+- **Próximas Tasks**: Implementar suporte nativo a Passkeys (WebAuthn) e evoluir a integração UI no Android.
 
 ## 🛠️ Tech Stack
 
