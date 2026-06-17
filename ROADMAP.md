@@ -19,7 +19,7 @@ Foco nas funcionalidades essenciais de um gerenciador de senhas.
 - [x] **Integração Google Drive:** Autenticação OAuth 2.0 e acesso ao escopo de arquivos.
 - [x] **Sincronização Bidirecional com Planilha CSV:**
   - Exportação automática para `passwords.csv` no Drive.
-  - Importação de alterações do CSV (adições, edições e exclusões com "Soft Delete").
+  - Importação de alterações do CSV (adições, edições e exclusões com \"Soft Delete\").
   - Estratégia de resolução de conflitos baseada em carimbo de data/hora (`modifiedTime`).
 - [x] **Popup de Gerenciamento:** Interface básica para listar, adicionar, editar (v0.1.0) e remover senhas.
 - [x] **Gerador de Senhas:** Algoritmo seguro (CSPRNG) implementado.
@@ -28,7 +28,7 @@ Foco nas funcionalidades essenciais de um gerenciador de senhas.
 - [x] **CI/CD:** Pipelines de release automatizados (GitHub Actions) e versionamento semântico.
   - [x] Geração automática de releases e tags (`release-please`).
   - [x] Atualização automática do README com a versão atual.
-- [x] **Tipos de Item:** Suporte inicial para "Senhas" e "Notas Seguras".
+- [x] **Tipos de Item:** Suporte inicial para \"Senhas\" e \"Notas Seguras\".
 - [x] **Infraestrutura de Testes:** Testes unitários configurados para lógica de CSV e Criptografia.
 
 ### Fase 2: Paridade de Features (LastPass Replacement)
@@ -44,7 +44,7 @@ Foco em igualar as funcionalidades de conveniência e organização.
 - [ ] **Chaves de Acesso (Passkeys):** Suporte nativo para criar, armazenar e gerenciar passkeys (WebAuthn), acelerando logins.
 - [ ] **UX Aprimorada:**
   - [x] **Ícone In-Field:** Botão do DrivePass dentro dos inputs de login para preenchimento com um clique.
-  - [x] **Detector de Mudança de Senha:** Pop-up perguntando "Deseja atualizar esta senha?" ao submeter formulários.
+  - [x] **Detector de Mudança de Senha:** Pop-up perguntando \"Deseja atualizar esta senha?\" ao submeter formulários.
   - [ ] **Sincronização automática de dispositivos (Device Sync):** Salvar uma senha em um dispositivo e tê-la disponível em todos via Google Drive (`passwords.csv`).
 - [~] **Segurança Avançada:**
   - [x] **Logout Automático:** Configuração de timeout por inatividade.
@@ -96,29 +96,29 @@ Levar o cofre para fora do navegador com experiência nativa, mantendo compatibi
   - [ ] iPhone e iPad (iOS Autofill)
 
 ### Funcionalidades mapeadas do LastPass (Recapitulação Detalhada da página oficial)
-- **Gerador de Senhas (Password Generator)**: Criar senhas fortes, exclusivas e resistentes a hackers.
-- **Gerador de Nomes de Usuário (Username Generator)**: Gerar nomes de usuário aleatórios para proteger identidade online.
-- **Chaves de Acesso (Passkeys)**: Logins mais rápidos, fáceis e seguros (WebAuthn).
-- **Monitoramento da Dark Web (Dark Web Monitoring)**: Alerta imediato se informações pessoais forem encontradas na dark web.
-- **Painel de Segurança (Security Dashboard)**: Notificações de senhas fracas, reutilizadas e antigas.
-- **Compartilhamento de Senhas Pessoais**: Compartilhar senhas de forma segura com familiares e amigos.
-- **Compartilhamento Empresarial**: Compartilhamento com equipes, freelancers e fornecedores.
-- **Sincronização Automática (Device Sync)**: Salve uma senha em um dispositivo e ela será sincronizada em todos os dispositivos.
-- **Acesso de Emergência (Emergency Access)**: Conceda acesso a um contato de confiança em caso de emergência.
-- **Notas Seguras (Secure Notes)**: Armazene anotações adicionais como logins de Wi-Fi e informações bancárias.
-- **Testamento Digital (Digital Will)**: Deixe uma cópia da sua vida digital.
-- **Login sem senha no cofre (Passwordless Login)**: Acesse o cofre sem digitar a senha mestre.
-- **Gerenciamento de Usuários (User Management)**: Controle de segurança, contas e políticas da empresa.
-- **SaaS Protect**: Controle o uso de SaaS, bloqueando aplicativos perigosos.
-- **Integração de Diretórios (Directory Integration)**: Automatizar gerenciamento de usuários integrando ao diretório existente.
-- **Login Federado (Federated Login)**: Login com credenciais de identidade federada.
-- **Workstation MFA**: Autenticação multifator no nível do sistema operacional.
-- **Autofill no Google Chrome**: Substitua o gerenciador de senhas do Chrome.
-- **Autofill no Android**: Crie, salve e preencha senhas no Android.
-- **Autofill no iPhone e iPad**: Aproveite o LastPass no iOS.
-- **Autofill no Safari**: Acesse o cofre enquanto navega no Safari.
-- **Autofill no Mozilla Firefox**: Salve e preencha senhas no Firefox.
-- **Armazenamento Google Drive (O Diferencial)**: Diferente do LastPass, o DrivePass salva as senhas em um cofre no Google Drive (`.csv` offline), garantindo que apenas o usuário detenha as chaves de sua vida digital.
+- [x] **Gerador de Senhas (Password Generator)**: Criar senhas fortes, exclusivas e resistentes a hackers.
+- [x] **Gerador de Nomes de Usuário (Username Generator)**: Gerar nomes de usuário aleatórios para proteger identidade online.
+- [ ] **Chaves de Acesso (Passkeys)**: Logins mais rápidos, fáceis e seguros (WebAuthn).
+- [x] **Monitoramento da Dark Web (Dark Web Monitoring)**: Alerta imediato se informações pessoais forem encontradas na dark web.
+- [x] **Painel de Segurança (Security Dashboard)**: Notificações de senhas fracas, reutilizadas e antigas.
+- [ ] **Compartilhamento de Senhas Pessoais**: Compartilhar senhas de forma segura com familiares e amigos.
+- [ ] **Compartilhamento Empresarial**: Compartilhamento com equipes, freelancers e fornecedores.
+- [ ] **Sincronização Automática (Device Sync)**: Salve uma senha em um dispositivo e ela será sincronizada em todos os dispositivos.
+- [ ] **Acesso de Emergência (Emergency Access)**: Conceda acesso a um contato de confiança em caso de emergência.
+- [x] **Notas Seguras (Secure Notes)**: Armazene anotações adicionais como logins de Wi-Fi e informações bancárias.
+- [ ] **Testamento Digital (Digital Will)**: Deixe uma cópia da sua vida digital.
+- [x] **Login sem senha no cofre (Passwordless Login)**: Acesse o cofre sem digitar a senha mestre.
+- [ ] **Gerenciamento de Usuários (User Management)**: Controle de segurança, contas e políticas da empresa.
+- [ ] **SaaS Protect**: Controle o uso de SaaS, bloqueando aplicativos perigosos.
+- [ ] **Integração de Diretórios (Directory Integration)**: Automatizar gerenciamento de usuários integrando ao diretório existente.
+- [ ] **Login Federado (Federated Login)**: Login com credenciais de identidade federada.
+- [ ] **Workstation MFA**: Autenticação multifator no nível do sistema operacional.
+- [x] **Autofill no Google Chrome**: Substitua o gerenciador de senhas do Chrome.
+- [ ] **Autofill no Android**: Crie, salve e preencha senhas no Android.
+- [ ] **Autofill no iPhone e iPad**: Aproveite o DrivePass no iOS.
+- [ ] **Autofill no Safari**: Acesse o cofre enquanto navega no Safari.
+- [x] **Autofill no Mozilla Firefox**: Salve e preencha senhas no Firefox.
+- [x] **Armazenamento Google Drive (O Diferencial)**: Diferente do LastPass, o DrivePass salva as senhas em um cofre no Google Drive (`.csv` offline), garantindo que apenas o usuário detenha as chaves de sua vida digital.
 
 ## Detalhes Técnicos
 
@@ -137,7 +137,7 @@ Para manter compatibilidade com importadores (LastPass CSV), usamos convenções
 ### Segurança do CSV
 Por padrão, para conveniência (como solicitado), o CSV contém as senhas em texto plano.
 - **Aviso:** O usuário será alertado sobre os riscos de manter o CSV em texto plano.
-- **Opção Segura:** Implementar uma configuração "Criptografar CSV" onde o conteúdo das células sensíveis é cifrado, mantendo a estrutura de linhas/colunas para organização, mas ocultando os segredos.
+- **Opção Segura:** Implementar uma configuração \"Criptografar CSV\" onde o conteúdo das células sensíveis é cifrado, mantendo a estrutura de linhas/colunas para organização, mas ocultando os segredos.
 
 ### Stack Tecnológica
 - **Extensão:** JavaScript (ES Modules), HTML, CSS, Web Crypto API.
