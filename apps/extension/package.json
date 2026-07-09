@@ -6,8 +6,5 @@
   "scripts": {
     "test": "node tests/unit_tests.mjs",
     "typecheck": "tsc -p tsconfig.json"
-  },
-  "devDependencies": {
-    "typescript": "^7.0.2"
   }
 }

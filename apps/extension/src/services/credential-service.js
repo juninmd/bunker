@@ -25,6 +25,7 @@ export class CredentialService {
           );
           sendResponse({ credentials });
         } catch (e) {
+          console.error(e); // NOSONAR
           sendResponse({ error: 'DECRYPT_FAILED' });
         }
       });
@@ -54,6 +55,7 @@ export class CredentialService {
                   );
                   sendResponse({ password: cred ? cred.password : null });
               } catch (e) {
+                  console.error(e); // NOSONAR
                   sendResponse({ error: 'DECRYPT_FAILED' });
               }
           });
@@ -74,6 +76,7 @@ export class CredentialService {
                   try {
                       vault = await decryptWithKey(localResult['bunkerpass.vault'], sessionResult.sessionKey);
                   } catch (e) {
+                      console.error(e); // NOSONAR
                       sendResponse({ error: 'DECRYPT_FAILED' });
                       return;
                   }
