@@ -2,12 +2,15 @@
   "name": "bunkerpass-desktop",
   "version": "0.1.0",
   "description": "BunkerPass Desktop App",
-  "main": "src/main.js",
+  "main": "dist/main.js",
   "scripts": {
-    "start": "electron ."
+    "prestart": "npm run build",
+    "start": "electron .",
+    "build": "tsc && cp src/index.html dist/index.html"
   },
   "devDependencies": {
-    "electron": "^28.0.0"
-  },
-  "dependencies": {}
+    "@types/node": "^26.2.0",
+    "electron": "^28.0.0",
+    "typescript": "^5.0.0"
+  }
 }
