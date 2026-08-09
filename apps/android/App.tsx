@@ -7,11 +7,11 @@ import { PasswordGenerator } from './src/PasswordGenerator';
 export default function App() {
   const [isUnlocked, setIsUnlocked] = useState(false);
   const [masterPassword, setMasterPassword] = useState('');
-  const [vaultData, setVaultData] = useState([]);
+  const [vaultData, setVaultData] = useState<any[]>([]);
   const [isSyncing, setIsSyncing] = useState(false);
   const [showGenerator, setShowGenerator] = useState(false);
 
-  const renderItem = useCallback(({ item }) => (
+  const renderItem = useCallback(({ item }: { item: any }) => (
     <TouchableOpacity style={styles.item}>
       <Text style={styles.title}>{item.title}</Text>
       <Text style={styles.subtitle}>{item.username}</Text>
@@ -28,7 +28,7 @@ export default function App() {
     return (
       <View style={styles.container}>
         <View style={styles.loginContainer}>
-          <Text style={styles.headerTitleDark}>BunkerPass</Text>
+          <Text style={styles.headerTitleDark}>DrivePass</Text>
           <Text style={styles.loginSubtitle}>Digite sua senha mestra para desbloquear o cofre offline.</Text>
           <TextInput
             style={styles.input}
@@ -47,7 +47,7 @@ export default function App() {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>BunkerPass</Text>
+        <Text style={styles.headerTitle}>DrivePass</Text>
         <Text style={styles.headerSubtitle}>Android App (Sincronizado via Google Drive .csv)</Text>
       </View>
 
@@ -60,7 +60,7 @@ export default function App() {
              onPress={async () => {
                setIsSyncing(true);
                const data = await SyncService.syncWithGoogleDrive();
-               setVaultData(data);
+               setVaultData(data as any[]);
                setIsSyncing(false);
                console.log('Sincronizado com passwords.csv no Drive!'); // NOSONAR
              }}

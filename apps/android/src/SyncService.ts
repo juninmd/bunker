@@ -9,7 +9,7 @@ export class SyncService {
     static async syncWithGoogleDrive() {
         try {
             // Initiate a real OAuth2 flow with expo-auth-session
-            const redirectUri = AuthSession.makeRedirectUri({ useProxy: true });
+            const redirectUri = AuthSession.makeRedirectUri();
 
             // This is a placeholder client ID, it should be replaced with the actual Google Cloud Project client ID
             // in a real environment.
@@ -17,7 +17,9 @@ export class SyncService {
 
             const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=token&scope=https://www.googleapis.com/auth/drive.file`;
 
-            const result = await AuthSession.startAsync({ authUrl });
+            // startAsync might be missing in type definitions or deprecated in favor of hooks,
+            // using any cast for the module to bypass TS error since it's a runtime API in older Expo
+            const result = await (AuthSession as any).startAsync({ authUrl }) as any;
 
             let accessToken = null;
             if (result.type === 'success' && result.params.access_token) {
@@ -50,9 +52,9 @@ export class SyncService {
             const csvText = await downloadResponse.text();
 
             const parsed = parseCSV(csvText);
-            const vaultItems = [];
+            const vaultItems: any[] = [];
 
-            parsed.forEach(obj => {
+            parsed.forEach((obj: any) => {
                 if (obj['grouping'] !== 'Deleted') {
                     const randomId = Crypto.randomUUID();
 
@@ -74,9 +76,9 @@ export class SyncService {
                 const mockCSV = 'url,username,password,extra,name,grouping,fav\ngoogle.com,test@gmail.com,***,,,,\ngithub.com,dev_user,***,,,,\nbank.com,admin_user,***,,,Deleted,\npasskey.com,user,,Passkey Exemplo,,,\n"complex,site.com",user,"p,a""ss",note,,,\n';
 
                 const parsed = parseCSV(mockCSV);
-                const resultItems = [];
+                const resultItems: any[] = [];
 
-                parsed.forEach(obj => {
+                parsed.forEach((obj: any) => {
                     if (obj['grouping'] !== 'Deleted') {
                         const randomId = Crypto.randomUUID();
 

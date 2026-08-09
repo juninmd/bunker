@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, Button, Switch, StyleSheet, TouchableOpacity } from 'react-native';
 import * as Crypto from 'expo-crypto';
 
-export function PasswordGenerator({ onClose }) {
+export function PasswordGenerator({ onClose }: { onClose: () => void }) {
   const [password, setPassword] = useState('');
   const [length, setLength] = useState('16');
   const [includeUppercase, setIncludeUppercase] = useState(true);
