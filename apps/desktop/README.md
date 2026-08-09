@@ -1,6 +1,6 @@
-# BunkerPass Desktop (Electron)
+# DrivePass Desktop (Electron)
 
-Este é o aplicativo Desktop do BunkerPass, construído com Electron para suportar Windows, macOS e Linux.
+Este é o aplicativo Desktop do DrivePass, construído com Electron para suportar Windows, macOS e Linux.
 
 ## Arquitetura
 

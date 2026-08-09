@@ -17,9 +17,9 @@
 - **Sincronização com Google Drive**: O diferencial é o salvamento off-line das senhas no Google Drive, em uma planilha `.csv`.
 - **GitHub Actions Integration**: Automated generation of releases and tags, keeping the README.md updated via scripts.
 
-## 🛠️ BunkerPass (Substituto do LastPass)
+## 🛠️ DrivePass (Substituto do LastPass)
 
-O BunkerPass é um gerenciador de senhas multiplataforma, que armazena os dados em um `.csv` no Google Drive.
+O DrivePass é um gerenciador de senhas multiplataforma, que armazena os dados em um `.csv` no Google Drive.
 - Extensão (Firefox/Chrome)
 - App Desktop (Electron - offline)
 - Android APK (React Native / Expo)
@@ -44,12 +44,13 @@ This project follows the **Antigravity** code standards:
 **Progress**:
 - Migrated Desktop Application (`apps/desktop`) to TypeScript, renaming files to `.ts`, configuring `tsconfig.json` for ES2022+ module compatibility, and updating Electron build process.
 - Updated `apps/desktop/src/main.ts` with explicit security preferences (`webviewTag: false`).
+- Migrated Android Application (`apps/android`) to TypeScript, converting `.js` files to `.tsx` / `.ts` and configuring `tsconfig.json`.
 
 **Known Bugs**:
 - None explicitly identified currently.
 
 **Next Tasks**:
-- Continue migrating Extension and Android apps to TypeScript to fulfill the strict tech stack requirement.
+- Continue migrating Extension app to TypeScript to fulfill the strict tech stack requirement.
 - Map and implement pending Phase 2+ features from `ROADMAP.md` iteratively.
 
 ---

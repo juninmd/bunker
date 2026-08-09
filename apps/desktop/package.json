@@ -1,7 +1,7 @@
 {
   "name": "bunkerpass-desktop",
   "version": "0.1.0",
-  "description": "BunkerPass Desktop App",
+  "description": "DrivePass Desktop App",
   "main": "dist/main.js",
   "scripts": {
     "prestart": "npm run build",

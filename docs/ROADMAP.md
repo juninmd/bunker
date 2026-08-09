@@ -1,13 +1,13 @@
-# Roadmap do BunkerPass
+# Roadmap do DrivePass
 
-Este documento descreve o plano de desenvolvimento do BunkerPass para se tornar uma alternativa completa ao LastPass, com foco em privacidade, controle de dados (Google Drive) e suporte multiplataforma.
+Este documento descreve o plano de desenvolvimento do DrivePass para se tornar uma alternativa completa ao LastPass, com foco em privacidade, controle de dados (Google Drive) e suporte multiplataforma.
 
 ## Visão Geral
 
 O objetivo é fornecer uma experiência similar ao LastPass, mas onde o usuário possui total controle sobre seus dados, armazenados no seu próprio Google Drive.
 **O grande diferencial** é o armazenamento híbrido que garante interoperabilidade e backup legível:
 
-1.  **Planilha CSV (`passwords.csv`):** O usuário pode visualizar e editar suas senhas diretamente no Google Drive (via Google Sheets ou download). O BunkerPass mantém esse arquivo sincronizado bidirecionalmente.
+1.  **Planilha CSV (`passwords.csv`):** O usuário pode visualizar e editar suas senhas diretamente no Google Drive (via Google Sheets ou download). O DrivePass mantém esse arquivo sincronizado bidirecionalmente.
     - *Nota:* O CSV pode ser visualizado como texto plano para facilidade de uso, ou conter campos criptografados dependendo da configuração de segurança do usuário (Fase 2).
 2.  **Cofre Criptografado (`vault.enc`):** Fonte da verdade para a segurança (criptografia ponta a ponta), garantindo que metadados sensíveis não fiquem expostos e servindo como cache principal.
 
@@ -43,7 +43,7 @@ Foco em igualar as funcionalidades de conveniência e organização.
   - [x] **Cartões de Pagamento:** Armazenamento seguro de CVV e dados bancários.
 - [ ] **Chaves de Acesso (Passkeys):** Suporte nativo para criar, armazenar e gerenciar passkeys (WebAuthn), acelerando logins.
 - [ ] **UX Aprimorada:**
-  - [x] **Ícone In-Field:** Botão do BunkerPass dentro dos inputs de login para preenchimento com um clique.
+  - [x] **Ícone In-Field:** Botão do DrivePass dentro dos inputs de login para preenchimento com um clique.
   - [x] **Detector de Mudança de Senha:** Pop-up perguntando "Deseja atualizar esta senha?" ao submeter formulários.
   - [ ] **Sincronização automática de dispositivos (Device Sync):** Salvar uma senha em um dispositivo e tê-la disponível em todos via Google Drive (`passwords.csv`).
 - [~] **Segurança Avançada:**
@@ -68,7 +68,7 @@ Foco em funcionalidades colaborativas usando a infraestrutura do Google Drive.
 - [ ] **Compartilhamento Empresarial (Business Password Sharing):** Compartilhar senhas empresariais de forma segura com membros da equipe, freelancers e fornecedores.
 - [ ] **Acesso de Emergência (Emergency Access):** Conceda a um contato de confiança ou a um ente querido acesso ao cofre de senhas em caso de emergência.
 - [ ] **Gerenciamento de Usuários (User Management):** Controle a segurança, as contas e as políticas da sua empresa em uma única plataforma (Business).
-- [ ] **Integração de Diretórios (Directory Integration):** Integre o BunkerPass ao seu diretório de usuários existente para automatizar o gerenciamento de usuários.
+- [ ] **Integração de Diretórios (Directory Integration):** Integre o DrivePass ao seu diretório de usuários existente para automatizar o gerenciamento de usuários.
 - [ ] **Login Federado (Federated Login):** Permita que os usuários façam login com suas credenciais de identidade federada.
 - [ ] **Workstation MFA:** Expanda a autenticação para a estação de trabalho para simplificar logins e aumentar a segurança.
 - [ ] **SaaS Protect:** Tome medidas imediatas para controlar o uso de SaaS, bloquear ou restringir aplicativos perigosos.
@@ -118,7 +118,7 @@ Levar o cofre para fora do navegador com experiência nativa, mantendo compatibi
 - [ ] **Autofill no iPhone e iPad**: Aproveite o LastPass no iOS.
 - [ ] **Autofill no Safari**: Acesse o cofre enquanto navega no Safari.
 - [x] **Autofill no Mozilla Firefox**: Salve e preencha senhas no Firefox.
-- [x] **Armazenamento Google Drive (O Diferencial)**: Diferente do LastPass, o BunkerPass salva as senhas em um cofre no Google Drive (`.csv` offline), garantindo que apenas o usuário detenha as chaves de sua vida digital.
+- [x] **Armazenamento Google Drive (O Diferencial)**: Diferente do LastPass, o DrivePass salva as senhas em um cofre no Google Drive (`.csv` offline), garantindo que apenas o usuário detenha as chaves de sua vida digital.
 
 ## Detalhes Técnicos
 
@@ -126,7 +126,7 @@ Levar o cofre para fora do navegador com experiência nativa, mantendo compatibi
 O arquivo `passwords.csv` no Google Drive atua como uma interface de usuário secundária.
 1. **Leitura:** O usuário pode abrir o CSV no Google Sheets para ver suas senhas (útil em dispositivos onde não tem a extensão instalada).
 2. **Escrita:** O usuário pode adicionar uma linha no Sheets (ex: `facebook.com, user, pass123, note, , Social`).
-3. **Sincronização:** O BunkerPass verifica periodicamente o `modifiedTime` do arquivo CSV. Se for mais recente que a última sincronização local, o app baixa o CSV, faz o parse e atualiza o cofre local (`vault.enc` é atualizado em seguida).
+3. **Sincronização:** O DrivePass verifica periodicamente o `modifiedTime` do arquivo CSV. Se for mais recente que a última sincronização local, o app baixa o CSV, faz o parse e atualiza o cofre local (`vault.enc` é atualizado em seguida).
 4. **Soft Deletes:** Itens excluídos são mantidos no CSV com `Grouping='Deleted'` para permitir restauração e sincronização correta entre dispositivos.
 
 ### Tipos de Dados no CSV
