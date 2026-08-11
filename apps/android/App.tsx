@@ -1,8 +1,10 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, Button, FlatList, TouchableOpacity, TextInput, ActivityIndicator } from 'react-native';
+import { StyleSheet, Text, View, Button, FlatList, TouchableOpacity, TextInput, ActivityIndicator, Alert } from 'react-native';
 import { useCallback, useState } from 'react';
 import { SyncService } from './src/SyncService';
 import { PasswordGenerator } from './src/PasswordGenerator';
+import * as LocalAuthentication from 'expo-local-authentication';
+import * as SecureStore from 'expo-secure-store';
 
 export default function App() {
   const [isUnlocked, setIsUnlocked] = useState(false);
@@ -18,9 +20,40 @@ export default function App() {
     </TouchableOpacity>
   ), []);
 
-  const handleUnlock = () => {
+  const handleUnlock = async () => {
     if (masterPassword.length > 0) {
+      await SecureStore.setItemAsync('masterPassword', masterPassword);
       setIsUnlocked(true);
+    }
+  };
+
+  const handleBiometricUnlock = async () => {
+    try {
+      const hasHardware = await LocalAuthentication.hasHardwareAsync();
+      if (!hasHardware) {
+        Alert.alert('Erro', 'Biometria não disponível neste dispositivo.');
+        return;
+      }
+      const isEnrolled = await LocalAuthentication.isEnrolledAsync();
+      if (!isEnrolled) {
+        Alert.alert('Erro', 'Nenhuma biometria cadastrada no dispositivo.');
+        return;
+      }
+      const result = await LocalAuthentication.authenticateAsync({
+        promptMessage: 'Desbloquear DrivePass',
+        fallbackLabel: 'Usar Senha Mestra',
+      });
+      if (result.success) {
+        const stored = await SecureStore.getItemAsync('masterPassword');
+        if (stored) {
+          setMasterPassword(stored);
+          setIsUnlocked(true);
+        } else {
+          Alert.alert('Erro', 'Por favor, faça login com sua senha mestre primeiro.');
+        }
+      }
+    } catch (error) {
+      console.warn('Erro ao autenticar com biometria', error);
     }
   };
 
@@ -38,6 +71,9 @@ export default function App() {
             onChangeText={setMasterPassword}
           />
           <Button title="Desbloquear" onPress={handleUnlock} color="#1a73e8" />
+          <View style={{ marginTop: 15 }}>
+            <Button title="Desbloquear com Biometria" onPress={handleBiometricUnlock} color="#34a853" />
+          </View>
         </View>
         <StatusBar style="auto" />
       </View>
