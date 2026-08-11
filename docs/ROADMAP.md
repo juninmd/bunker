@@ -82,7 +82,7 @@ Levar o cofre para fora do navegador com experiência nativa, mantendo compatibi
   - [ ] Funcionamento offline robusto com leitura de `passwords.csv`.
 - [ ] **App Android (React Native/Expo):**
   - [ ] Salvar e preencher automaticamente credenciais (Integração com Autofill Framework do Android).
-  - [ ] Acesso biométrico (Fingerprint/FaceID) para desbloqueio.
+  - [x] Acesso biométrico (Fingerprint/FaceID) para desbloqueio.
   - [ ] Sincronização automática de dispositivos via Google Drive.
   - [ ] **APK:** Geração automatizada de APK via GitHub Actions.
 - [ ] **App iOS:**
