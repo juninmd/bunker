@@ -64,7 +64,7 @@ Foco na proatividade da segurança.
 
 ### Fase 4: Compartilhamento, Teams & Corporativo
 Foco em funcionalidades colaborativas usando a infraestrutura do Google Drive.
-- [ ] **Compartilhamento Pessoal (Personal Password Sharing):** Compartilhar senhas de forma segura com familiares e amigos sem abrir mão do controle de acesso.
+- [ ] **Compartilhamento de Senhas Pessoais (Personal Password Sharing):** Compartilhar senhas de forma segura com familiares e amigos sem abrir mão do controle de acesso.
 - [ ] **Compartilhamento Empresarial (Business Password Sharing):** Compartilhar senhas empresariais de forma segura com membros da equipe, freelancers e fornecedores.
 - [ ] **Acesso de Emergência (Emergency Access):** Conceda a um contato de confiança ou a um ente querido acesso ao cofre de senhas em caso de emergência.
 - [ ] **Gerenciamento de Usuários (User Management):** Controle a segurança, as contas e as políticas da sua empresa em uma única plataforma (Business).
@@ -101,14 +101,14 @@ Levar o cofre para fora do navegador com experiência nativa, mantendo compatibi
 - [ ] **Chaves de Acesso (Passkeys)**: Logins mais rápidos, fáceis e seguros (WebAuthn).
 - [x] **Monitoramento da Dark Web (Dark Web Monitoring)**: Alerta imediato se informações pessoais forem encontradas na dark web.
 - [x] **Painel de Segurança (Security Dashboard)**: Notificações de senhas fracas, reutilizadas e antigas.
-- [ ] **Compartilhamento de Senhas Pessoais**: Compartilhar senhas de forma segura com familiares e amigos.
+- [ ] **Compartilhamento de Senhas Pessoais**: Compartilhar senhas de forma segura com familiares e amigos sem abrir mão do controle de acesso.
 - [ ] **Compartilhamento Empresarial**: Compartilhamento com equipes, freelancers e fornecedores.
 - [ ] **Sincronização Automática (Device Sync)**: Salve uma senha em um dispositivo e ela será sincronizada em todos os dispositivos.
 - [ ] **Acesso de Emergência (Emergency Access)**: Conceda acesso a um contato de confiança em caso de emergência.
 - [x] **Notas Seguras (Secure Notes)**: Armazene anotações adicionais como logins de Wi-Fi e informações bancárias.
-- [ ] **Testamento Digital (Digital Will)**: Deixe uma cópia da sua vida digital.
+- [ ] **Testamento Digital (Digital Will)**: Deixe uma cópia da sua vida digital em caso de emergência.
 - [x] **Login sem senha no cofre (Passwordless Login)**: Acesse o cofre sem digitar a senha mestre.
-- [ ] **Gerenciamento de Usuários (User Management)**: Controle de segurança, contas e políticas da empresa.
+- [ ] **Gerenciamento de Usuários (User Management)**: Controle de segurança, contas e políticas da empresa em uma única plataforma (Business).
 - [ ] **SaaS Protect**: Controle o uso de SaaS, bloqueando aplicativos perigosos.
 - [ ] **Integração de Diretórios (Directory Integration)**: Automatizar gerenciamento de usuários integrando ao diretório existente.
 - [ ] **Login Federado (Federated Login)**: Login com credenciais de identidade federada.
