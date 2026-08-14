@@ -38,7 +38,7 @@ jobs:
           cd apps/android
           npm install
           npm run build:apk
-          cp dist/*.apk ../../dist/
+          mv dist/bunkerpass-android-1.0.0.apk ../../dist/bunkerpass-android-${{ github.ref_name }}.apk
 
       - name: Upload Release Artifacts
         uses: softprops/action-gh-release@v2

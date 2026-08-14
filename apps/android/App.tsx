@@ -110,6 +110,7 @@ export default function App() {
             color="#fbbc05"
           />
         </View>
+        <Text style={{color: 'orange', textAlign: 'center', marginTop: 10}}>Aviso: Sincronização offline-first com Google Drive ativa.</Text>
       </View>
 
       {showGenerator ? (
