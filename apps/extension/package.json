@@ -5,7 +5,8 @@
   "private": true,
   "scripts": {
     "test": "node tests/unit_tests.mjs",
-    "typecheck": "tsc -p tsconfig.json"
+    "typecheck": "tsc -p tsconfig.json",
+    "build": "tsc -p tsconfig.json"
   },
   "dependencies": {
     "typescript": "^7.0.2"

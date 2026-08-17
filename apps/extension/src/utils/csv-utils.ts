@@ -5,136 +5,140 @@
  * @param {string} field
  * @returns {string}
  */
-function escapeCSVField(field) {
-    if (field === null || field === undefined) {
-        return '';
-    }
-    const stringField = String(field);
-    if (stringField.includes(',') || stringField.includes('"') || stringField.includes('\n') || stringField.includes('\r')) {
-        return `"${stringField.replace(/"/g, '""')}"`;
-    }
-    return stringField;
+function escapeCSVField(field: string | null | undefined): string {
+  if (field === null || field === undefined) {
+    return '';
+  }
+  const stringField = String(field);
+  if (stringField.includes(',') || stringField.includes('"') || stringField.includes('\n') || stringField.includes('\r')) {
+    return `"${stringField.replace(/"/g, '""')}"`;
+  }
+  return stringField;
 }
+
 /**
  * Generates a CSV string from an array of objects.
  * @param {Array<Object>} data - The data to convert.
  * @param {Array<string>} headers - The headers to include in the CSV.
  * @returns {string} The CSV content.
  */
-export function generateCSV(data, headers) {
-    const headerRow = headers.map(escapeCSVField).join(',');
-    const rows = data.map(row => {
-        return headers.map(header => {
-            return escapeCSVField(row[header]);
-        }).join(',');
-    });
-    return [headerRow, ...rows].join('\n');
+export function generateCSV(data: Record<string, any>[], headers: string[]): string {
+  const headerRow = headers.map(escapeCSVField).join(',');
+  const rows = data.map(row => {
+    return headers.map(header => {
+      return escapeCSVField(row[header]);
+    }).join(',');
+  });
+
+  return [headerRow, ...rows].join('\n');
 }
+
 /**
  * Parses CSV content into an array of arrays (lines of fields).
  * Handles quoted fields and newlines within fields.
  * @param {string} str
  * @returns {Array<Array<string>>}
  */
-function parseCSVLines(str) {
-    const arr = [];
+function parseCSVLines(str: string): string[][] {
+    const arr: string[][] = [];
     let quote = false;
-    let row = [];
+    let row: string[] = [];
     let col = '';
+
     // Normalize newlines to simplify parsing
     str = str.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+
     for (let cIndex = 0; cIndex < str.length; cIndex++) {
         let c = str[cIndex];
         let cc = str[cIndex + 1];
+
         if (c === '"') {
             if (quote && cc === '"') {
                 // Escaped quote: "" inside a quoted field -> literal "
                 col += '"';
                 cIndex++;
-            }
-            else {
+            } else {
                 // Toggle quote state
                 quote = !quote;
             }
-        }
-        else if (c === ',' && !quote) {
+        } else if (c === ',' && !quote) {
             // End of field
             row.push(col);
             col = '';
-        }
-        else if (c === '\n' && !quote) {
+        } else if (c === '\n' && !quote) {
             // End of row
             row.push(col);
             col = '';
             arr.push(row);
             row = [];
-        }
-        else {
+        } else {
             // Regular character
             col += c;
         }
     }
+
     // Handle last field/row if not empty or if explicitly ended with comma (though uncommon without newline)
     // If the string ends with a comma, we should push an empty col.
     // If str ends with \n, the last loop iteration handled the push.
     // But if str ends without \n, we need to push the last collected col and row.
     if (col.length > 0 || row.length > 0) {
-        row.push(col);
-        arr.push(row);
+         row.push(col);
+         arr.push(row);
     }
+
     return arr;
 }
+
 /**
  * Parses a CSV string into an array of objects.
  * Assumes the first row is the header.
  * @param {string} content
  * @returns {Array<Object>}
  */
-export function parseCSV(content) {
-    if (!content)
-        return [];
-    const lines = parseCSVLines(content);
-    if (lines.length < 2)
-        return [];
-    const headerRow = lines[0];
-    if (!headerRow)
-        return [];
-    const headers = headerRow.map(h => h.trim());
-    const result = [];
-    for (let i = 1; i < lines.length; i++) {
-        const currentLine = lines[i];
-        if (!currentLine)
-            continue;
-        // Skip empty lines
-        if (currentLine.length === 0 || (currentLine.length === 1 && currentLine[0] === ''))
-            continue;
-        const obj = {};
-        headers.forEach((header, index) => {
-            // If the row has fewer columns than headers, use empty string
-            obj[header] = currentLine[index] !== undefined ? currentLine[index] : '';
-        });
-        result.push(obj);
-    }
-    return result;
+export function parseCSV(content: string): Record<string, any>[] {
+  if (!content) return [];
+  const lines = parseCSVLines(content);
+  if (lines.length < 2) return [];
+
+  const headerRow = lines[0];
+  if (!headerRow) return [];
+
+  const headers = headerRow.map(h => h.trim());
+  const result: Record<string, any>[] = [];
+
+  for (let i = 1; i < lines.length; i++) {
+    const currentLine = lines[i];
+    if (!currentLine) continue;
+    // Skip empty lines
+    if (currentLine.length === 0 || (currentLine.length === 1 && currentLine[0] === '')) continue;
+
+    const obj: Record<string, string> = {};
+    headers.forEach((header, index) => {
+      // If the row has fewer columns than headers, use empty string
+      obj[header] = currentLine[index] !== undefined ? currentLine[index] : '';
+    });
+    result.push(obj);
+  }
+  return result;
 }
+
 /**
  * Maps a raw CSV row object to a standard Vault item object.
  * Identifies item types based on URL prefixes.
  * @param {Object} row
  * @returns {Object} A formatted vault item.
  */
-export function mapCSVRowToVaultItem(row) {
+export function mapCSVRowToVaultItem(row: Record<string, any>): Record<string, any> {
     const url = row.url || row.site || row.name || '';
     const isNote = url === ('http' + '://sn');
     const isCard = url === ('http' + '://cc');
     const isAddress = url === ('http' + '://id');
+
     let type = 'password';
-    if (isNote)
-        type = 'note';
-    else if (isCard)
-        type = 'card';
-    else if (isAddress)
-        type = 'address';
+    if (isNote) type = 'note';
+    else if (isCard) type = 'card';
+    else if (isAddress) type = 'address';
+
     return {
         id: crypto.randomUUID(),
         type: type,
@@ -147,12 +151,13 @@ export function mapCSVRowToVaultItem(row) {
         grouping: row.grouping || ''
     };
 }
+
 /**
  * Maps a standard Vault item object to a CSV row object for export.
  * @param {Object} item
  * @returns {Object} A formatted CSV row.
  */
-export function mapVaultItemToCSVRow(item) {
+export function mapVaultItemToCSVRow(item: Record<string, any>): Record<string, any> {
     if (item.deletedAt) {
         return {
             url: item.site,
@@ -164,12 +169,15 @@ export function mapVaultItemToCSVRow(item) {
             fav: '0'
         };
     }
-    const typeMapping = {
+
+    const typeMapping: Record<string, { url: string, grouping: string }> = {
         'note': { url: 'http' + '://sn', grouping: 'Secure Notes' },
         'card': { url: 'http' + '://cc', grouping: 'Cartões' },
         'address': { url: 'http' + '://id', grouping: 'Endereços' }
     };
+
     const typeConfig = typeMapping[item.type];
+
     if (typeConfig) {
         return {
             url: typeConfig.url,
@@ -181,6 +189,7 @@ export function mapVaultItemToCSVRow(item) {
             fav: '0'
         };
     }
+
     // Default password type
     return {
         url: item.site,

@@ -42,6 +42,8 @@ This project follows the **Antigravity** code standards:
 ## 🔄 Current Progress & Next Steps (CRON Loop)
 
 **Progress**:
+- Migrated Extension utilities (csv-utils) to TypeScript and established in-place build pipeline.
+- Analyzed Passkeys (WebAuthn) requirements; determined it requires a complex background proxy architecture. Feature deferred in favor of core structural migrations.
 - Implemented secure Biometric Unlock (Fingerprint/FaceID) for Android App using `expo-local-authentication` and `expo-secure-store`.
 - Migrated Desktop Application (`apps/desktop`) to TypeScript, renaming files to `.ts`, configuring `tsconfig.json` for ES2022+ module compatibility, and updating Electron build process.
 - Updated `apps/desktop/src/main.ts` with explicit security preferences (`webviewTag: false`).
@@ -51,7 +53,7 @@ This project follows the **Antigravity** code standards:
 - None explicitly identified currently.
 
 **Next Tasks**:
-- Continue migrating Extension app to TypeScript to fulfill the strict tech stack requirement.
+- Continue migrating the rest of the Extension app to TypeScript (e.g., `crypto.js`, `password-generator.js`).
 - Map and implement pending Phase 2+ features from `ROADMAP.md` iteratively.
 
 ---
