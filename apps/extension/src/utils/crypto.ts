@@ -28,22 +28,13 @@ export async function deriveKey(masterPassword: string, salt: Uint8Array): Promi
 }
 
 export async function encryptPayload(vaultPayload: any, masterPassword: string, salt: Uint8Array): Promise<string> {
-  const iv = crypto.getRandomValues(new Uint8Array(12));
   const key = await deriveKey(masterPassword, salt);
-  const plaintext = new TextEncoder().encode(JSON.stringify(vaultPayload));
-  const ciphertext = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, plaintext);
-  return `${bytesToBase64(iv)}.${bytesToBase64(new Uint8Array(ciphertext))}`;
+  return encryptWithKey(vaultPayload, key);
 }
 
 export async function decryptPayload(payload: string, masterPassword: string, salt: Uint8Array): Promise<any> {
-  const parts = payload.split('.');
-  if (parts.length !== 2) throw new Error('Invalid payload format');
-  const [ivB64, cipherB64] = parts;
-  const iv = base64ToBytes(ivB64 as string);
-  const cipher = base64ToBytes(cipherB64 as string);
   const key = await deriveKey(masterPassword, salt);
-  const plaintext = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: iv } as AesGcmParams, key, cipher.buffer as ArrayBuffer);
-  return JSON.parse(new TextDecoder().decode(plaintext));
+  return decryptWithKey(payload, key);
 }
 
 // Helper to encrypt data with AES-GCM
