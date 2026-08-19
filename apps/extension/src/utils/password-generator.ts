@@ -1,4 +1,11 @@
-export function generatePassword(length = 16, options = {}) {
+export interface PasswordOptions {
+    uppercase?: boolean;
+    lowercase?: boolean;
+    numbers?: boolean;
+    symbols?: boolean;
+}
+
+export function generatePassword(length = 16, options: PasswordOptions = {}): string {
     const {
         uppercase = true,
         lowercase = true,
@@ -14,7 +21,7 @@ export function generatePassword(length = 16, options = {}) {
     };
 
     let allowedChars = '';
-    const guaranteedChars = [];
+    const guaranteedChars: string[] = [];
 
     if (uppercase) {
         allowedChars += charSets.uppercase;
@@ -53,11 +60,7 @@ export function generatePassword(length = 16, options = {}) {
     return shuffleArray(passwordArray).join('');
 }
 
-/**
- * @param {string} charSet
- * @returns {string}
- */
-function getRandomChar(charSet) {
+function getRandomChar(charSet: string): string {
     if (!charSet) {
         throw new Error('Character set cannot be empty');
     }
@@ -72,11 +75,7 @@ function getRandomChar(charSet) {
     return char;
 }
 
-/**
- * @param {string[]} array
- * @returns {string[]}
- */
-function shuffleArray(array) {
+function shuffleArray(array: string[]): string[] {
     for (let i = array.length - 1; i > 0; i--) {
         const rand = new Uint32Array(1);
         crypto.getRandomValues(rand);
@@ -92,7 +91,7 @@ function shuffleArray(array) {
     return array;
 }
 
-export function generateUsername(length = 12) {
+export function generateUsername(length = 12): string {
     const letters = 'abcdefghijklmnopqrstuvwxyz';
     const numbers = '0123456789';
     const allowedChars = letters + numbers;
