@@ -42,6 +42,7 @@ This project follows the **Antigravity** code standards:
 ## 🔄 Current Progress & Next Steps (CRON Loop)
 
 **Progress**:
+- Migrated Extension core (`background.ts`) and all services (`auth-service.ts`, `credential-service.ts`, `google-drive.ts`, `sync-service.ts`) to TypeScript.
 - Migrated Extension utilities (`csv-utils`, `crypto`, `password-generator`, `username-generator`) to TypeScript and established in-place build pipeline.
 - Analyzed Passkeys (WebAuthn) requirements; determined it requires a complex background proxy architecture. Feature deferred in favor of core structural migrations.
 - Implemented secure Biometric Unlock (Fingerprint/FaceID) for Android App using `expo-local-authentication` and `expo-secure-store`.
@@ -53,7 +54,7 @@ This project follows the **Antigravity** code standards:
 - None explicitly identified currently.
 
 **Next Tasks**:
-- Continue migrating the rest of the Extension app to TypeScript (e.g. services and background scripts).
+- Finish migrating the UI scripts (e.g. `popup.js` and `content.js`) to TypeScript to complete the Phase 1 TypeScript migration for the Extension.
 - Map and implement pending Phase 2+ features from `ROADMAP.md` iteratively.
 
 ---

@@ -1,7 +1,7 @@
 import { decryptWithKey, encryptWithKey } from '../utils/crypto.js';
 
 export class CredentialService {
-  static async getCredentials(domain, sendResponse, onActivity) {
+  static async getCredentials(domain: string, sendResponse: (response: any) => void, onActivity?: () => void) {
     chrome.storage.session.get(['sessionKey'], async (sessionResult) => {
       if (!sessionResult.sessionKey) {
         sendResponse({ error: 'LOCKED' });
@@ -16,9 +16,9 @@ export class CredentialService {
         }
 
         try {
-          const decrypted = await decryptWithKey(localResult['bunkerpass.vault'], sessionResult.sessionKey);
+          const decrypted = await decryptWithKey(localResult['bunkerpass.vault'] as string, sessionResult.sessionKey as CryptoKey);
           // Filter matching site and type
-          const credentials = decrypted.filter(item =>
+          const credentials = decrypted.filter((item: any) =>
             (!item.type || item.type === 'password') &&
             !item.deletedAt &&
             item.site && (domain === item.site || domain.endsWith('.' + item.site))
@@ -32,7 +32,7 @@ export class CredentialService {
     });
   }
 
-  static async checkCredential(domain, username, sendResponse, onActivity) {
+  static async checkCredential(domain: string, username: string, sendResponse: (response: any) => void, onActivity?: () => void) {
       chrome.storage.session.get(['sessionKey'], async (sessionResult) => {
           if (!sessionResult.sessionKey) {
               sendResponse({ error: 'LOCKED' });
@@ -46,8 +46,8 @@ export class CredentialService {
                   return;
               }
               try {
-                  const decrypted = await decryptWithKey(localResult['bunkerpass.vault'], sessionResult.sessionKey);
-                  const cred = decrypted.find(item =>
+                  const decrypted = await decryptWithKey(localResult['bunkerpass.vault'] as string, sessionResult.sessionKey as CryptoKey);
+                  const cred = decrypted.find((item: any) =>
                       (!item.type || item.type === 'password') &&
                       !item.deletedAt &&
                       item.site === domain &&
@@ -62,7 +62,7 @@ export class CredentialService {
       });
   }
 
-  static async saveCredential(data, sendResponse, onActivity) {
+  static async saveCredential(data: any, sendResponse: (response: any) => void, onActivity?: () => void) {
       chrome.storage.session.get(['sessionKey'], async (sessionResult) => {
           if (!sessionResult.sessionKey) {
               sendResponse({ error: 'LOCKED' });
@@ -71,10 +71,10 @@ export class CredentialService {
           if (onActivity) onActivity();
 
           chrome.storage.local.get(['bunkerpass.vault'], async (localResult) => {
-              let vault = [];
+              let vault: any[] = [];
               if (localResult['bunkerpass.vault']) {
                   try {
-                      vault = await decryptWithKey(localResult['bunkerpass.vault'], sessionResult.sessionKey);
+                      vault = await decryptWithKey(localResult['bunkerpass.vault'] as string, sessionResult.sessionKey as CryptoKey);
                   } catch (e) {
                       console.error(e); // NOSONAR
                       sendResponse({ error: 'DECRYPT_FAILED' });
@@ -83,7 +83,7 @@ export class CredentialService {
               }
 
               const now = new Date().toISOString();
-              const existingIndex = vault.findIndex(i =>
+              const existingIndex = vault.findIndex((i: any) =>
                   (!i.type || i.type === 'password') &&
                   i.site === data.site &&
                   i.username === data.username
@@ -109,7 +109,7 @@ export class CredentialService {
                   });
               }
 
-              const encrypted = await encryptWithKey(vault, sessionResult.sessionKey);
+              const encrypted = await encryptWithKey(vault, sessionResult.sessionKey as CryptoKey);
               chrome.storage.local.set({ 'bunkerpass.vault': encrypted }, () => {
                  sendResponse({ success: true });
               });

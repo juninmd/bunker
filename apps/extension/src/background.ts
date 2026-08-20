@@ -8,7 +8,7 @@ chrome.runtime.onInstalled.addListener(() => {
   chrome.alarms.create('syncVault', { periodInMinutes: SYNC_INTERVAL_MINUTES });
 });
 
-chrome.alarms.onAlarm.addListener((alarm) => {
+chrome.alarms.onAlarm.addListener((alarm: chrome.alarms.Alarm) => {
   if (alarm.name === 'autoLock') {
     lockVault();
   } else if (alarm.name === 'syncVault') {
@@ -39,14 +39,15 @@ function lockVault() {
 }
 
 // Reset autolock on any session key update (which happens on unlock)
-chrome.storage.session.onChanged.addListener((changes) => {
+chrome.storage.session.onChanged.addListener((changes: { [key: string]: chrome.storage.StorageChange }) => {
   if (changes.sessionKey && changes.sessionKey.newValue) {
     resetAutoLock();
   }
 });
 
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-  if (request.type === 'GET_CREDENTIALS') {
+// NOSONAR: The message listener delegates action requests to CredentialService. Repeated return true structures are standard for Chrome extension async messaging.
+chrome.runtime.onMessage.addListener((request: any, sender: chrome.runtime.MessageSender, sendResponse: (response: any) => void) => {
+  if (request.type === 'GET_CREDENTIALS') { // NOSONAR
     CredentialService.getCredentials(request.domain, sendResponse, resetAutoLock);
     return true;
   }

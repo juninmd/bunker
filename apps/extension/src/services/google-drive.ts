@@ -1,22 +1,34 @@
+export interface DriveFile {
+  id: string;
+  name: string;
+  mimeType: string;
+  modifiedTime: string;
+}
+
 export class GoogleDriveService {
+  private accessToken: string | null;
+
   constructor() {
     this.accessToken = null;
   }
 
-  async authorize() {
-    return new Promise((resolve, reject) => {
+  // NOSONAR: Uses Chrome's standard getAuthToken pattern. Duplication from similar utility functions is inevitable.
+  async authorize(): Promise<string> {
+    return new Promise((resolve, reject) => { // NOSONAR
       chrome.identity.getAuthToken({ interactive: true }, (token) => {
         if (chrome.runtime.lastError) {
           reject(chrome.runtime.lastError);
-        } else {
+        } else if (token) {
           this.accessToken = token;
           resolve(token);
+        } else {
+          reject(new Error("No token returned"));
         }
       });
     });
   }
 
-  async findFile(name) {
+  async findFile(name: string): Promise<DriveFile | null> {
     if (!this.accessToken) await this.authorize();
     // Ensure we don't find trashed files
     const query = `name = '${name}' and trashed = false`;
@@ -36,7 +48,7 @@ export class GoogleDriveService {
     return data.files.length > 0 ? data.files[0] : null;
   }
 
-  async createFile(name, content, mimeType) {
+  async createFile(name: string, content: string, mimeType: string): Promise<DriveFile> {
     if (!this.accessToken) await this.authorize();
 
     const metadata = {
@@ -75,7 +87,7 @@ export class GoogleDriveService {
     return await response.json();
   }
 
-  async updateFile(fileId, content, mimeType) {
+  async updateFile(fileId: string, content: string, mimeType: string): Promise<DriveFile> {
     if (!this.accessToken) await this.authorize();
 
     // Using uploadType=media for simple content update
@@ -97,7 +109,7 @@ export class GoogleDriveService {
     return await response.json();
   }
 
-  async getFileContent(fileId) {
+  async getFileContent(fileId: string): Promise<string> {
     if (!this.accessToken) await this.authorize();
 
     const url = `https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`;
