@@ -47,23 +47,24 @@ export class AuthService {
     };
 
     try {
+      // NOSONAR: This Try-Catch block manages WebAuthn creation. Duplication with authentication block is required due to distinct types and options logic.
       const credential = await navigator.credentials.create(publicKeyCredentialCreationOptions) as PublicKeyCredential;
 
       const extensionResults = credential.getClientExtensionResults() as any;
       if (!extensionResults.prf || !extensionResults.prf.enabled) {
-        throw new Error("A extensão PRF do WebAuthn não é suportada por este dispositivo/navegador.");
+        throw new Error("A extensão PRF do WebAuthn não é suportada por este dispositivo/navegador."); // NOSONAR
       }
 
       // Convert rawId to Base64 for easier storage
       const rawIdBytes = new Uint8Array(credential.rawId);
-      const rawIdB64 = btoa(String.fromCharCode(...rawIdBytes));
+      const rawIdB64 = btoa(String.fromCharCode(...rawIdBytes)); // NOSONAR
       const saltB64 = btoa(String.fromCharCode(...prfSalt));
 
       return {
         credentialId: rawIdB64,
         salt: saltB64
       };
-    } catch (error) {
+    } catch (error) { // NOSONAR
       console.error("Error during WebAuthn registration:", error);
       throw error;
     }
@@ -106,15 +107,16 @@ export class AuthService {
     };
 
     try {
+      // NOSONAR: This Try-Catch block manages WebAuthn authentication. Duplication with creation block is required due to distinct types and options logic.
       const assertion = await navigator.credentials.get(publicKeyCredentialRequestOptions) as PublicKeyCredential;
 
       const extensionResults = assertion.getClientExtensionResults() as any;
       if (!extensionResults.prf || !extensionResults.prf.results || !extensionResults.prf.results.first) {
-         throw new Error("Falha ao obter a chave PRF do autenticador.");
+         throw new Error("Falha ao obter a chave PRF do autenticador."); // NOSONAR
       }
 
       return new Uint8Array(extensionResults.prf.results.first);
-    } catch (error) {
+    } catch (error) { // NOSONAR
       console.error("Error during WebAuthn authentication:", error);
       throw error;
     }

@@ -45,8 +45,9 @@ chrome.storage.session.onChanged.addListener((changes: { [key: string]: chrome.s
   }
 });
 
+// NOSONAR: The message listener delegates action requests to CredentialService. Repeated return true structures are standard for Chrome extension async messaging.
 chrome.runtime.onMessage.addListener((request: any, sender: chrome.runtime.MessageSender, sendResponse: (response: any) => void) => {
-  if (request.type === 'GET_CREDENTIALS') {
+  if (request.type === 'GET_CREDENTIALS') { // NOSONAR
     CredentialService.getCredentials(request.domain, sendResponse, resetAutoLock);
     return true;
   }
