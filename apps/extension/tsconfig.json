@@ -7,6 +7,7 @@
       "ES2022",
       "DOM"
     ],
+    "types": ["chrome"],
     "allowJs": true,
     "checkJs": true,
     "strict": true,
@@ -22,6 +23,8 @@
     "node_modules"
   ],
   "include": [
-    "src/utils/**/*.ts"
+    "src/utils/**/*.ts",
+    "src/services/**/*.ts",
+    "src/background.ts"
   ]
 }
