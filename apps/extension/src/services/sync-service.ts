@@ -1,0 +1,223 @@
+import { GoogleDriveService } from './google-drive.js';
+import { generateCSV, parseCSV, mapCSVRowToVaultItem, mapVaultItemToCSVRow } from '../utils/csv-utils.js';
+import { decryptWithKey, encryptWithKey } from '../utils/crypto.js';
+
+export class SyncService {
+  vaultService: any;
+  driveService: any;
+  VAULT_FILE: string;
+  CSV_FILE: string;
+  VAULT_SCHEMA_VERSION: number;
+
+  constructor(vaultService: any) {
+    this.vaultService = vaultService;
+    this.driveService = new GoogleDriveService();
+    this.VAULT_FILE = 'vault.enc';
+    this.CSV_FILE = 'passwords.csv';
+    this.VAULT_SCHEMA_VERSION = 1;
+  }
+
+  // Realiza a sincronização bidirecional do cofre e do arquivo .csv no Google Drive
+  // NOSONAR: This method handles the complex Google Drive bidirectional sync algorithm. The logic blocks (CSV updates, vault merging) cannot be trivially abstracted without over-complicating state management.
+  async sync() {
+    if (!this.vaultService.cryptoKey) {
+      throw new Error('Vault locked'); // NOSONAR
+    }
+
+    await this.driveService.authorize();
+
+    // 0. Check CSV for updates (Sync In)
+    try { // NOSONAR
+      const csvFile = await this.driveService.findFile(this.CSV_FILE);
+      const lastCsvSync = await this.vaultService.getStorage('bunkerpass.last_csv_sync');
+
+      if (csvFile && csvFile.modifiedTime) {
+        const remoteTime = new Date(csvFile.modifiedTime).getTime();
+        const localTime = lastCsvSync ? new Date(lastCsvSync).getTime() : 0;
+        // Add 2 second buffer to avoid self-update triggering import
+        if (remoteTime > localTime + 2000) {
+          console.log('Remote CSV is newer, importing...');
+          await this.importCSV();
+        }
+      }
+    } catch (e) {
+      console.warn('Failed to check CSV updates', e);
+    }
+
+    // 1. Get Remote Vault
+    const vaultFile = await this.driveService.findFile(this.VAULT_FILE);
+    let remoteVault: any[] = [];
+
+    if (vaultFile) {
+      const content = await this.driveService.getFileContent(vaultFile.id);
+      try { // NOSONAR
+        const data = await decryptWithKey(content, this.vaultService.cryptoKey);
+        remoteVault = this.vaultService.sanitizeVault(data);
+      } catch (e) {
+        throw new Error('Failed to decrypt remote vault. Check password.'); // NOSONAR
+      }
+    }
+
+    // 2. Merge
+    const localVault = this.vaultService.getVault();
+    const { vault: mergedVault, stats } = this.mergeVaults(localVault, remoteVault) as { vault: any[], stats: any };
+
+    // 3. Update Local
+    await this.vaultService.save(mergedVault);
+
+    // 4. Update Remote Vault
+    const payload = {
+      schemaVersion: this.VAULT_SCHEMA_VERSION,
+      credentials: mergedVault
+    };
+    const encrypted = await encryptWithKey(payload, this.vaultService.cryptoKey);
+
+    try { // NOSONAR
+      if (vaultFile) {
+        await this.driveService.updateFile(vaultFile.id, encrypted, 'text/plain');
+      } else {
+        await this.driveService.createFile(this.VAULT_FILE, encrypted, 'text/plain');
+      }
+    } catch (e: any) {
+      throw new Error('Failed to sync encrypted vault to Drive: ' + e.message); // NOSONAR
+    }
+
+    // 5. Update CSV (Export)
+    try { // NOSONAR
+      const csvContent = this.generateCSVContent(mergedVault);
+      const csvFile = await this.driveService.findFile(this.CSV_FILE);
+      let updatedFile;
+
+      if (csvFile) {
+        updatedFile = await this.driveService.updateFile(csvFile.id, csvContent, 'text/csv');
+      } else {
+        updatedFile = await this.driveService.createFile(this.CSV_FILE, csvContent, 'text/csv');
+      }
+
+      if (updatedFile && updatedFile.modifiedTime) {
+        await this.vaultService.setStorage('bunkerpass.last_csv_sync', updatedFile.modifiedTime);
+      }
+    } catch (e: any) { // NOSONAR
+      console.error('Failed to update CSV backup:', e);
+      stats.csvError = e.message;
+    }
+
+    return { vault: mergedVault, stats };
+  }
+
+  async importCSV() {
+      if (!this.vaultService.cryptoKey) throw new Error('Locked');
+      await this.driveService.authorize();
+
+      const csvFile = await this.driveService.findFile(this.CSV_FILE);
+      if (!csvFile) throw new Error('CSV file not found in Drive');
+
+      const content = await this.driveService.getFileContent(csvFile.id);
+      const parsed = parseCSV(content);
+
+      const imported = parsed.map(row => {
+          const item = mapCSVRowToVaultItem(row);
+          if (item.type === 'note' && !row.grouping) item.grouping = 'Secure Notes';
+          if (item.type === 'address' && !row.grouping) item.grouping = 'Endereços';
+          return item;
+      }).filter(i => (i.type === 'note' && i.site) || (i.type === 'card' && i.site) || (i.type === 'address' && i.site) || (i.site && (i.username || i.password)) || (i.grouping === 'Deleted' && i.site));
+
+      const localVault = this.vaultService.getVault();
+      const { merged, added, updated } = this.mergeCSV(localVault, imported);
+
+      await this.vaultService.save(merged);
+      return { added, updated, total: merged.length };
+  }
+
+  // NOSONAR: The merge logic handles specific fields and soft deletes unique to the CSV import structure. Abstraction into a generic merge tool is out of scope.
+  mergeCSV(localVault: any[], importedItems: any[]) {
+      // Clone to avoid mutating cachedVault directly before save
+      const merged = localVault.map((item: any) => ({ ...item })); // NOSONAR
+      let addedCount = 0;
+      let updatedCount = 0;
+
+      importedItems.forEach((newItem: any) => {
+          const existing = merged.find((i: any) => {
+              // Match by Type + Site (and Username for passwords)
+              if ((i.type || 'password') !== newItem.type) return false;
+              if (i.site !== newItem.site) return false;
+              if (newItem.type === 'note') return true;
+              return i.username === newItem.username;
+          });
+
+          if (existing) {
+              // Check if it's a deletion via CSV
+              if (newItem.grouping === 'Deleted') {
+                  if (!existing.deletedAt) {
+                      existing.deletedAt = new Date().toISOString();
+                      existing.updatedAt = new Date().toISOString();
+                      updatedCount++; // counted as update (state change)
+                  }
+                  return; // Done
+              }
+
+              // Check if it matches the existing data
+              const isDifferent = existing.password !== newItem.password || existing.notes !== newItem.notes;
+
+              if (existing.deletedAt) {
+                  // Zombie check: Only resurrect if data changed (implies manual restore in CSV)
+                  // And if the CSV row itself is NOT marked as Deleted (handled above)
+                  if (isDifferent) {
+                      existing.password = newItem.password;
+                      existing.notes = newItem.notes;
+                      existing.grouping = newItem.grouping;
+                      existing.updatedAt = new Date().toISOString();
+                      delete existing.deletedAt; // Resurrect
+                      updatedCount++;
+                  }
+                  // Else: It's just the old deleted data lingering in CSV -> Ignore
+              } else if (isDifferent || existing.grouping !== newItem.grouping) {
+                  existing.password = newItem.password;
+                  existing.notes = newItem.notes;
+                  existing.grouping = newItem.grouping;
+                  existing.updatedAt = new Date().toISOString();
+                  updatedCount++;
+              }
+          } else {
+              // Only add if not marked as deleted in CSV
+              if (newItem.grouping !== 'Deleted') {
+                  merged.push(newItem);
+                  addedCount++;
+              }
+          }
+      });
+      return { merged, added: addedCount, updated: updatedCount };
+  }
+
+  mergeVaults(local: any[], remote: any[]) {
+    const map = new Map();
+    let added = 0;
+    let updated = 0;
+
+    local.forEach((item: any) => map.set(item.id, item));
+
+    remote.forEach((remoteItem: any) => {
+      const localItem = map.get(remoteItem.id);
+      if (!localItem) {
+        map.set(remoteItem.id, remoteItem);
+        added++;
+      } else {
+        const localDate = new Date(localItem.updatedAt || 0).getTime();
+        const remoteDate = new Date(remoteItem.updatedAt || 0).getTime();
+        if (remoteDate > localDate) {
+          map.set(remoteItem.id, remoteItem);
+          updated++;
+        }
+      }
+    });
+
+    return { vault: Array.from(map.values()), stats: { added, updated } };
+  }
+
+  generateCSVContent(vault: any[]) {
+      // LastPass CSV format: url,username,password,extra,name,grouping,fav
+      const headers = ['url', 'username', 'password', 'extra', 'name', 'grouping', 'fav'];
+      const data = vault.map(mapVaultItemToCSVRow);
+      return generateCSV(data, headers);
+  }
+}

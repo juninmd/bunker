@@ -10,5 +10,8 @@
   },
   "dependencies": {
     "typescript": "^7.0.2"
+  },
+  "devDependencies": {
+    "@types/chrome": "^0.2.6"
   }
 }
