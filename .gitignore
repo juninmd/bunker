@@ -4,3 +4,5 @@ dist/
 # OS/editor
 .DS_Store
 node_modules/
+
+apps/extension/src/**/*.js

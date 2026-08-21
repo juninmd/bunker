@@ -25,6 +25,8 @@
   "include": [
     "src/utils/**/*.ts",
     "src/services/**/*.ts",
-    "src/background.ts"
+    "src/background.ts",
+    "src/popup.ts",
+    "src/content.ts"
   ]
 }

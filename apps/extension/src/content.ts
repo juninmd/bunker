@@ -31,8 +31,8 @@ function injectIcons(credentials) {
   const passwordInputs = document.querySelectorAll('input[type="password"]');
 
   passwordInputs.forEach(passInput => {
-    if (passInput.dataset.bunkerpassInjected) return;
-    passInput.dataset.bunkerpassInjected = 'true';
+    if ((passInput as HTMLElement).dataset.bunkerpassInjected) return;
+    (passInput as HTMLElement).dataset.bunkerpassInjected = 'true';
 
     const icon = document.createElement('div');
     icon.className = 'bunkerpass-icon';
@@ -83,8 +83,8 @@ function injectLockedIcon() {
   const passwordInputs = document.querySelectorAll('input[type="password"]');
 
   passwordInputs.forEach(passInput => {
-    if (passInput.dataset.bunkerpassInjected) return;
-    passInput.dataset.bunkerpassInjected = 'true';
+    if ((passInput as HTMLElement).dataset.bunkerpassInjected) return;
+    (passInput as HTMLElement).dataset.bunkerpassInjected = 'true';
 
     const icon = document.createElement('div');
     icon.className = 'bunkerpass-icon bunkerpass-locked';
@@ -203,12 +203,13 @@ function findUsernameInput(passwordInput) {
 
   // 2. Check inputs in the same form before the password field
   if (passwordInput.form) {
-    const inputs = Array.from(passwordInput.form.querySelectorAll('input'));
+    const inputs = Array.from(passwordInput.form.querySelectorAll('input')) as HTMLInputElement[];
     const index = inputs.indexOf(passwordInput);
     if (index > 0) {
        // Look backwards for likely username fields
        for (let i = index - 1; i >= 0; i--) {
            const input = inputs[i];
+           if (!input) continue;
            if (input.type === 'text' || input.type === 'email') {
                const name = (input.name || '').toLowerCase();
                const id = (input.id || '').toLowerCase();
@@ -223,6 +224,7 @@ function findUsernameInput(passwordInput) {
        // Fallback: return the nearest text/email input
        for (let i = index - 1; i >= 0; i--) {
            const input = inputs[i];
+           if (!input) continue;
            if (input.type === 'text' || input.type === 'email') {
                return input;
            }
