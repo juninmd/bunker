@@ -1,76 +1,77 @@
 import { VaultService } from './services/vault-service.js';
 import { SyncService } from './services/sync-service.js';
 import { AuthService } from './services/auth-service.js';
-import { generatePassword, generateUsername } from './utils/password-generator.js';
+import { generatePassword } from './utils/password-generator.js';
+import { generateUsername } from './utils/username-generator.js';
 import { deriveKey, encryptWithKey, decryptWithKey, bytesToBase64, base64ToBytes } from './utils/crypto.js';
 
 const vaultService = new VaultService();
 const syncService = new SyncService(vaultService);
 
-const unlockSection = document.getElementById('unlock-section');
-const vaultSection = document.getElementById('vault-section');
-const statusEl = document.getElementById('status');
-const unlockButton = document.getElementById('unlockButton');
-const unlockBiometricsBtn = document.getElementById('unlockBiometricsBtn');
-const lockButton = document.getElementById('lockButton');
-const setupPasswordlessBtn = document.getElementById('setupPasswordlessBtn');
-const syncButton = document.getElementById('syncButton');
-const importCsvButton = document.getElementById('importCsvButton');
-const downloadCsvBtn = document.getElementById('downloadCsvBtn');
-const localCsvInput = document.getElementById('localCsvInput');
-const securityDashboardBtn = document.getElementById('securityDashboardBtn');
-const securityDashboardSection = document.getElementById('security-dashboard-section');
-const backToVaultBtn = document.getElementById('backToVaultBtn');
-const statTotal = document.getElementById('statTotal');
-const statWeak = document.getElementById('statWeak');
-const statReused = document.getElementById('statReused');
-const statOld = document.getElementById('statOld');
-const statScore = document.getElementById('statScore');
-const statLeaked = document.getElementById('statLeaked');
-const checkPwnedBtn = document.getElementById('checkPwnedBtn');
-const lastSyncEl = document.getElementById('last-sync');
-const masterPasswordInput = document.getElementById('masterPassword');
-const form = document.getElementById('credentialForm');
-const credentialIdInput = document.getElementById('credentialId');
-const credentialList = document.getElementById('credentialList');
-const searchInput = document.getElementById('searchInput');
+const unlockSection = document.getElementById('unlock-section') as HTMLElement;
+const vaultSection = document.getElementById('vault-section') as HTMLElement;
+const statusEl = document.getElementById('status') as HTMLElement;
+const unlockButton = document.getElementById('unlockButton') as HTMLButtonElement;
+const unlockBiometricsBtn = document.getElementById('unlockBiometricsBtn') as HTMLButtonElement;
+const lockButton = document.getElementById('lockButton') as HTMLButtonElement;
+const setupPasswordlessBtn = document.getElementById('setupPasswordlessBtn') as HTMLButtonElement;
+const syncButton = document.getElementById('syncButton') as HTMLButtonElement;
+const importCsvButton = document.getElementById('importCsvButton') as HTMLButtonElement;
+const downloadCsvBtn = document.getElementById('downloadCsvBtn') as HTMLButtonElement;
+const localCsvInput = document.getElementById('localCsvInput') as HTMLInputElement;
+const securityDashboardBtn = document.getElementById('securityDashboardBtn') as HTMLButtonElement;
+const securityDashboardSection = document.getElementById('security-dashboard-section') as HTMLElement;
+const backToVaultBtn = document.getElementById('backToVaultBtn') as HTMLButtonElement;
+const statTotal = document.getElementById('statTotal') as HTMLElement;
+const statWeak = document.getElementById('statWeak') as HTMLElement;
+const statReused = document.getElementById('statReused') as HTMLElement;
+const statOld = document.getElementById('statOld') as HTMLElement;
+const statScore = document.getElementById('statScore') as HTMLElement;
+const statLeaked = document.getElementById('statLeaked') as HTMLElement;
+const checkPwnedBtn = document.getElementById('checkPwnedBtn') as HTMLButtonElement;
+const lastSyncEl = document.getElementById('last-sync') as HTMLElement;
+const masterPasswordInput = document.getElementById('masterPassword') as HTMLInputElement;
+const form = document.getElementById('credentialForm') as HTMLFormElement;
+const credentialIdInput = document.getElementById('credentialId') as HTMLInputElement;
+const credentialList = document.getElementById('credentialList') as HTMLUListElement;
+const searchInput = document.getElementById('searchInput') as HTMLInputElement;
 
-const generateBtn = document.getElementById('generateBtn');
-const generatorOptions = document.getElementById('generatorOptions');
-const lengthRange = document.getElementById('lengthRange');
-const lengthVal = document.getElementById('lengthVal');
-const useUppercase = document.getElementById('useUppercase');
-const useLowercase = document.getElementById('useLowercase');
-const useNumbers = document.getElementById('useNumbers');
-const useSymbols = document.getElementById('useSymbols');
-const passwordInput = document.getElementById('password');
-const notesInput = document.getElementById('notes');
-const passwordWrapper = document.getElementById('passwordWrapper');
-const usernameInput = document.getElementById('username');
-const usernameWrapper = document.getElementById('usernameWrapper');
-const generateUsernameBtn = document.getElementById('generateUsernameBtn');
-const siteInput = document.getElementById('site');
-const cardFields = document.getElementById('cardFields');
-const cardNameInput = document.getElementById('cardName');
-const cardNumberInput = document.getElementById('cardNumber');
-const cardExpInput = document.getElementById('cardExp');
-const cardCvvInput = document.getElementById('cardCvv');
-const addressFields = document.getElementById('addressFields');
-const addressFullNameInput = document.getElementById('addressFullName');
-const addressPhoneInput = document.getElementById('addressPhone');
-const addressEmailInput = document.getElementById('addressEmail');
-const addressStreetInput = document.getElementById('addressStreet');
-const addressCityInput = document.getElementById('addressCity');
-const addressStateInput = document.getElementById('addressState');
-const addressZipInput = document.getElementById('addressZip');
-const addressCountryInput = document.getElementById('addressCountry');
-const folderInput = document.getElementById('folder');
-const folderDatalist = document.getElementById('folderOptions');
-const submitButton = form.querySelector('button[type="submit"]');
+const generateBtn = document.getElementById('generateBtn') as HTMLButtonElement;
+const generatorOptions = document.getElementById('generatorOptions') as HTMLElement;
+const lengthRange = document.getElementById('lengthRange') as HTMLInputElement;
+const lengthVal = document.getElementById('lengthVal') as HTMLElement;
+const useUppercase = document.getElementById('useUppercase') as HTMLInputElement;
+const useLowercase = document.getElementById('useLowercase') as HTMLInputElement;
+const useNumbers = document.getElementById('useNumbers') as HTMLInputElement;
+const useSymbols = document.getElementById('useSymbols') as HTMLInputElement;
+const passwordInput = document.getElementById('password') as HTMLInputElement;
+const notesInput = document.getElementById('notes') as HTMLTextAreaElement;
+const passwordWrapper = document.getElementById('passwordWrapper') as HTMLElement;
+const usernameInput = document.getElementById('username') as HTMLInputElement;
+const usernameWrapper = document.getElementById('usernameWrapper') as HTMLElement;
+const generateUsernameBtn = document.getElementById('generateUsernameBtn') as HTMLButtonElement;
+const siteInput = document.getElementById('site') as HTMLInputElement;
+const cardFields = document.getElementById('cardFields') as HTMLElement;
+const cardNameInput = document.getElementById('cardName') as HTMLInputElement;
+const cardNumberInput = document.getElementById('cardNumber') as HTMLInputElement;
+const cardExpInput = document.getElementById('cardExp') as HTMLInputElement;
+const cardCvvInput = document.getElementById('cardCvv') as HTMLInputElement;
+const addressFields = document.getElementById('addressFields') as HTMLElement;
+const addressFullNameInput = document.getElementById('addressFullName') as HTMLInputElement;
+const addressPhoneInput = document.getElementById('addressPhone') as HTMLInputElement;
+const addressEmailInput = document.getElementById('addressEmail') as HTMLInputElement;
+const addressStreetInput = document.getElementById('addressStreet') as HTMLInputElement;
+const addressCityInput = document.getElementById('addressCity') as HTMLInputElement;
+const addressStateInput = document.getElementById('addressState') as HTMLInputElement;
+const addressZipInput = document.getElementById('addressZip') as HTMLInputElement;
+const addressCountryInput = document.getElementById('addressCountry') as HTMLInputElement;
+const folderInput = document.getElementById('folder') as HTMLInputElement;
+const folderDatalist = document.getElementById('folderOptions') as HTMLDataListElement;
+const submitButton = form.querySelector('button[type="submit"]') as HTMLButtonElement;
 
-const passwordStrengthContainer = document.getElementById('passwordStrengthContainer');
-const passwordStrengthBar = document.getElementById('password-strength-bar');
-const passwordStrengthText = document.getElementById('password-strength-text');
+const passwordStrengthContainer = document.getElementById('passwordStrengthContainer') as HTMLElement;
+const passwordStrengthBar = document.getElementById('password-strength-bar') as HTMLElement;
+const passwordStrengthText = document.getElementById('password-strength-text') as HTMLElement;
 
 unlockButton.addEventListener('click', handleUnlock);
 unlockBiometricsBtn.addEventListener('click', handleUnlockBiometrics);
@@ -119,12 +120,12 @@ async function handleCheckPwned() {
           }
         }
       }
-    } catch (e) {
+    } catch (e: any) {
       console.error('Pwned check error:', e);
     }
   }
 
-  statLeaked.textContent = leakedCount;
+  statLeaked.textContent = String(leakedCount);
   checkPwnedBtn.disabled = false;
   checkPwnedBtn.textContent = 'Verificar Novamente';
 }
@@ -135,7 +136,7 @@ function showSecurityDashboard() {
 
   let weakCount = 0;
   let oldCount = 0;
-  const passwordCounts = {};
+  const passwordCounts: Record<string, number> = {};
 
   const sixMonthsAgo = new Date();
   sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
@@ -144,7 +145,7 @@ function showSecurityDashboard() {
     if (!item.password) return;
 
     // Check weak password (length < 8)
-    if (item.password.length < WEAK_PASSWORD_THRESHOLD) {
+    if (item.password.length < 8) {
       weakCount++;
     }
 
@@ -165,8 +166,8 @@ function showSecurityDashboard() {
 
   let reusedCount = 0;
   for (const pw in passwordCounts) {
-    if (passwordCounts[pw] > 1) {
-      reusedCount += passwordCounts[pw]; // Count all instances of reused passwords
+    if ((passwordCounts[pw] || 0) > 1) {
+      reusedCount += (passwordCounts[pw] || 0); // Count all instances of reused passwords
     }
   }
 
@@ -181,11 +182,11 @@ function showSecurityDashboard() {
     score = 0; // No passwords, no score
   }
 
-  statScore.textContent = score;
-  statTotal.textContent = passwords.length;
-  statWeak.textContent = weakCount;
-  statReused.textContent = reusedCount;
-  statOld.textContent = oldCount;
+  if (statScore) statScore.textContent = String(score);
+  if (statTotal) statTotal.textContent = String(passwords.length);
+  statWeak.textContent = String(weakCount);
+  statReused.textContent = String(reusedCount);
+  statOld.textContent = String(oldCount);
 
   vaultSection.classList.add('hidden');
   securityDashboardSection.classList.remove('hidden');
@@ -197,14 +198,14 @@ function hideSecurityDashboard() {
 }
 
 passwordInput.addEventListener('input', (e) => {
-  updatePasswordStrengthUI(e.target.value);
+  updatePasswordStrengthUI((e.target as HTMLInputElement).value);
 });
 
 document.querySelectorAll('input[name="itemType"]').forEach(radio => {
-  radio.addEventListener('change', (e) => updateFormState(e.target.value));
+  radio.addEventListener('change', (e) => updateFormState(((e.target as HTMLInputElement).value)));
 });
 
-function updateFormState(type) {
+function updateFormState(type: string) {
   const isPassword = type === 'password';
   const isCard = type === 'card';
   const isAddress = type === 'address';
@@ -248,7 +249,7 @@ function updateFormState(type) {
 
 generateUsernameBtn.addEventListener('click', () => {
   // Use the robust username generator with word logic randomly
-  const useWords = (crypto.getRandomValues(new Uint8Array(1))[0] % 2) === 0;
+  const useWords = (crypto.getRandomValues(new Uint8Array(1))[0]! % 2) === 0;
   usernameInput.value = generateUsername({ useWords, length: 8 });
 });
 
@@ -261,7 +262,7 @@ generateBtn.addEventListener('click', () => {
 
 [lengthRange, useUppercase, useLowercase, useNumbers, useSymbols].forEach(el => {
   el.addEventListener('input', () => {
-    if (el === lengthRange) lengthVal.textContent = lengthRange.value;
+    if (el === lengthRange) if (lengthVal) lengthVal.textContent = String(lengthRange.value);
     saveGeneratorSettings();
     runGenerate();
   });
@@ -271,8 +272,8 @@ async function loadGeneratorSettings() {
   const settings = await vaultService.getStorage('generator.settings');
   if (settings) {
     if (settings.length) {
-      lengthRange.value = settings.length;
-      lengthVal.textContent = settings.length;
+      lengthRange.value = String(settings.length);
+      lengthVal.textContent = String(settings.length);
     }
     useUppercase.checked = settings.uppercase !== false;
     useLowercase.checked = settings.lowercase !== false;
@@ -307,7 +308,7 @@ function runGenerate() {
   passwordInput.dispatchEvent(new Event('input'));
 }
 
-function updatePasswordStrengthUI(password) {
+function updatePasswordStrengthUI(password: string) {
   if (!password) {
     passwordStrengthContainer.classList.add('hidden');
     return;
@@ -366,7 +367,7 @@ function handleSearch() {
   renderVault(filtered);
 }
 
-function updateFolderOptions(vault) {
+function updateFolderOptions(vault: any[]) {
   const folders = new Set();
   vault.forEach(item => {
     if (item.grouping && item.grouping !== 'Deleted') {
@@ -377,7 +378,7 @@ function updateFolderOptions(vault) {
   folderDatalist.replaceChildren(); // NOSONAR
   Array.from(folders).sort().forEach(folderName => {
     const option = document.createElement('option');
-    option.value = folderName;
+    option.value = folderName as string;
     folderDatalist.appendChild(option);
   });
 }
@@ -410,7 +411,7 @@ async function handleSetupPasswordless() {
     // Import PRF key
     const prfCryptoKey = await crypto.subtle.importKey(
       'raw',
-      prfKeyBytes,
+      prfKeyBytes as unknown as BufferSource,
       { name: 'AES-GCM', length: 256 },
       true,
       ['encrypt', 'decrypt']
@@ -418,7 +419,7 @@ async function handleSetupPasswordless() {
 
     // Encrypt the master password
     // Get it from the input since vaultService might not expose it directly or safely
-    const currentMasterPassword = document.getElementById('masterPassword').value.trim() || vaultService.masterPassword;
+    const currentMasterPassword = String((document.getElementById('masterPassword') as HTMLInputElement).value.trim() || vaultService.masterPassword || "");
     if (!currentMasterPassword) {
       throw new Error("Senha mestra não encontrada. Desbloqueie o cofre novamente para configurar.");
     }
@@ -431,7 +432,7 @@ async function handleSetupPasswordless() {
     await vaultService.setStorage('bunkerpass.passwordless.encryptedData', encryptedMasterPassword);
 
     setStatus('Login sem senha configurado com sucesso!');
-  } catch (error) {
+  } catch (error: any) {
     console.error(error);
     setStatus('Falha ao configurar login sem senha: ' + error.message);
   }
@@ -453,30 +454,30 @@ async function handleUnlockBiometrics() {
 
     const prfCryptoKey = await crypto.subtle.importKey(
       'raw',
-      prfKeyBytes,
+      prfKeyBytes as unknown as BufferSource,
       { name: 'AES-GCM', length: 256 },
       true,
       ['encrypt', 'decrypt']
     );
 
-    const decrypted = await decryptWithKey(encryptedData, prfCryptoKey);
+    const decrypted: any = await decryptWithKey(encryptedData, prfCryptoKey);
 
     // Use the decrypted master password to unlock the vault
     await doUnlock(decrypted.masterPassword);
-  } catch (error) {
+  } catch (error: any) {
     console.error(error);
     setStatus('Falha na autenticação biométrica.');
   }
 }
 
-async function doUnlock(masterPassword) {
+async function doUnlock(masterPassword: string) {
   try {
     await vaultService.unlock(masterPassword);
     handleSearch();
 
     try {
         await vaultService.exportSessionKey();
-    } catch (e) {
+    } catch (e: any) {
         console.warn('Failed to export session key', e);
     }
 
@@ -490,7 +491,7 @@ async function doUnlock(masterPassword) {
     unlockSection.classList.add('hidden');
     vaultSection.classList.remove('hidden');
     setStatus('Cofre desbloqueado.');
-  } catch (e) {
+  } catch (e: any) {
     console.error(e);
     setStatus('Senha mestra inválida ou cofre corrompido.');
   }
@@ -531,7 +532,7 @@ async function handleSync() {
     } else {
       setStatus('Sincronização concluída (sem alterações remotas).');
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error(error);
     setStatus(`Erro na sincronização: ${error.message}`);
   }
@@ -543,7 +544,7 @@ async function handleImportCSV() {
     const result = await syncService.importCSV();
     handleSearch();
     setStatus(`Importação concluída: ${result.added} adicionados, ${result.updated} atualizados.`);
-  } catch (error) {
+  } catch (error: any) {
     console.error(error);
     setStatus(`Erro na importação: ${error.message}`);
   }
@@ -569,18 +570,20 @@ async function handleDownloadLocalCSV() {
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
         setStatus('Download offline concluído.');
-    } catch (e) {
+    } catch (e: any) {
         setStatus('Erro ao exportar CSV: ' + e.message);
     }
 }
 
-async function handleImportLocalCSV(e) {
-    const file = e.target.files[0];
+async function handleImportLocalCSV(e: Event) {
+    const file = (e.target as HTMLInputElement).files![0];
     if (!file) return;
 
     try {
         setStatus('Lendo CSV local...');
-        const text = await file.text();
+        const file = (e.target as HTMLInputElement).files![0];
+    if (!file) return;
+    const text = await file.text();
         const csvUtils = await import('./utils/csv-utils.js');
         const importedItems = csvUtils.parseCSV(text);
 
@@ -591,20 +594,20 @@ async function handleImportLocalCSV(e) {
 
         await vaultService.save(merged);
         setStatus(`Importação local concluída. ${added} adicionados, ${updated} atualizados.`);
-        e.target.value = ''; // reset input
+        (e.target as HTMLInputElement).value = ''; // reset input
         handleSearch(); // Refresh UI
-    } catch (error) {
+    } catch (error: any) {
         setStatus('Erro ao importar arquivo CSV: ' + error.message);
-        e.target.value = '';
+        (e.target as HTMLInputElement).value = '';
     }
 }
 
-async function handleSaveCredential(event) {
+async function handleSaveCredential(event: Event) {
   event.preventDefault();
-  const type = document.querySelector('input[name="itemType"]:checked').value;
-  let site = document.getElementById('site').value;
-  let username = document.getElementById('username').value.trim();
-  let password = document.getElementById('password').value;
+  const type = (document.querySelector('input[name="itemType"]:checked') as HTMLInputElement).value;
+  let site = (document.getElementById('site') as HTMLInputElement).value;
+  let username = (document.getElementById('username') as HTMLInputElement).value.trim();
+  let password = (document.getElementById('password') as HTMLInputElement).value;
   const folder = folderInput.value.trim();
   const notes = notesInput.value;
   const credentialId = credentialIdInput.value;
@@ -733,13 +736,13 @@ async function handleSaveCredential(event) {
   submitButton.textContent = 'Salvar';
 
   // Reset UI state to default (Password)
-  document.querySelector('input[value="password"]').checked = true;
+  (document.querySelector('input[value="password"]') as HTMLInputElement).checked = true;
   updateFormState('password');
   updatePasswordStrengthUI(''); // clear strength meter
   handleSearch();
 }
 
-function handleEditCredential(id) {
+function handleEditCredential(id: string) {
     const vault = vaultService.getVault();
     const item = vault.find(i => i.id === id);
     if (!item) return;
@@ -751,18 +754,18 @@ function handleEditCredential(id) {
 
     // Determine type
     const type = item.type || 'password';
-    document.querySelector(`input[name="itemType"][value="${type}"]`).checked = true;
+    (document.querySelector(`input[name="itemType"][value="${type}"]`) as HTMLInputElement).checked = true;
     updateFormState(type);
 
     if (type === 'password') {
         usernameInput.value = item.username;
         passwordInput.value = item.password;
     } else if (type === 'card' || type === 'address') {
-        let parsedData = {};
+        let parsedData: any = {};
         try {
             parsedData = JSON.parse(item.notes || '{}');
             notesInput.value = parsedData.notes || '';
-        } catch (e) {
+        } catch (e: any) {
             notesInput.value = item.notes || '';
         }
 
@@ -788,7 +791,7 @@ function handleEditCredential(id) {
     setStatus(`Editando: ${item.site}`);
 }
 
-async function handleDeleteCredential(credentialId) {
+async function handleDeleteCredential(credentialId: string) {
   const vault = vaultService.getVault();
   // Soft delete: mark as deleted instead of removing
   const newVault = vault.map((item) => {
@@ -809,7 +812,7 @@ async function handleDeleteCredential(credentialId) {
   setStatus('Credencial removida.');
 }
 
-function renderVault(vault) {
+function renderVault(vault: any[]) {
   credentialList.textContent = '';
   // Filter out soft-deleted items
   const visibleVault = vault.filter(item => !item.deletedAt);
@@ -822,20 +825,20 @@ function renderVault(vault) {
   }
 
   // Group by folder
-  const grouped = {};
-  const noFolder = [];
+  const grouped: Record<string, any[]> = {};
+  const noFolder: any[] = [];
 
   visibleVault.forEach(item => {
     if (item.grouping && item.grouping !== 'Deleted') {
       if (!grouped[item.grouping]) grouped[item.grouping] = [];
-      grouped[item.grouping].push(item);
+      grouped[item.grouping]!.push(item);
     } else {
       noFolder.push(item);
     }
   });
 
   // Helper to render a list of items into a container
-  const renderList = (items, container) => {
+  const renderList = (items: any[], container: HTMLElement) => {
     items
       .slice()
       .sort((a, b) => (a.site || '').localeCompare(b.site || ''))
@@ -864,12 +867,12 @@ function renderVault(vault) {
             typeLabel = defaultLabels[item.type];
             try {
                 const parsed = JSON.parse(item.notes);
-                if (item.type === 'card' && parsed.number) {
-                    typeLabel = `(Cartão final ${parsed.number.slice(-4)})`;
+                if (item.type === 'card' && parsed?.number) {
+                    typeLabel = `(Cartão final ${parsed.number?.slice(-4)})`;
                 } else if (item.type === 'address' && parsed.fullName) {
                     typeLabel = parsed.fullName;
                 }
-} catch (e) { console.warn('Failed to parse address notes:', e); }
+} catch (e: any) { console.warn('Failed to parse address notes:', e); }
         }
         userEl.textContent = typeLabel;
 
@@ -909,7 +912,7 @@ function renderVault(vault) {
   };
 
   // Helper to create a folder section
-  const renderFolder = (folderName, items) => {
+  const renderFolder = (folderName: string, items: any[]) => {
     const li = document.createElement('li');
     li.className = 'folder-container';
 
@@ -945,7 +948,7 @@ function renderVault(vault) {
 
   // Render Folders
   Object.keys(grouped).sort().forEach(folder => {
-    renderFolder(folder, grouped[folder]);
+    renderFolder(folder, grouped[folder]!);
   });
 
   // Render items without folder
@@ -953,12 +956,12 @@ function renderVault(vault) {
     if (Object.keys(grouped).length > 0) {
       renderFolder('Sem Pasta', noFolder);
     } else {
-      renderList(noFolder, credentialList);
+      renderList(noFolder || [], credentialList as HTMLUListElement);
     }
   }
 }
 
-function normalizeSite(siteInput) {
+function normalizeSite(siteInput: string) {
   const trimmed = siteInput.trim();
   if (!trimmed) {
     return '';
@@ -968,6 +971,6 @@ function normalizeSite(siteInput) {
   return withoutProtocol.replace(/\/+$/, '').toLowerCase();
 }
 
-function setStatus(message) {
+function setStatus(message: string) {
   statusEl.textContent = message;
 }
