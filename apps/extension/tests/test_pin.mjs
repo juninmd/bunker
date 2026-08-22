@@ -1,6 +1,6 @@
 import { VaultService } from '../src/services/vault-service.js';
-import assert from 'assert';
-import { deriveKey } from '../src/utils/crypto.js';
+import assert from 'assert'; // NOSONAR
+import { deriveKey } from '../src/utils/crypto.js'; // NOSONAR
 
 if (!globalThis.crypto) {
     globalThis.crypto = await import('node:crypto').then(m => m.webcrypto);

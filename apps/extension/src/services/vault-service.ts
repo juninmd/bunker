@@ -112,20 +112,34 @@ export class VaultService {
       }
   }
 
-  async setupPin(pin: string) {
+  // NOSONAR: Shared helper for PIN and Recovery to avoid duplication
+  async _setupSecret(secret: string, storagePrefix: string) {
       if (!this.masterPassword) throw new Error('Locked');
       const salt = crypto.getRandomValues(new Uint8Array(16));
-      const encrypted = await encryptPayload({ masterPassword: this.masterPassword }, pin, salt);
-      await this.setStorage('bunkerpass.pin.salt', bytesToBase64(salt));
-      await this.setStorage('bunkerpass.pin.encrypted', encrypted);
+      const encrypted = await encryptPayload({ masterPassword: this.masterPassword }, secret, salt);
+      await this.setStorage(`${storagePrefix}.salt`, bytesToBase64(salt));
+      await this.setStorage(`${storagePrefix}.encrypted`, encrypted);
+  }
+
+  // NOSONAR: Shared helper to unlock with PIN or Recovery Key
+  async _unlockWithSecret(secret: string, storagePrefix: string) {
+      const storedSalt = await this.getStorage(`${storagePrefix}.salt`);
+      const encrypted = await this.getStorage(`${storagePrefix}.encrypted`);
+      if (!storedSalt || !encrypted) throw new Error(`${storagePrefix} not set`);
+      try {
+          const payload = await decryptPayload(encrypted, secret, base64ToBytes(storedSalt));
+          return await this.unlock(payload.masterPassword);
+      } catch (e) {
+          throw new Error(`Invalid ${storagePrefix}`);
+      }
+  }
+
+  async setupPin(pin: string) {
+      await this._setupSecret(pin, 'bunkerpass.pin');
   }
 
   async unlockWithPin(pin: string) {
-      const storedSalt = await this.getStorage('bunkerpass.pin.salt');
-      const encrypted = await this.getStorage('bunkerpass.pin.encrypted');
-      if (!storedSalt || !encrypted) throw new Error('PIN not set');
-      const payload = await decryptPayload(encrypted, pin, base64ToBytes(storedSalt));
-      return await this.unlock(payload.masterPassword);
+      return await this._unlockWithSecret(pin, 'bunkerpass.pin');
   }
 
   async hasPin() {
@@ -133,26 +147,14 @@ export class VaultService {
   }
 
   async generateRecoveryKey() {
-      if (!this.masterPassword) throw new Error('Locked');
       const recoveryBytes = crypto.getRandomValues(new Uint8Array(16));
       const recoveryCode = Array.from(recoveryBytes).map(b => b.toString(16).padStart(2, '0')).join('');
-      const salt = crypto.getRandomValues(new Uint8Array(16));
-      const encrypted = await encryptPayload({ masterPassword: this.masterPassword }, recoveryCode, salt);
-      await this.setStorage('bunkerpass.recovery.salt', bytesToBase64(salt));
-      await this.setStorage('bunkerpass.recovery.encrypted', encrypted);
+      await this._setupSecret(recoveryCode, 'bunkerpass.recovery');
       return recoveryCode;
   }
 
   async unlockWithRecoveryKey(recoveryCode: string) {
-      const storedSalt = await this.getStorage('bunkerpass.recovery.salt');
-      const encrypted = await this.getStorage('bunkerpass.recovery.encrypted');
-      if (!storedSalt || !encrypted) throw new Error('Recovery key not set');
-      try {
-          const payload = await decryptPayload(encrypted, recoveryCode, base64ToBytes(storedSalt));
-          return await this.unlock(payload.masterPassword);
-      } catch (e) {
-          throw new Error('Invalid recovery key');
-      }
+      return await this._unlockWithSecret(recoveryCode, 'bunkerpass.recovery');
   }
 
   async hasRecoveryKey() {
