@@ -52,6 +52,10 @@ async function testCrypto() {
         await testCrypto();
         console.log('Running test_passwordless.mjs...');
         await import('./test_passwordless.mjs');
+        console.log('Running test_pin.mjs...');
+        await import('./test_pin.mjs');
+        console.log('Running test_recovery.mjs...');
+        await import('./test_recovery.mjs');
         console.log('All tests passed! 🚀');
     } catch (e) {
         console.error('Test failed:', e);

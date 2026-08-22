@@ -80,27 +80,14 @@ export class VaultService {
   }
 
   async getStorage(key: string): Promise<any> {
-    if (typeof browser !== 'undefined' && browser.storage?.local) {
-       const data = await browser.storage.local.get(key);
-       return data[key];
-    }
-    if (typeof chrome !== 'undefined' && chrome.storage?.local) {
-      return new Promise((resolve) => {
-        chrome.storage.local.get([key], (result) => resolve(result[key]));
-      });
-    }
+    if (typeof browser !== 'undefined' && browser.storage?.local) return (await browser.storage.local.get(key))[key];
+    if (typeof chrome !== 'undefined' && chrome.storage?.local) return new Promise(r => chrome.storage.local.get([key], res => r(res[key])));
     return localStorage.getItem(key);
   }
 
   async setStorage(key: string, value: any): Promise<any> {
-    if (typeof browser !== 'undefined' && browser.storage?.local) {
-      return browser.storage.local.set({ [key]: value });
-    }
-    if (typeof chrome !== 'undefined' && chrome.storage?.local) {
-      return new Promise((resolve) => {
-        chrome.storage.local.set({ [key]: value }, () => resolve(undefined));
-      });
-    }
+    if (typeof browser !== 'undefined' && browser.storage?.local) return browser.storage.local.set({ [key]: value });
+    if (typeof chrome !== 'undefined' && chrome.storage?.local) return new Promise(r => chrome.storage.local.set({ [key]: value }, () => r(undefined)));
     localStorage.setItem(key, value);
   }
 
@@ -123,6 +110,53 @@ export class VaultService {
       if (typeof chrome !== 'undefined' && chrome.storage?.session) {
           await chrome.storage.session.set({ sessionKey: b64 });
       }
+  }
+
+  async setupPin(pin: string) {
+      if (!this.masterPassword) throw new Error('Locked');
+      const salt = crypto.getRandomValues(new Uint8Array(16));
+      const encrypted = await encryptPayload({ masterPassword: this.masterPassword }, pin, salt);
+      await this.setStorage('bunkerpass.pin.salt', bytesToBase64(salt));
+      await this.setStorage('bunkerpass.pin.encrypted', encrypted);
+  }
+
+  async unlockWithPin(pin: string) {
+      const storedSalt = await this.getStorage('bunkerpass.pin.salt');
+      const encrypted = await this.getStorage('bunkerpass.pin.encrypted');
+      if (!storedSalt || !encrypted) throw new Error('PIN not set');
+      const payload = await decryptPayload(encrypted, pin, base64ToBytes(storedSalt));
+      return await this.unlock(payload.masterPassword);
+  }
+
+  async hasPin() {
+      return !!(await this.getStorage('bunkerpass.pin.encrypted'));
+  }
+
+  async generateRecoveryKey() {
+      if (!this.masterPassword) throw new Error('Locked');
+      const recoveryBytes = crypto.getRandomValues(new Uint8Array(16));
+      const recoveryCode = Array.from(recoveryBytes).map(b => b.toString(16).padStart(2, '0')).join('');
+      const salt = crypto.getRandomValues(new Uint8Array(16));
+      const encrypted = await encryptPayload({ masterPassword: this.masterPassword }, recoveryCode, salt);
+      await this.setStorage('bunkerpass.recovery.salt', bytesToBase64(salt));
+      await this.setStorage('bunkerpass.recovery.encrypted', encrypted);
+      return recoveryCode;
+  }
+
+  async unlockWithRecoveryKey(recoveryCode: string) {
+      const storedSalt = await this.getStorage('bunkerpass.recovery.salt');
+      const encrypted = await this.getStorage('bunkerpass.recovery.encrypted');
+      if (!storedSalt || !encrypted) throw new Error('Recovery key not set');
+      try {
+          const payload = await decryptPayload(encrypted, recoveryCode, base64ToBytes(storedSalt));
+          return await this.unlock(payload.masterPassword);
+      } catch (e) {
+          throw new Error('Invalid recovery key');
+      }
+  }
+
+  async hasRecoveryKey() {
+      return !!(await this.getStorage('bunkerpass.recovery.encrypted'));
   }
 
   async clearSessionKey() {
