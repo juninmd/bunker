@@ -30,6 +30,12 @@ const statScore = document.getElementById('statScore') as HTMLElement;
 const statLeaked = document.getElementById('statLeaked') as HTMLElement;
 const checkPwnedBtn = document.getElementById('checkPwnedBtn') as HTMLButtonElement;
 const lastSyncEl = document.getElementById('last-sync') as HTMLElement;
+const generateRecoveryBtn = document.getElementById('generateRecoveryBtn') as HTMLButtonElement;
+const recoveryInput = document.getElementById('recoveryInput') as HTMLInputElement;
+const unlockRecoveryBtn = document.getElementById('unlockRecoveryBtn') as HTMLButtonElement;
+const setupPinBtn = document.getElementById('setupPinBtn') as HTMLButtonElement;
+const pinInput = document.getElementById('pinInput') as HTMLInputElement;
+const unlockPinBtn = document.getElementById('unlockPinBtn') as HTMLButtonElement;
 const masterPasswordInput = document.getElementById('masterPassword') as HTMLInputElement;
 const form = document.getElementById('credentialForm') as HTMLFormElement;
 const credentialIdInput = document.getElementById('credentialId') as HTMLInputElement;
@@ -74,6 +80,10 @@ const passwordStrengthBar = document.getElementById('password-strength-bar') as 
 const passwordStrengthText = document.getElementById('password-strength-text') as HTMLElement;
 
 unlockButton.addEventListener('click', handleUnlock);
+if (unlockPinBtn) unlockPinBtn.addEventListener('click', handleUnlockPin);
+if (setupPinBtn) setupPinBtn.addEventListener('click', handleSetupPin);
+if (generateRecoveryBtn) generateRecoveryBtn.addEventListener('click', handleGenerateRecoveryKey);
+if (unlockRecoveryBtn) unlockRecoveryBtn.addEventListener('click', handleUnlockRecovery);
 unlockBiometricsBtn.addEventListener('click', handleUnlockBiometrics);
 lockButton.addEventListener('click', handleLock);
 setupPasswordlessBtn.addEventListener('click', handleSetupPasswordless);
@@ -496,6 +506,79 @@ async function doUnlock(masterPassword: string) {
     setStatus('Senha mestra inválida ou cofre corrompido.');
   }
 }
+
+
+
+async function handleGenerateRecoveryKey() {
+    try {
+        const code = await vaultService.generateRecoveryKey();
+        prompt('Guarde este código em um local seguro. Ele permite recuperar seu cofre se você esquecer a senha mestra:', code);
+        statusEl.textContent = 'Código de recuperação gerado.';
+        statusEl.style.color = 'green';
+    } catch (e: any) {
+        statusEl.textContent = 'Erro: ' + e.message;
+        statusEl.style.color = 'red';
+    }
+}
+
+async function handleUnlockRecovery() {
+    const code = recoveryInput.value.trim();
+    if (!code) return;
+    try {
+        await vaultService.unlockWithRecoveryKey(code);
+        await vaultService.exportSessionKey();
+        recoveryInput.value = '';
+        unlockSection.classList.add('hidden');
+        vaultSection.classList.remove('hidden');
+        statusEl.textContent = 'Desbloqueado com sucesso!';
+        statusEl.style.color = 'green';
+        renderVault(vaultService.getVault());
+    } catch (e: any) {
+        statusEl.textContent = 'Código de recuperação inválido.';
+        statusEl.style.color = 'red';
+    }
+}
+
+async function handleSetupPin() {
+    const pin = prompt('Digite um PIN curto (ex: 4-6 dígitos):');
+    if (!pin) return;
+    try {
+        await vaultService.setupPin(pin);
+        statusEl.textContent = 'PIN configurado com sucesso!';
+        statusEl.style.color = 'green';
+    } catch (e: any) {
+        statusEl.textContent = 'Erro ao configurar PIN: ' + e.message;
+        statusEl.style.color = 'red';
+    }
+}
+
+async function handleUnlockPin() {
+    const pin = pinInput.value;
+    if (!pin) return;
+    try {
+        await vaultService.unlockWithPin(pin);
+        await vaultService.exportSessionKey(); // Sync state with background
+        pinInput.value = '';
+        unlockSection.classList.add('hidden');
+        vaultSection.classList.remove('hidden');
+        statusEl.textContent = 'Desbloqueado com sucesso!';
+        statusEl.style.color = 'green';
+        renderVault(vaultService.getVault());
+    } catch (e: any) {
+        statusEl.textContent = 'PIN inválido.';
+        statusEl.style.color = 'red';
+    }
+}
+
+async function checkPinState() {
+    const hasPin = await vaultService.hasPin();
+    const pinContainer = document.getElementById('pinUnlockContainer');
+    if (hasPin && pinContainer) {
+        pinContainer.classList.remove('hidden');
+    }
+}
+
+document.addEventListener('DOMContentLoaded', checkPinState);
 
 async function handleUnlock() {
   const masterPassword = masterPasswordInput.value.trim();

@@ -11,12 +11,28 @@
       <h1>BunkerPass</h1>
       <p class="subtitle">MVP de cofre local criptografado (offline-first)</p>
 
+
+
       <section id="unlock-section">
         <label for="masterPassword">Senha mestra</label>
         <input id="masterPassword" type="password" autocomplete="off" />
         <button id="unlockButton">Desbloquear</button>
         <button id="unlockBiometricsBtn" class="secondary hidden" style="margin-top: 8px;">Desbloquear com Biometria</button>
+
+        <div id="pinUnlockContainer" class="hidden" style="margin-top: 16px;">
+          <label for="pinInput">PIN</label>
+          <input id="pinInput" type="password" autocomplete="off" maxlength="6" style="width: 100px; text-align: center; font-size: 1.2em;" />
+          <button id="unlockPinBtn">Desbloquear com PIN</button>
+        </div>
+
+        <div style="margin-top: 16px; border-top: 1px solid #ccc; padding-top: 8px;">
+          <label for="recoveryInput">Código de Recuperação (se perdeu a senha)</label>
+          <input id="recoveryInput" type="text" autocomplete="off" placeholder="Cole o código aqui" style="font-size: 0.9em;" />
+          <button id="unlockRecoveryBtn" class="secondary">Desbloquear com Código</button>
+        </div>
       </section>
+
+
 
       <section id="vault-section" class="hidden">
         <h2>Novo item</h2>
@@ -107,6 +123,8 @@
         <div id="last-sync" class="last-sync"></div>
         <button id="securityDashboardBtn" class="secondary">Painel de Segurança</button>
         <button id="setupPasswordlessBtn" class="secondary">Configurar Login sem Senha</button>
+        <button id="setupPinBtn" class="secondary">Configurar PIN Rápido</button>
+        <button id="generateRecoveryBtn" class="secondary">Gerar Código de Recuperação</button>
         <button id="lockButton" class="secondary">Bloquear</button>
       </section>
 
