@@ -42,6 +42,8 @@ This project follows the **Antigravity** code standards:
 ## 🔄 Current Progress & Next Steps (CRON Loop)
 
 **Progress**:
+- Implemented Account Recovery mechanism for the browser extension using a securely generated high-entropy code.
+- Implemented PIN Unlock feature for the browser extension, allowing quick access via a short PIN.
 - Migrated Extension UI scripts (`popup.ts`, `content.ts`) to TypeScript and reconstructed `vault-service.ts`, completing Phase 1 TypeScript migration. Emitted `.js` files are now properly ignored in version control.
 - Migrated Extension core (`background.ts`) and all services (`auth-service.ts`, `credential-service.ts`, `google-drive.ts`, `sync-service.ts`) to TypeScript.
 - Migrated Extension utilities (`csv-utils`, `crypto`, `password-generator`, `username-generator`) to TypeScript and established in-place build pipeline.
