@@ -59,6 +59,12 @@
           <div class="password-wrapper" id="passwordWrapper">
             <input id="password" type="password" placeholder="Senha" required />
             <button type="button" id="generateBtn" class="icon-btn" title="Gerar senha segura">⚡</button>
+            <button type="button" id="viewHistoryBtn" class="icon-btn hidden" title="Ver Histórico de Senhas">🕒</button>
+          </div>
+
+          <div id="passwordHistorySection" class="hidden" style="margin-top: 8px; border: 1px solid #ccc; padding: 8px; border-radius: 4px;">
+            <h3 style="margin-top: 0; font-size: 0.9rem;">Histórico de Senhas</h3>
+            <ul id="passwordHistoryList" style="list-style: none; padding: 0; margin: 0; font-size: 0.85rem;"></ul>
           </div>
 
           <div id="cardFields" class="hidden" style="display: flex; flex-direction: column; gap: 8px;">

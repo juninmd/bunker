@@ -53,6 +53,9 @@ const useSymbols = document.getElementById('useSymbols') as HTMLInputElement;
 const passwordInput = document.getElementById('password') as HTMLInputElement;
 const notesInput = document.getElementById('notes') as HTMLTextAreaElement;
 const passwordWrapper = document.getElementById('passwordWrapper') as HTMLElement;
+const viewHistoryBtn = document.getElementById('viewHistoryBtn') as HTMLButtonElement;
+const passwordHistorySection = document.getElementById('passwordHistorySection') as HTMLElement;
+const passwordHistoryList = document.getElementById('passwordHistoryList') as HTMLUListElement;
 const usernameInput = document.getElementById('username') as HTMLInputElement;
 const usernameWrapper = document.getElementById('usernameWrapper') as HTMLElement;
 const generateUsernameBtn = document.getElementById('generateUsernameBtn') as HTMLButtonElement;
@@ -234,10 +237,19 @@ function updateFormState(type: string) {
     usernameInput.setAttribute('required', 'true');
     passwordInput.setAttribute('required', 'true');
     passwordStrengthContainer.classList.remove('hidden');
+    // Only show view history button if editing an existing password (credentialIdInput has a value)
+    if (credentialIdInput.value) {
+      viewHistoryBtn.classList.remove('hidden');
+    } else {
+      viewHistoryBtn.classList.add('hidden');
+      passwordHistorySection.classList.add('hidden');
+    }
   } else {
     usernameInput.removeAttribute('required');
     passwordInput.removeAttribute('required');
     passwordStrengthContainer.classList.add('hidden');
+    viewHistoryBtn.classList.add('hidden');
+    passwordHistorySection.classList.add('hidden');
   }
 
   cardFields.classList.toggle('hidden', !isCard);
@@ -783,6 +795,18 @@ async function handleSaveCredential(event: Event) {
 
   if (existingIndex >= 0) {
      const item = newVault[existingIndex];
+
+     // Handle Password History
+     if (type === 'password' && item.password !== password) {
+         if (!item.history) {
+             item.history = [];
+         }
+         item.history.push({
+             password: item.password,
+             timestamp: item.updatedAt || new Date().toISOString()
+         });
+     }
+
      item.site = site;
      item.username = username;
      item.password = password;
@@ -826,7 +850,81 @@ async function handleSaveCredential(event: Event) {
   (document.querySelector('input[value="password"]') as HTMLInputElement).checked = true;
   updateFormState('password');
   updatePasswordStrengthUI(''); // clear strength meter
+  passwordHistorySection.classList.add('hidden');
   handleSearch();
+}
+
+viewHistoryBtn.addEventListener('click', () => {
+  passwordHistorySection.classList.toggle('hidden');
+});
+
+async function handleRestorePassword(itemId: string, historyIndex: number) {
+  const vault = vaultService.getVault();
+  const newVault = vault.map(i => ({...i}));
+  const itemIndex = newVault.findIndex(i => i.id === itemId);
+  if (itemIndex < 0) return;
+
+  const item = newVault[itemIndex];
+  if (!item.history || !item.history[historyIndex]) return;
+
+  const restored = item.history[historyIndex];
+
+  // Push current password to history
+  item.history.push({
+      password: item.password,
+      timestamp: item.updatedAt || new Date().toISOString()
+  });
+
+  // Remove the restored item from history
+  item.history.splice(historyIndex, 1);
+
+  item.password = restored.password;
+  item.updatedAt = new Date().toISOString();
+
+  await vaultService.save(newVault);
+  chrome.runtime.sendMessage({ type: 'TRIGGER_SYNC' });
+
+  // Update form view
+  passwordInput.value = item.password;
+  renderPasswordHistory(item);
+  setStatus('Senha restaurada do histórico.');
+}
+
+function renderPasswordHistory(item: any) {
+  passwordHistoryList.textContent = '';
+  if (!item.history || item.history.length === 0) {
+    const li = document.createElement('li');
+    li.textContent = 'Sem histórico.';
+    passwordHistoryList.append(li);
+    return;
+  }
+
+  // Render in reverse chronological order
+  const sortedHistory = [...item.history].map((h, originalIndex) => ({ ...h, originalIndex })).sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+
+  sortedHistory.forEach((h) => {
+    const li = document.createElement('li');
+    li.style.display = 'flex';
+    li.style.justifyContent = 'space-between';
+    li.style.marginBottom = '4px';
+
+    const textSpan = document.createElement('span');
+    const dateStr = new Date(h.timestamp).toLocaleString();
+    textSpan.textContent = `${h.password} (${dateStr})`;
+
+    const restoreBtn = document.createElement('button');
+    restoreBtn.type = 'button';
+    restoreBtn.className = 'secondary small';
+    restoreBtn.textContent = 'Restaurar';
+    restoreBtn.style.padding = '2px 4px';
+    restoreBtn.style.fontSize = '0.75rem';
+    restoreBtn.addEventListener('click', () => {
+      handleRestorePassword(item.id, h.originalIndex);
+    });
+
+    li.append(textSpan, restoreBtn);
+    passwordHistoryList.append(li);
+  });
 }
 
 function handleEditCredential(id: string) {
@@ -847,6 +945,7 @@ function handleEditCredential(id: string) {
     if (type === 'password') {
         usernameInput.value = item.username;
         passwordInput.value = item.password;
+        renderPasswordHistory(item);
     } else if (type === 'card' || type === 'address') {
         let parsedData: any = {};
         try {
