@@ -1,6 +1,6 @@
 # CRON Artifact
 
-**Completed Task:** Implemented the PIN Unlock feature and the Account Recovery feature for the extension (Phase 2), modifying `vault-service.ts` to securely store an encrypted master password with the PIN/Recovery Code and adding UI components in `popup.html/ts`. Added unit tests for both.
+**Completed Task:** Implemented Automatic Background Device Synchronization (Device Sync) in the browser extension by configuring `background.ts` to natively inject a `cryptoKey` into `VaultService` and utilizing a silent auth token refresh. Handled code review feedback correctly by avoiding monkey-patching in the background script. Marked "Password History" as correctly implemented in the Roadmap based on existing functionality.
 
 **Next Task for Next Cycle:**
-- Map and implement pending Phase 2+ features from `ROADMAP.md` iteratively.
+- Map and implement pending Phase 3+ features from `ROADMAP.md` (e.g., Digital Will, Personal Password Sharing).
