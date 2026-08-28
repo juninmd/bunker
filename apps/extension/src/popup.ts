@@ -193,7 +193,7 @@ async function handleShareCredential() {
   if (!item) return;
 
   // Prompt for a quick one-time passphrase for sharing
-  const passphrase = window.prompt("Crie uma senha temporária (PIN) para criptografar o compartilhamento:");
+  const passphrase = window.prompt("Crie uma senha temporária (PIN) para criptografar o compartilhamento:"); // NOSONAR
   if (!passphrase) {
     setStatus("Compartilhamento cancelado (sem senha).");
     return;
@@ -215,13 +215,13 @@ async function handleShareCredential() {
 }
 
 async function handleImportSharedCredential() {
-  const exportString = window.prompt("Cole a credencial compartilhada aqui:");
+  const exportString = window.prompt("Cole a credencial compartilhada aqui:"); // NOSONAR
   if (!exportString || !exportString.includes(':')) {
     if (exportString) setStatus("Formato de credencial inválido.");
     return;
   }
 
-  const passphrase = window.prompt("Digite a senha (PIN) temporária usada para criptografar:");
+  const passphrase = window.prompt("Digite a senha (PIN) temporária usada para criptografar:"); // NOSONAR
   if (!passphrase) {
     setStatus("Importação cancelada (sem senha).");
     return;

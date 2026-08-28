@@ -129,7 +129,7 @@
             <input type="file" id="localCsvInput" accept=".csv" style="display: none;" />
           </label>
         </div>
-        <button id="importSharedBtn" class="secondary" style="margin-top: 8px;">Importar Credencial Compartilhada</button>
+        <button id="importSharedBtn" class="secondary mt-8">Importar Credencial Compartilhada</button>
         <div id="last-sync" class="last-sync"></div>
         <button id="securityDashboardBtn" class="secondary">Painel de Segurança</button>
         <button id="digitalWillBtn" class="secondary">Testamento Digital</button>
@@ -141,14 +141,14 @@
 
       <section id="digital-will-section" class="hidden">
         <h2>Testamento Digital</h2>
-        <p style="font-size: 0.9em; margin-bottom: 16px;">Configure um contato de emergência e uma nota de acesso para suas contas em caso de imprevistos.</p>
+        <p class="fs-09 mb-16">Configure um contato de emergência e uma nota de acesso para suas contas em caso de imprevistos.</p>
         <form id="digitalWillForm">
           <input id="dwContactName" placeholder="Nome do Contato de Emergência" required />
           <input id="dwContactEmail" type="email" placeholder="E-mail do Contato" required />
-          <textarea id="dwAccessNote" placeholder="Instruções de acesso / Mensagem de emergência" rows="4" style="width: 100%; margin-top: 8px;" required></textarea>
-          <button type="submit" style="margin-top: 8px;">Salvar Testamento Digital</button>
+          <textarea id="dwAccessNote" placeholder="Instruções de acesso / Mensagem de emergência" rows="4" class="w-full mt-8" required></textarea>
+          <button type="submit" class="mt-8">Salvar Testamento Digital</button>
         </form>
-        <button id="backFromDigitalWillBtn" class="secondary" style="margin-top: 8px;">Voltar ao Cofre</button>
+        <button id="backFromDigitalWillBtn" class="secondary mt-8">Voltar ao Cofre</button>
       </section>
 
       <section id="security-dashboard-section" class="hidden">

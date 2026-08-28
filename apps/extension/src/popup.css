@@ -257,3 +257,31 @@ button.danger {
   margin: 0;
   width: auto;
 }
+
+.mt-8 { margin-top: 8px; }
+.mt-16 { margin-top: 16px; }
+.w-full { width: 100%; }
+.flex-row { display: flex; flex-direction: row; }
+.flex-col { display: flex; flex-direction: column; }
+.gap-8 { gap: 8px; }
+.flex-1 { flex: 1; }
+.text-center { text-align: center; }
+.fs-12 { font-size: 1.2em; }
+.fs-09 { font-size: 0.9em; }
+.p-8 { padding: 8px; }
+.bg-eee { background: #eee; }
+.border-ccc { border: 1px solid #ccc; }
+.border-r-4 { border-radius: 4px; }
+.border-t-ccc { border-top: 1px solid #ccc; }
+.pt-8 { padding-top: 8px; }
+.ml-10 { margin-left: 10px; }
+.ml-8 { margin-left: 8px; }
+.cursor-pointer { cursor: pointer; }
+.list-none { list-style: none; }
+.m-0 { margin: 0; }
+.p-0 { padding: 0; }
+.fs-085 { font-size: 0.85rem; }
+.mb-16 { margin-bottom: 16px; }
+.mb-8 { margin-bottom: 8px; }
+.fs-12px { font-size: 12px; }
+.py-4-px-8 { padding: 4px 8px; }
