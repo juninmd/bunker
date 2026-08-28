@@ -1,6 +1,6 @@
 # CRON Artifact
 
-**Completed Task:** Implemented Automatic Background Device Synchronization (Device Sync) in the browser extension by configuring `background.ts` to natively inject a `cryptoKey` into `VaultService` and utilizing a silent auth token refresh. Handled code review feedback correctly by avoiding monkey-patching in the background script. Marked "Password History" as correctly implemented in the Roadmap based on existing functionality.
+**Completed Task:** Implemented "Digital Will" (Testamento Digital) and "Personal Password Sharing" (Compartilhamento Pessoal) in the browser extension. The Digital Will stores emergency contact information and access notes securely in the vault, while Personal Password Sharing allows generating an encrypted, shareable base64 string using a temporary one-time PIN for offline, peer-to-peer sharing. Updated `README.md` and roadmap documentation.
 
 **Next Task for Next Cycle:**
-- Map and implement pending Phase 3+ features from `ROADMAP.md` (e.g., Digital Will, Personal Password Sharing).
+- Map and implement pending Phase 4 features from `ROADMAP.md` (e.g., Emergency Access, Business Password Sharing) or transition to expanding the Desktop Application's offline features.

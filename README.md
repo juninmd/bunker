@@ -42,6 +42,7 @@ This project follows the **Antigravity** code standards:
 ## 🔄 Current Progress & Next Steps (CRON Loop)
 
 **Progress**:
+- Implemented Digital Will (Testamento Digital) and Personal Password Sharing (Compartilhamento Pessoal) in the browser extension.
 - Implemented Automatic Background Device Sync for the browser extension to synchronize vault items without manual user interaction.
 - Verified Password History feature and officially updated roadmap mapping.
 - Implemented Account Recovery mechanism for the browser extension using a securely generated high-entropy code.

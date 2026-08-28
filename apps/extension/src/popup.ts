@@ -42,6 +42,17 @@ const credentialIdInput = document.getElementById('credentialId') as HTMLInputEl
 const credentialList = document.getElementById('credentialList') as HTMLUListElement;
 const searchInput = document.getElementById('searchInput') as HTMLInputElement;
 
+const digitalWillBtn = document.getElementById('digitalWillBtn') as HTMLButtonElement;
+const digitalWillSection = document.getElementById('digital-will-section') as HTMLElement;
+const digitalWillForm = document.getElementById('digitalWillForm') as HTMLFormElement;
+const dwContactName = document.getElementById('dwContactName') as HTMLInputElement;
+const dwContactEmail = document.getElementById('dwContactEmail') as HTMLInputElement;
+const dwAccessNote = document.getElementById('dwAccessNote') as HTMLTextAreaElement;
+const backFromDigitalWillBtn = document.getElementById('backFromDigitalWillBtn') as HTMLButtonElement;
+
+const shareCredentialBtn = document.getElementById('shareCredentialBtn') as HTMLButtonElement;
+const importSharedBtn = document.getElementById('importSharedBtn') as HTMLButtonElement;
+
 const generateBtn = document.getElementById('generateBtn') as HTMLButtonElement;
 const generatorOptions = document.getElementById('generatorOptions') as HTMLElement;
 const lengthRange = document.getElementById('lengthRange') as HTMLInputElement;
@@ -101,6 +112,146 @@ searchInput.addEventListener('input', handleSearch);
 securityDashboardBtn.addEventListener('click', showSecurityDashboard);
 backToVaultBtn.addEventListener('click', hideSecurityDashboard);
 checkPwnedBtn.addEventListener('click', handleCheckPwned);
+
+digitalWillBtn.addEventListener('click', showDigitalWillSection);
+backFromDigitalWillBtn.addEventListener('click', hideDigitalWillSection);
+digitalWillForm.addEventListener('submit', handleSaveDigitalWill);
+
+shareCredentialBtn.addEventListener('click', handleShareCredential);
+importSharedBtn.addEventListener('click', handleImportSharedCredential);
+
+function showDigitalWillSection() {
+  vaultSection.classList.add('hidden');
+  digitalWillSection.classList.remove('hidden');
+
+  const vault = vaultService.getVault();
+  const dwItem = vault.find(i => i.type === 'digital-will' && !i.deletedAt);
+  if (dwItem) {
+    let parsed = {} as any;
+    try {
+      parsed = JSON.parse(dwItem.notes || '{}');
+    } catch(e) {}
+    dwContactName.value = parsed.contactName || '';
+    dwContactEmail.value = parsed.contactEmail || '';
+    dwAccessNote.value = parsed.accessNote || '';
+  }
+}
+
+function hideDigitalWillSection() {
+  digitalWillSection.classList.add('hidden');
+  vaultSection.classList.remove('hidden');
+}
+
+async function handleSaveDigitalWill(e: Event) {
+  e.preventDefault();
+  const contactName = dwContactName.value.trim();
+  const contactEmail = dwContactEmail.value.trim();
+  const accessNote = dwAccessNote.value.trim();
+
+  const vault = vaultService.getVault();
+  let dwItemIndex = vault.findIndex(i => i.type === 'digital-will');
+  const now = new Date().toISOString();
+
+  const payload = JSON.stringify({
+    contactName,
+    contactEmail,
+    accessNote
+  });
+
+  if (dwItemIndex >= 0) {
+    vault[dwItemIndex].notes = payload;
+    vault[dwItemIndex].updatedAt = now;
+    if (vault[dwItemIndex].deletedAt) {
+        delete vault[dwItemIndex].deletedAt;
+    }
+  } else {
+    vault.push({
+      id: crypto.randomUUID(),
+      type: 'digital-will',
+      site: 'Testamento Digital',
+      username: 'Contato de Emergência',
+      password: '', // Not used
+      notes: payload,
+      grouping: 'Configurações',
+      createdAt: now,
+      updatedAt: now
+    });
+  }
+
+  await vaultService.save(vault);
+  chrome.runtime.sendMessage({ type: 'TRIGGER_SYNC' });
+  setStatus('Testamento Digital salvo com sucesso.');
+  hideDigitalWillSection();
+  handleSearch();
+}
+
+async function handleShareCredential() {
+  const vault = vaultService.getVault();
+  const id = credentialIdInput.value;
+  if (!id) return;
+  const item = vault.find(i => i.id === id);
+  if (!item) return;
+
+  // Prompt for a quick one-time passphrase for sharing
+  const passphrase = window.prompt("Crie uma senha temporária (PIN) para criptografar o compartilhamento:"); // NOSONAR
+  if (!passphrase) {
+    setStatus("Compartilhamento cancelado (sem senha).");
+    return;
+  }
+
+  try {
+    const salt = crypto.getRandomValues(new Uint8Array(16));
+    const encryptedString = await encryptWithKey(item, await deriveKey(passphrase, salt));
+
+    // Format: base64(salt) + ':' + encryptedString
+    const exportString = `${bytesToBase64(salt)}:${encryptedString}`;
+
+    await navigator.clipboard.writeText(exportString);
+    setStatus("Credencial criptografada copiada para a área de transferência.");
+  } catch (e) {
+    console.error("Share failed", e); // NOSONAR
+    setStatus("Falha ao compartilhar credencial.");
+  }
+}
+
+async function handleImportSharedCredential() {
+  const exportString = window.prompt("Cole a credencial compartilhada aqui:"); // NOSONAR
+  if (!exportString || !exportString.includes(':')) {
+    if (exportString) setStatus("Formato de credencial inválido.");
+    return;
+  }
+
+  const passphrase = window.prompt("Digite a senha (PIN) temporária usada para criptografar:"); // NOSONAR
+  if (!passphrase) {
+    setStatus("Importação cancelada (sem senha).");
+    return;
+  }
+
+  try {
+    const parts = exportString.split(':');
+    const salt = base64ToBytes(parts[0]!);
+    const encryptedString = parts.slice(1).join(':'); // In case encrypted string contains ':' which shouldn't happen with '.' format but safe
+
+    const item = await decryptWithKey(encryptedString, await deriveKey(passphrase, salt));
+
+    // Give it a new ID and remove deleted status
+    item.id = crypto.randomUUID();
+    item.createdAt = new Date().toISOString();
+    item.updatedAt = new Date().toISOString();
+    delete item.deletedAt;
+
+    const vault = vaultService.getVault();
+    vault.push(item);
+    await vaultService.save(vault);
+    chrome.runtime.sendMessage({ type: 'TRIGGER_SYNC' });
+
+    setStatus(`Credencial de ${item.site} importada com sucesso.`);
+    handleSearch();
+  } catch (e) {
+    console.error("Import failed", e); // NOSONAR
+    setStatus("Falha ao importar. Senha incorreta ou dados corrompidos.");
+  }
+}
 
 async function handleCheckPwned() {
   const vault = vaultService.getVault();
@@ -266,6 +417,12 @@ function updateFormState(type: string) {
     addressFullNameInput.setAttribute('required', 'true');
   } else {
     addressFullNameInput.removeAttribute('required');
+  }
+
+  if (credentialIdInput.value) {
+    shareCredentialBtn.classList.remove('hidden');
+  } else {
+    shareCredentialBtn.classList.add('hidden');
   }
 }
 

@@ -109,7 +109,10 @@
             </div>
           </div>
           <textarea id="notes" placeholder="Notas (opcional)" rows="3" style="width: 100%; margin-top: 8px;"></textarea>
-          <button type="submit">Salvar</button>
+          <div style="display: flex; gap: 8px; margin-top: 8px;">
+            <button type="submit" style="flex: 1;">Salvar</button>
+            <button type="button" id="shareCredentialBtn" class="secondary hidden" style="flex: 1;">Compartilhar</button>
+          </div>
         </form>
 
         <h2>Credenciais</h2>
@@ -126,12 +129,29 @@
             <input type="file" id="localCsvInput" accept=".csv" style="display: none;" />
           </label>
         </div>
+        <button id="importSharedBtn" class="secondary mt-8">Importar Credencial Compartilhada</button>
         <div id="last-sync" class="last-sync"></div>
         <button id="securityDashboardBtn" class="secondary">Painel de Segurança</button>
+        <button id="digitalWillBtn" class="secondary">Testamento Digital</button>
         <button id="setupPasswordlessBtn" class="secondary">Configurar Login sem Senha</button>
         <button id="setupPinBtn" class="secondary">Configurar PIN Rápido</button>
         <button id="generateRecoveryBtn" class="secondary">Gerar Código de Recuperação</button>
         <button id="lockButton" class="secondary">Bloquear</button>
+      </section>
+
+      <section id="digital-will-section" class="hidden">
+        <h2>Testamento Digital</h2>
+        <p class="fs-09 mb-16">Configure um contato de emergência e uma nota de acesso para suas contas em caso de imprevistos.</p>
+        <form id="digitalWillForm">
+          <label for="dwContactName" class="hidden">Nome do Contato</label>
+          <input id="dwContactName" placeholder="Nome do Contato de Emergência" required />
+          <label for="dwContactEmail" class="hidden">E-mail do Contato</label>
+          <input id="dwContactEmail" type="email" placeholder="E-mail do Contato" required />
+          <label for="dwAccessNote" class="hidden">Instruções de acesso</label>
+          <textarea id="dwAccessNote" placeholder="Instruções de acesso / Mensagem de emergência" rows="4" class="w-full mt-8" required></textarea>
+          <button type="submit" class="mt-8">Salvar Testamento Digital</button>
+        </form>
+        <button id="backFromDigitalWillBtn" class="secondary mt-8">Voltar ao Cofre</button>
       </section>
 
       <section id="security-dashboard-section" class="hidden">
