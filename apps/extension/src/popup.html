@@ -143,8 +143,11 @@
         <h2>Testamento Digital</h2>
         <p class="fs-09 mb-16">Configure um contato de emergência e uma nota de acesso para suas contas em caso de imprevistos.</p>
         <form id="digitalWillForm">
+          <label for="dwContactName" class="hidden">Nome do Contato</label>
           <input id="dwContactName" placeholder="Nome do Contato de Emergência" required />
+          <label for="dwContactEmail" class="hidden">E-mail do Contato</label>
           <input id="dwContactEmail" type="email" placeholder="E-mail do Contato" required />
+          <label for="dwAccessNote" class="hidden">Instruções de acesso</label>
           <textarea id="dwAccessNote" placeholder="Instruções de acesso / Mensagem de emergência" rows="4" class="w-full mt-8" required></textarea>
           <button type="submit" class="mt-8">Salvar Testamento Digital</button>
         </form>
