@@ -79,7 +79,7 @@ Levar o cofre para fora do navegador com experiência nativa, mantendo compatibi
   - [x] Estrutura inicial (Electron) e build automatizado.
   - [ ] Wrapper da lógica da extensão.
   - [ ] Atalho global para preenchimento em apps nativos.
-  - [ ] Funcionamento offline robusto com leitura de `passwords.csv`.
+  - [x] Funcionamento offline robusto com leitura de `passwords.csv`.
 - [ ] **App Android (React Native/Expo):**
   - [ ] Salvar e preencher automaticamente credenciais (Integração com Autofill Framework do Android).
   - [x] Acesso biométrico (Fingerprint/FaceID) para desbloqueio.
