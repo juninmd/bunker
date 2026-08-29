@@ -1,6 +1,6 @@
 # CRON Artifact
 
-**Completed Task:** Implemented "Digital Will" (Testamento Digital) and "Personal Password Sharing" (Compartilhamento Pessoal) in the browser extension. The Digital Will stores emergency contact information and access notes securely in the vault, while Personal Password Sharing allows generating an encrypted, shareable base64 string using a temporary one-time PIN for offline, peer-to-peer sharing. Updated `README.md` and roadmap documentation.
+**Completed Task:** Expanded the Desktop Application (`apps/desktop`) to feature a robust offline CSV viewer. The update introduces search filtering, item grouping by folder (`grouping`), and dynamic rendering of Vault Items, Secure Notes, Cards, and Addresses with a secure toggle to unmask passwords. Updated `ROADMAP.md` and `README.md` documentation.
 
 **Next Task for Next Cycle:**
-- Map and implement pending Phase 4 features from `ROADMAP.md` (e.g., Emergency Access, Business Password Sharing) or transition to expanding the Desktop Application's offline features.
+- Map and implement pending Phase 4 features from `ROADMAP.md` (e.g., Emergency Access, Business Password Sharing) or transition to Phase 5 features like saving and autofilling credentials on Android using the native Autofill framework.

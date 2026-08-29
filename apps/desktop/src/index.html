@@ -85,9 +85,15 @@
 
     <div style="text-align: left; margin-top: 20px; background: #fafafa; padding: 15px; border-radius: 4px; border: 1px solid #eee;">
       <strong>Cofre (Sincronizado do CSV):</strong>
-      <ul id="vaultList" style="padding-left: 20px; margin-bottom: 0;">
-        <li>google.com (test@gmail.com)</li>
-      </ul>
+      <input type="text" id="searchInput" class="hidden" placeholder="Pesquisar..." style="width: calc(100% - 20px); padding: 8px; margin: 10px 0; border: 1px solid #ccc; border-radius: 4px;" />
+
+      <div id="vaultContainer" style="margin-top: 10px; max-height: 400px; overflow-y: auto;">
+        <!-- Lista inicial (Mock) -->
+        <div class="vault-item" style="border-bottom: 1px solid #eee; padding: 10px 0;">
+          <div style="font-weight: bold; color: #1a73e8;">google.com</div>
+          <div style="font-size: 14px; color: #666;">test@gmail.com</div>
+        </div>
+      </div>
     </div>
 
     <div style="display: flex; gap: 10px; justify-content: center; margin-top: 15px;">
@@ -183,6 +189,109 @@
       return objects;
     }
 
+    let vaultData = [];
+
+    function renderVault(data, searchTerm = '') {
+      const container = document.getElementById('vaultContainer');
+      container.textContent = ''; // Clear existing
+
+      const filtered = data.filter(item => {
+        if (!item.url || item.grouping === 'Deleted') return false;
+        const searchLower = searchTerm.toLowerCase();
+        return (item.url || '').toLowerCase().includes(searchLower) ||
+               (item.username || '').toLowerCase().includes(searchLower) ||
+               (item.name || '').toLowerCase().includes(searchLower) ||
+               (item.grouping || '').toLowerCase().includes(searchLower);
+      });
+
+      // Agrupar por grouping
+      const grouped = {};
+      filtered.forEach(item => {
+        const group = item.grouping || 'Outros';
+        if (!grouped[group]) grouped[group] = [];
+        grouped[group].push(item);
+      });
+
+      for (const [group, items] of Object.entries(grouped)) {
+        const groupTitle = document.createElement('div');
+        groupTitle.style.cssText = 'font-weight: bold; margin-top: 15px; padding-bottom: 5px; border-bottom: 2px solid #ccc; font-size: 14px; color: #333;';
+        groupTitle.textContent = group;
+        container.appendChild(groupTitle);
+
+        items.forEach((item, idx) => {
+           const itemDiv = document.createElement('div');
+           itemDiv.style.cssText = 'border-bottom: 1px solid #eee; padding: 10px 0; display: flex; flex-direction: column; gap: 4px;';
+
+           const headerDiv = document.createElement('div');
+           headerDiv.style.cssText = 'display: flex; justify-content: space-between; align-items: center;';
+
+           const titleDiv = document.createElement('div');
+           titleDiv.style.cssText = 'font-weight: bold; color: #1a73e8; word-break: break-all;';
+           titleDiv.textContent = item.name || item.url;
+
+           const typeBadge = document.createElement('span');
+           typeBadge.style.cssText = 'font-size: 11px; background: #eee; padding: 2px 6px; border-radius: 4px; color: #666; margin-left: 10px;';
+           if (item.url === 'http' + '://sn') typeBadge.textContent = 'Nota Segura';
+           else if (item.url === 'http' + '://cc') typeBadge.textContent = 'Cartão';
+           else if (item.url === 'http' + '://id') typeBadge.textContent = 'Endereço';
+           else typeBadge.textContent = 'Senha';
+
+           titleDiv.appendChild(typeBadge);
+           headerDiv.appendChild(titleDiv);
+           itemDiv.appendChild(headerDiv);
+
+           if (item.username && item.url !== 'http' + '://sn' && item.url !== 'http' + '://cc' && item.url !== 'http' + '://id') {
+             const userDiv = document.createElement('div');
+             userDiv.style.cssText = 'font-size: 14px; color: #666; word-break: break-all;';
+             userDiv.textContent = item.username;
+             itemDiv.appendChild(userDiv);
+           }
+
+           // Password / Extra Field
+           if (item.password || item.extra) {
+             const passContainer = document.createElement('div');
+             passContainer.style.cssText = 'display: flex; gap: 10px; align-items: center; margin-top: 4px;';
+
+             const passInput = document.createElement('input');
+             passInput.type = 'password';
+             passInput.value = item.password || item.extra; // Mostra password ou notas
+             passInput.readOnly = true;
+             passInput.style.cssText = 'flex: 1; padding: 6px; border: 1px solid #ddd; border-radius: 4px; margin: 0; background: #fff; font-size: 14px;';
+
+             const toggleBtn = document.createElement('button');
+             toggleBtn.textContent = 'Mostrar';
+             toggleBtn.style.cssText = 'padding: 6px 12px; font-size: 12px; margin: 0; background-color: #666; min-width: 75px;';
+             toggleBtn.addEventListener('click', () => {
+               if (passInput.type === 'password') {
+                 passInput.type = 'text';
+                 toggleBtn.textContent = 'Ocultar';
+               } else {
+                 passInput.type = 'password';
+                 toggleBtn.textContent = 'Mostrar';
+               }
+             });
+
+             passContainer.appendChild(passInput);
+             passContainer.appendChild(toggleBtn);
+             itemDiv.appendChild(passContainer);
+           }
+
+           container.appendChild(itemDiv);
+        });
+      }
+
+      if (filtered.length === 0) {
+        const noItems = document.createElement('div');
+        noItems.textContent = 'Nenhum item encontrado.';
+        noItems.style.cssText = 'padding: 10px; color: #999; font-style: italic;';
+        container.appendChild(noItems);
+      }
+    }
+
+    document.getElementById('searchInput').addEventListener('input', (e) => {
+      renderVault(vaultData, e.target.value);
+    });
+
     document.getElementById('importCsvBtn').addEventListener('click', () => {
       const fileInput = document.getElementById('csvFileInput');
       if (fileInput.files.length === 0) {
@@ -193,16 +302,11 @@
       const reader = new FileReader();
       reader.onload = function(e) {
         const contents = e.target.result;
-        const data = parseFullCSV(contents);
-        const list = document.getElementById('vaultList');
-        list.textContent = ''; // Clear existing
-        data.forEach(item => {
-           // Skip empty or deleted entries
-           if (!item.url || item.grouping === 'Deleted') return;
-           const li = document.createElement('li');
-           li.textContent = `${item.url} (${item.username})`;
-           list.appendChild(li);
-        });
+        vaultData = parseFullCSV(contents);
+
+        document.getElementById('searchInput').classList.remove('hidden');
+        renderVault(vaultData);
+
         console.log('Cofre sincronizado via CSV com sucesso!'); // NOSONAR
       };
       // NOSONAR
