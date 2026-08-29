@@ -70,6 +70,7 @@
   <div class="container" id="login-section">
     <h1>DrivePass Desktop</h1>
     <p>Bem-vindo ao DrivePass (App Nativo). Suas senhas serão sincronizadas offline com seu Google Drive através do arquivo <strong>passwords.csv</strong>.</p>
+    <label for="masterPassword" style="display:none;">Senha mestra</label>
     <input type="password" id="masterPassword" placeholder="Senha mestra" />
     <br/>
     <button id="unlockBtn">Desbloquear</button>
@@ -80,12 +81,13 @@
     <p>Cofre offline desbloqueado com sucesso.</p>
     <p>Esta interface servirá como alternativa ao LastPass, provendo um cofre robusto para acesso rápido, sincronizado com seu <strong>Google Drive</strong> via CSV.</p>
 
+    <label for="csvFileInput" style="display:none;">Arquivo CSV</label>
     <input type="file" id="csvFileInput" accept=".csv" style="margin-top: 15px;" />
     <button id="importCsvBtn" style="background-color: #34a853;">Importar passwords.csv Offline</button>
 
     <div style="text-align: left; margin-top: 20px; background: #fafafa; padding: 15px; border-radius: 4px; border: 1px solid #eee;">
-      <strong>Cofre (Sincronizado do CSV):</strong>
-      <input type="text" id="searchInput" class="hidden" placeholder="Pesquisar..." style="width: calc(100% - 20px); padding: 8px; margin: 10px 0; border: 1px solid #ccc; border-radius: 4px;" />
+      <label for="searchInput" id="cofre-label" style="font-weight: bold; display: block;">Cofre (Sincronizado do CSV):</label>
+      <input type="text" id="searchInput" aria-label="Pesquisar" class="hidden" placeholder="Pesquisar..." style="width: calc(100% - 20px); padding: 8px; margin: 10px 0; border: 1px solid #ccc; border-radius: 4px;" />
 
       <div id="vaultContainer" style="margin-top: 10px; max-height: 400px; overflow-y: auto;">
         <!-- Lista inicial (Mock) -->
@@ -97,7 +99,7 @@
     </div>
 
     <div style="display: flex; gap: 10px; justify-content: center; margin-top: 15px;">
-        <button style="font-size: 14px; padding: 5px 10px; background-color: #34a853;">Painel de Segurança</button>
+        <button id="securityPanelBtn" style="font-size: 14px; padding: 5px 10px; background-color: #34a853;">Painel de Segurança</button>
         <button style="font-size: 14px; padding: 5px 10px; background-color: #34a853;">Notas Seguras</button>
         <button style="font-size: 14px; padding: 5px 10px; background-color: #34a853;">Cartões e Endereços</button>
         <button style="font-size: 14px; padding: 5px 10px; background-color: #fbbc05; color: #333;">Gerador de Senhas</button>
