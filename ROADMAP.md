@@ -45,7 +45,7 @@ Foco em igualar as funcionalidades de conveniência e organização.
 - [ ] **UX Aprimorada:**
   - [x] **Ícone In-Field:** Botão do DrivePass dentro dos inputs de login para preenchimento com um clique.
   - [x] **Detector de Mudança de Senha:** Pop-up perguntando "Deseja atualizar esta senha?" ao submeter formulários.
-  - [ ] **Sincronização automática de dispositivos (Device Sync):** Salvar uma senha em um dispositivo e tê-la disponível em todos via Google Drive (`passwords.csv`).
+  - [x] **Sincronização automática de dispositivos (Device Sync):** Salvar uma senha em um dispositivo e tê-la disponível em todos via Google Drive (`passwords.csv`).
 - [~] **Segurança Avançada:**
   - [x] **Logout Automático:** Configuração de timeout por inatividade.
   - [x] **Desbloqueio com PIN/Biometria:** Opção de PIN curto para acesso rápido.
@@ -59,14 +59,14 @@ Foco na proatividade da segurança.
   - Identificação de senhas reutilizadas.
 - [x] **Monitoramento da Dark Web (Dark Web Monitoring):**
   - Receber alerta imediato se informações pessoais forem encontradas na dark web.
-- [ ] **Histórico de Senhas:** Manter histórico de alterações para permitir reversão.
+- [x] **Histórico de Senhas:** Manter histórico de alterações para permitir reversão.
 - [x] **Testamento Digital (Digital Will):** Deixar uma cópia segura da sua vida digital em caso de emergência.
 
 ### Fase 4: Compartilhamento, Teams & Corporativo
 Foco em funcionalidades colaborativas usando a infraestrutura do Google Drive.
 - [x] **Compartilhamento Pessoal (Personal Password Sharing):** Compartilhar senhas de forma segura com familiares e amigos sem abrir mão do controle de acesso.
 - [ ] **Compartilhamento Empresarial (Business Password Sharing):** Compartilhar senhas empresariais de forma segura com membros da equipe, freelancers e fornecedores.
-- [ ] **Acesso de Emergência (Emergency Access):** Conceda a um contato de confiança ou a um ente querido acesso ao cofre de senhas em caso de emergência.
+- [x] **Acesso de Emergência (Emergency Access):** Conceda a um contato de confiança ou a um ente querido acesso ao cofre de senhas em caso de emergência.
 - [ ] **Gerenciamento de Usuários (User Management):** Controle a segurança, as contas e as políticas da sua empresa em uma única plataforma (Business).
 - [ ] **Integração de Diretórios (Directory Integration):** Integre o DrivePass ao seu diretório de usuários existente para automatizar o gerenciamento de usuários.
 - [ ] **Login Federado (Federated Login):** Permita que os usuários façam login com suas credenciais de identidade federada.
@@ -103,8 +103,8 @@ Levar o cofre para fora do navegador com experiência nativa, mantendo compatibi
 - [x] **Painel de Segurança (Security Dashboard)**: Notificações de senhas fracas, reutilizadas e antigas.
 - [x] **Compartilhamento de Senhas Pessoais**: Compartilhar senhas de forma segura com familiares e amigos.
 - [ ] **Compartilhamento Empresarial**: Compartilhamento com equipes, freelancers e fornecedores.
-- [ ] **Sincronização Automática (Device Sync)**: Salve uma senha em um dispositivo e ela será sincronizada em todos os dispositivos.
-- [ ] **Acesso de Emergência (Emergency Access)**: Conceda acesso a um contato de confiança em caso de emergência.
+- [x] **Sincronização Automática (Device Sync)**: Salve uma senha em um dispositivo e ela será sincronizada em todos os dispositivos.
+- [x] **Acesso de Emergência (Emergency Access)**: Conceda acesso a um contato de confiança em caso de emergência.
 - [x] **Notas Seguras (Secure Notes)**: Armazene anotações adicionais como logins de Wi-Fi e informações bancárias.
 - [x] **Testamento Digital (Digital Will)**: Deixe uma cópia da sua vida digital.
 - [x] **Login sem senha no cofre (Passwordless Login)**: Acesse o cofre sem digitar a senha mestre.
