@@ -133,6 +133,7 @@
         <div id="last-sync" class="last-sync"></div>
         <button id="securityDashboardBtn" class="secondary">Painel de Segurança</button>
         <button id="digitalWillBtn" class="secondary">Testamento Digital</button>
+        <button id="emergencyAccessBtn" class="secondary" title="Exportar/Importar cofre completo para acesso de emergência">Acesso de Emergência</button>
         <button id="setupPasswordlessBtn" class="secondary">Configurar Login sem Senha</button>
         <button id="setupPinBtn" class="secondary">Configurar PIN Rápido</button>
         <button id="generateRecoveryBtn" class="secondary">Gerar Código de Recuperação</button>
@@ -152,6 +153,14 @@
           <button type="submit" class="mt-8">Salvar Testamento Digital</button>
         </form>
         <button id="backFromDigitalWillBtn" class="secondary mt-8">Voltar ao Cofre</button>
+      </section>
+
+      <section id="emergency-access-section" class="hidden">
+        <h2>Acesso de Emergência</h2>
+        <p class="fs-09 mb-16">Exporte todo o seu cofre criptografado com um PIN para um contato de confiança, ou importe um cofre de emergência recebido.</p>
+        <button id="exportEmergencyBtn" class="mt-8">Exportar Cofre de Emergência</button>
+        <button id="importEmergencyBtn" class="secondary mt-8">Importar Cofre de Emergência</button>
+        <button id="backFromEmergencyBtn" class="secondary mt-8">Voltar ao Cofre</button>
       </section>
 
       <section id="security-dashboard-section" class="hidden">

@@ -50,6 +50,12 @@ const dwContactEmail = document.getElementById('dwContactEmail') as HTMLInputEle
 const dwAccessNote = document.getElementById('dwAccessNote') as HTMLTextAreaElement;
 const backFromDigitalWillBtn = document.getElementById('backFromDigitalWillBtn') as HTMLButtonElement;
 
+const emergencyAccessBtn = document.getElementById('emergencyAccessBtn') as HTMLButtonElement;
+const emergencyAccessSection = document.getElementById('emergency-access-section') as HTMLElement;
+const exportEmergencyBtn = document.getElementById('exportEmergencyBtn') as HTMLButtonElement;
+const importEmergencyBtn = document.getElementById('importEmergencyBtn') as HTMLButtonElement;
+const backFromEmergencyBtn = document.getElementById('backFromEmergencyBtn') as HTMLButtonElement;
+
 const shareCredentialBtn = document.getElementById('shareCredentialBtn') as HTMLButtonElement;
 const importSharedBtn = document.getElementById('importSharedBtn') as HTMLButtonElement;
 
@@ -116,6 +122,19 @@ checkPwnedBtn.addEventListener('click', handleCheckPwned);
 digitalWillBtn.addEventListener('click', showDigitalWillSection);
 backFromDigitalWillBtn.addEventListener('click', hideDigitalWillSection);
 digitalWillForm.addEventListener('submit', handleSaveDigitalWill);
+
+emergencyAccessBtn.addEventListener('click', () => {
+  vaultSection.classList.add('hidden');
+  emergencyAccessSection.classList.remove('hidden');
+});
+
+backFromEmergencyBtn.addEventListener('click', () => {
+  emergencyAccessSection.classList.add('hidden');
+  vaultSection.classList.remove('hidden');
+});
+
+exportEmergencyBtn.addEventListener('click', handleExportEmergencyVault);
+importEmergencyBtn.addEventListener('click', handleImportEmergencyVault);
 
 shareCredentialBtn.addEventListener('click', handleShareCredential);
 importSharedBtn.addEventListener('click', handleImportSharedCredential);
@@ -423,6 +442,73 @@ function updateFormState(type: string) {
     shareCredentialBtn.classList.remove('hidden');
   } else {
     shareCredentialBtn.classList.add('hidden');
+  }
+}
+
+async function handleExportEmergencyVault() {
+  const vault = vaultService.getVault();
+  if (!vault || vault.length === 0) {
+    setStatus("Cofre vazio, nada para exportar.");
+    return;
+  }
+
+  const passphrase = window.prompt("Crie uma senha (PIN) de emergência para criptografar o cofre:"); // NOSONAR
+  if (!passphrase) {
+    setStatus("Exportação de emergência cancelada.");
+    return;
+  }
+
+  try {
+    const salt = crypto.getRandomValues(new Uint8Array(16));
+    const encryptedString = await encryptWithKey(vault, await deriveKey(passphrase, salt));
+    const exportString = `${bytesToBase64(salt)}:${encryptedString}`;
+
+    await navigator.clipboard.writeText(exportString);
+    setStatus("Cofre de emergência copiado para a área de transferência.");
+  } catch (e) {
+    console.error("Export emergency failed", e); // NOSONAR
+    setStatus("Falha ao exportar cofre de emergência.");
+  }
+}
+
+async function handleImportEmergencyVault() {
+  const exportString = window.prompt("Cole o cofre de emergência aqui:"); // NOSONAR
+  if (!exportString || !exportString.includes(':')) {
+    if (exportString) setStatus("Formato de cofre inválido.");
+    return;
+  }
+
+  const passphrase = window.prompt("Digite a senha (PIN) de emergência:"); // NOSONAR
+  if (!passphrase) {
+    setStatus("Importação cancelada.");
+    return;
+  }
+
+  try {
+    const [saltB64, encryptedString] = exportString.split(':');
+    const salt = base64ToBytes(saltB64!);
+    const importedVault = await decryptWithKey(encryptedString!, await deriveKey(passphrase, salt));
+
+    if (!Array.isArray(importedVault)) {
+      throw new Error("Invalid vault format");
+    }
+
+    const currentVault = vaultService.getVault() || [];
+    const newItems = importedVault.map((item: any) => ({
+      ...item,
+      id: crypto.randomUUID() // prevent id collision
+    }));
+
+    currentVault.push(...newItems);
+    await vaultService.save(currentVault);
+
+    setStatus("Cofre de emergência importado com sucesso!");
+    emergencyAccessSection.classList.add('hidden');
+    vaultSection.classList.remove('hidden');
+    renderVault(currentVault);
+  } catch (e) {
+    console.error("Import emergency failed", e); // NOSONAR
+    setStatus("Falha ao importar. Senha incorreta ou formato inválido.");
   }
 }
 
