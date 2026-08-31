@@ -42,6 +42,7 @@ This project follows the **Antigravity** code standards:
 ## 🔄 Current Progress & Next Steps (CRON Loop)
 
 **Progress**:
+- Implemented Business Password Sharing (Compartilhamento Empresarial) allowing users to securely export and import entire folders encrypted with a PIN.
 - Implemented Emergency Access (Acesso de Emergência) in the browser extension, allowing users to securely export and import their entire encrypted vault with a temporary PIN for trusted contacts.
 - Expanded the Desktop Application (`apps/desktop`) to feature a robust offline CSV viewer with search filtering, item grouping, and secure password toggling.
 - Implemented Digital Will (Testamento Digital) and Personal Password Sharing (Compartilhamento Pessoal) in the browser extension.

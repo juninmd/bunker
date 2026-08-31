@@ -56,6 +56,14 @@ const exportEmergencyBtn = document.getElementById('exportEmergencyBtn') as HTML
 const importEmergencyBtn = document.getElementById('importEmergencyBtn') as HTMLButtonElement;
 const backFromEmergencyBtn = document.getElementById('backFromEmergencyBtn') as HTMLButtonElement;
 
+
+const businessShareBtn = document.getElementById('businessShareBtn') as HTMLButtonElement;
+const businessShareSection = document.getElementById('business-share-section') as HTMLElement;
+const backFromBusinessShareBtn = document.getElementById('backFromBusinessShareBtn') as HTMLButtonElement;
+const businessFolderSelect = document.getElementById('businessFolderSelect') as HTMLSelectElement;
+const exportBusinessFolderBtn = document.getElementById('exportBusinessFolderBtn') as HTMLButtonElement;
+const importBusinessFolderBtn = document.getElementById('importBusinessFolderBtn') as HTMLButtonElement;
+
 const shareCredentialBtn = document.getElementById('shareCredentialBtn') as HTMLButtonElement;
 const importSharedBtn = document.getElementById('importSharedBtn') as HTMLButtonElement;
 
@@ -136,8 +144,134 @@ backFromEmergencyBtn.addEventListener('click', () => {
 exportEmergencyBtn.addEventListener('click', handleExportEmergencyVault);
 importEmergencyBtn.addEventListener('click', handleImportEmergencyVault);
 
+
+businessShareBtn.addEventListener('click', showBusinessShareSection);
+backFromBusinessShareBtn.addEventListener('click', hideBusinessShareSection);
+exportBusinessFolderBtn.addEventListener('click', handleExportBusinessFolder);
+importBusinessFolderBtn.addEventListener('click', handleImportBusinessFolder);
+
 shareCredentialBtn.addEventListener('click', handleShareCredential);
 importSharedBtn.addEventListener('click', handleImportSharedCredential);
+
+
+function showBusinessShareSection() {
+  vaultSection.classList.add('hidden');
+  businessShareSection.classList.remove('hidden');
+  populateBusinessFolders();
+}
+
+function hideBusinessShareSection() {
+  businessShareSection.classList.add('hidden');
+  vaultSection.classList.remove('hidden');
+}
+
+function populateBusinessFolders() {
+  const vault = vaultService.getVault();
+  const groups = new Set<string>();
+  vault.forEach(item => {
+    if (item.grouping && !item.deletedAt) {
+      groups.add(item.grouping);
+    }
+  });
+
+  businessFolderSelect.innerHTML = '<option value="">Selecione uma pasta...</option>';
+  Array.from(groups).sort().forEach(group => {
+    const opt = document.createElement('option');
+    opt.value = group;
+    opt.textContent = group;
+    businessFolderSelect.appendChild(opt);
+  });
+}
+
+async function handleExportBusinessFolder() {
+  const folder = businessFolderSelect.value;
+  if (!folder) {
+    setStatus('Selecione uma pasta para exportar.');
+    return;
+  }
+
+  const vault = vaultService.getVault();
+  const folderItems = vault.filter(item => item.grouping === folder && !item.deletedAt);
+  if (folderItems.length === 0) {
+    setStatus('Pasta vazia.');
+    return;
+  }
+
+  const passphrase = window.prompt("Crie uma senha temporária (PIN) para criptografar o compartilhamento desta pasta:"); // NOSONAR
+  if (!passphrase) {
+    setStatus("Compartilhamento cancelado (sem senha).");
+    return;
+  }
+
+  try {
+    const salt = crypto.getRandomValues(new Uint8Array(16));
+    const encryptedString = await encryptWithKey(folderItems, await deriveKey(passphrase, salt));
+    const exportString = `${bytesToBase64(salt)}:${encryptedString}`;
+
+    await navigator.clipboard.writeText(exportString);
+    setStatus(`Pasta '${folder}' (${folderItems.length} itens) copiada para a área de transferência.`);
+  } catch (e) {
+    console.error("Export folder failed", e); // NOSONAR
+    setStatus('Erro ao exportar a pasta.');
+  }
+}
+
+async function handleImportBusinessFolder() {
+  const input = window.prompt("Cole o código da pasta compartilhada:"); // NOSONAR
+  if (!input) {
+    setStatus("Importação cancelada.");
+    return;
+  }
+
+  const parts = input.split(':');
+  if (parts.length !== 2) {
+    setStatus('Código de pasta inválido.');
+    return;
+  }
+
+  const passphrase = window.prompt("Digite a senha temporária (PIN) para descriptografar:"); // NOSONAR
+  if (!passphrase) {
+    setStatus("Importação cancelada.");
+    return;
+  }
+
+  try {
+    const salt = base64ToBytes(parts[0]!);
+    const key = await deriveKey(passphrase, salt);
+    const importedItems = await decryptWithKey(parts[1]!, key);
+
+    if (!Array.isArray(importedItems)) {
+      throw new Error('Formato inválido.');
+    }
+
+    const currentVault = vaultService.getVault();
+    let importedCount = 0;
+    const now = new Date().toISOString();
+
+    for (const item of importedItems) {
+      if (item.title || item.url || item.username) {
+         // Create a fresh ID to avoid collisions
+         const newItem = {
+           ...item,
+           id: crypto.randomUUID(),
+           createdAt: now,
+           updatedAt: now,
+           history: []
+         };
+         currentVault.push(newItem);
+         importedCount++;
+      }
+    }
+
+    await vaultService.save(currentVault);
+    setStatus(`${importedCount} itens importados com sucesso da pasta compartilhada.`);
+    hideBusinessShareSection();
+    handleSearch();
+  } catch (e) {
+    console.error("Import folder failed", e); // NOSONAR
+    setStatus('Falha ao descriptografar. PIN incorreto ou dados corrompidos.');
+  }
+}
 
 function showDigitalWillSection() {
   vaultSection.classList.add('hidden');
