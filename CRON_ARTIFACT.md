@@ -1,6 +1,6 @@
 # CRON Artifact
 
-**Completed Task:** Implemented "Acesso de Emergência" (Emergency Access) in the browser extension. Added functionality to export the entire encrypted vault with a temporary PIN for emergency sharing, and functionality to import a received emergency vault. Updated `ROADMAP.md` to correctly map previously completed features (Password History, Device Sync). Updated `README.md` documentation.
+**Completed Task:** Implemented "Compartilhamento Empresarial" (Business Password Sharing) in the browser extension. Added functionality to export an entire folder (grouping) encrypted with a PIN, and functionality to import a shared folder, assigning new UUIDs to avoid conflicts. Updated `ROADMAP.md` and `README.md` progress.
 
 **Next Task for Next Cycle:**
-- Map and implement pending Phase 4 features from `ROADMAP.md` (e.g., Business Password Sharing, User Management) or transition to Phase 5 features like saving and autofilling credentials on Android using the native Autofill framework.
+- Map and implement pending Phase 4 features from `ROADMAP.md` (e.g., User Management, Directory Integration) or transition to Phase 5 features like saving and autofilling credentials on Android using the native Autofill framework.

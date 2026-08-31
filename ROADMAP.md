@@ -65,7 +65,7 @@ Foco na proatividade da segurança.
 ### Fase 4: Compartilhamento, Teams & Corporativo
 Foco em funcionalidades colaborativas usando a infraestrutura do Google Drive.
 - [x] **Compartilhamento Pessoal (Personal Password Sharing):** Compartilhar senhas de forma segura com familiares e amigos sem abrir mão do controle de acesso.
-- [ ] **Compartilhamento Empresarial (Business Password Sharing):** Compartilhar senhas empresariais de forma segura com membros da equipe, freelancers e fornecedores.
+- [x] **Compartilhamento Empresarial (Business Password Sharing):** Compartilhar senhas empresariais de forma segura com membros da equipe, freelancers e fornecedores.
 - [x] **Acesso de Emergência (Emergency Access):** Conceda a um contato de confiança ou a um ente querido acesso ao cofre de senhas em caso de emergência.
 - [ ] **Gerenciamento de Usuários (User Management):** Controle a segurança, as contas e as políticas da sua empresa em uma única plataforma (Business).
 - [ ] **Integração de Diretórios (Directory Integration):** Integre o DrivePass ao seu diretório de usuários existente para automatizar o gerenciamento de usuários.
@@ -102,7 +102,7 @@ Levar o cofre para fora do navegador com experiência nativa, mantendo compatibi
 - [x] **Monitoramento da Dark Web (Dark Web Monitoring)**: Alerta imediato se informações pessoais forem encontradas na dark web.
 - [x] **Painel de Segurança (Security Dashboard)**: Notificações de senhas fracas, reutilizadas e antigas.
 - [x] **Compartilhamento de Senhas Pessoais**: Compartilhar senhas de forma segura com familiares e amigos.
-- [ ] **Compartilhamento Empresarial**: Compartilhamento com equipes, freelancers e fornecedores.
+- [x] **Compartilhamento Empresarial**: Compartilhamento com equipes, freelancers e fornecedores.
 - [x] **Sincronização Automática (Device Sync)**: Salve uma senha em um dispositivo e ela será sincronizada em todos os dispositivos.
 - [x] **Acesso de Emergência (Emergency Access)**: Conceda acesso a um contato de confiança em caso de emergência.
 - [x] **Notas Seguras (Secure Notes)**: Armazene anotações adicionais como logins de Wi-Fi e informações bancárias.

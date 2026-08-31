@@ -130,6 +130,7 @@
           </label>
         </div>
         <button id="importSharedBtn" class="secondary mt-8">Importar Credencial Compartilhada</button>
+        <button id="businessShareBtn" class="secondary mt-8">Compartilhamento Empresarial</button>
         <div id="last-sync" class="last-sync"></div>
         <button id="securityDashboardBtn" class="secondary">Painel de Segurança</button>
         <button id="digitalWillBtn" class="secondary">Testamento Digital</button>
@@ -161,6 +162,28 @@
         <button id="exportEmergencyBtn" class="mt-8">Exportar Cofre de Emergência</button>
         <button id="importEmergencyBtn" class="secondary mt-8">Importar Cofre de Emergência</button>
         <button id="backFromEmergencyBtn" class="secondary mt-8">Voltar ao Cofre</button>
+      </section>
+
+
+      <section id="business-share-section" class="hidden">
+        <h2>Compartilhamento Empresarial</h2>
+        <p class="fs-09 mb-16">Compartilhe uma pasta inteira (equipes, freelancers) com criptografia protegida por PIN.</p>
+
+        <div style="border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; border-radius: 4px;">
+          <h3>Exportar Pasta</h3>
+          <label for="businessFolderSelect" class="hidden">Selecionar Pasta</label>
+          <select id="businessFolderSelect" style="width: 100%; margin-bottom: 8px;">
+            <option value="">Selecione uma pasta...</option>
+          </select>
+          <button id="exportBusinessFolderBtn">Exportar Pasta (Gerar Código)</button>
+        </div>
+
+        <div style="border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; border-radius: 4px;">
+          <h3>Importar Pasta</h3>
+          <button id="importBusinessFolderBtn" class="secondary">Importar Pasta Compartilhada</button>
+        </div>
+
+        <button id="backFromBusinessShareBtn" class="secondary mt-8">Voltar ao Cofre</button>
       </section>
 
       <section id="security-dashboard-section" class="hidden">
