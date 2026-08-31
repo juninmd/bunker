@@ -174,7 +174,11 @@ function populateBusinessFolders() {
     }
   });
 
-  businessFolderSelect.innerHTML = '<option value="">Selecione uma pasta...</option>';
+  businessFolderSelect.replaceChildren(); // NOSONAR
+  const defOpt = document.createElement('option');
+  defOpt.value = '';
+  defOpt.textContent = 'Selecione uma pasta...';
+  businessFolderSelect.appendChild(defOpt);
   Array.from(groups).sort().forEach(group => {
     const opt = document.createElement('option');
     opt.value = group;
@@ -210,7 +214,7 @@ async function handleExportBusinessFolder() {
 
     await navigator.clipboard.writeText(exportString);
     setStatus(`Pasta '${folder}' (${folderItems.length} itens) copiada para a área de transferência.`);
-  } catch (e) {
+  } catch (e: any) {
     console.error("Export folder failed", e); // NOSONAR
     setStatus('Erro ao exportar a pasta.');
   }
@@ -267,7 +271,7 @@ async function handleImportBusinessFolder() {
     setStatus(`${importedCount} itens importados com sucesso da pasta compartilhada.`);
     hideBusinessShareSection();
     handleSearch();
-  } catch (e) {
+  } catch (e: any) {
     console.error("Import folder failed", e); // NOSONAR
     setStatus('Falha ao descriptografar. PIN incorreto ou dados corrompidos.');
   }
@@ -361,7 +365,7 @@ async function handleShareCredential() {
 
     await navigator.clipboard.writeText(exportString);
     setStatus("Credencial criptografada copiada para a área de transferência.");
-  } catch (e) {
+  } catch (e: any) {
     console.error("Share failed", e); // NOSONAR
     setStatus("Falha ao compartilhar credencial.");
   }
@@ -400,7 +404,7 @@ async function handleImportSharedCredential() {
 
     setStatus(`Credencial de ${item.site} importada com sucesso.`);
     handleSearch();
-  } catch (e) {
+  } catch (e: any) {
     console.error("Import failed", e); // NOSONAR
     setStatus("Falha ao importar. Senha incorreta ou dados corrompidos.");
   }
@@ -599,7 +603,7 @@ async function handleExportEmergencyVault() {
 
     await navigator.clipboard.writeText(exportString);
     setStatus("Cofre de emergência copiado para a área de transferência.");
-  } catch (e) {
+  } catch (e: any) {
     console.error("Export emergency failed", e); // NOSONAR
     setStatus("Falha ao exportar cofre de emergência.");
   }
@@ -640,7 +644,7 @@ async function handleImportEmergencyVault() {
     emergencyAccessSection.classList.add('hidden');
     vaultSection.classList.remove('hidden');
     renderVault(currentVault);
-  } catch (e) {
+  } catch (e: any) {
     console.error("Import emergency failed", e); // NOSONAR
     setStatus("Falha ao importar. Senha incorreta ou formato inválido.");
   }
