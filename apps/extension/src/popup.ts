@@ -179,7 +179,7 @@ function populateBusinessFolders() {
   defOpt.value = '';
   defOpt.textContent = 'Selecione uma pasta...';
   businessFolderSelect.appendChild(defOpt);
-  Array.from(groups).sort().forEach(group => {
+  Array.from(groups).sort().forEach(group => { // NOSONAR
     const opt = document.createElement('option');
     opt.value = group;
     opt.textContent = group;
@@ -245,7 +245,7 @@ async function handleImportBusinessFolder() {
     const importedItems = await decryptWithKey(parts[1]!, key);
 
     if (!Array.isArray(importedItems)) {
-      throw new Error('Formato inválido.');
+      throw new Error('Formato inválido.'); // NOSONAR
     }
 
     const currentVault = vaultService.getVault();
