@@ -1,6 +1,29 @@
 import { decryptWithKey, encryptWithKey } from '../utils/crypto.js';
 
 export class CredentialService {
+  static async getPolicies(sendResponse: (response: any) => void) {
+      chrome.storage.session.get(['sessionKey'], async (sessionResult) => {
+          if (!sessionResult.sessionKey) {
+              sendResponse({ error: 'LOCKED', policies: null });
+              return;
+          }
+          chrome.storage.local.get(['bunkerpass.vault'], async (localResult) => {
+              if (!localResult['bunkerpass.vault']) {
+                  sendResponse({ policies: null });
+                  return;
+              }
+              try {
+                  const decrypted = await decryptWithKey(localResult['bunkerpass.vault'] as string, sessionResult.sessionKey as CryptoKey);
+                  const policyItem = decrypted.find((item: any) => item.type === 'business-policy' && item.site === 'business-policy');
+                  sendResponse({ policies: policyItem || null });
+              } catch (e) {
+                  console.error(e); // NOSONAR
+                  sendResponse({ error: 'DECRYPT_FAILED', policies: null });
+              }
+          });
+      });
+  }
+
   static async getCredentials(domain: string, sendResponse: (response: any) => void, onActivity?: () => void) {
     chrome.storage.session.get(['sessionKey'], async (sessionResult) => {
       if (!sessionResult.sessionKey) {

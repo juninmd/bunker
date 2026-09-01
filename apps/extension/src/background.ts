@@ -62,6 +62,11 @@ chrome.runtime.onMessage.addListener((request: any, sender: chrome.runtime.Messa
     return true;
   }
 
+  if (request.type === 'GET_POLICIES') {
+    CredentialService.getPolicies(sendResponse);
+    return true;
+  }
+
   if (request.type === 'TRIGGER_SYNC') {
       // Typically the popup handles actual sync with GDrive
       // We just acknowledge it.
