@@ -131,6 +131,7 @@
         </div>
         <button id="importSharedBtn" class="secondary mt-8">Importar Credencial Compartilhada</button>
         <button id="businessShareBtn" class="secondary mt-8">Compartilhamento Empresarial</button>
+        <button id="businessHubBtn" class="secondary mt-8">Gestão Empresarial (Hub)</button>
         <div id="last-sync" class="last-sync"></div>
         <button id="securityDashboardBtn" class="secondary">Painel de Segurança</button>
         <button id="digitalWillBtn" class="secondary">Testamento Digital</button>
@@ -184,6 +185,29 @@
         </div>
 
         <button id="backFromBusinessShareBtn" class="secondary mt-8">Voltar ao Cofre</button>
+      </section>
+
+      <section id="business-hub-section" class="hidden">
+        <h2>Gestão Empresarial (Hub)</h2>
+        <p class="fs-09 mb-16">Configure as políticas globais de segurança da sua empresa e restrições de SaaS.</p>
+
+        <form id="businessHubForm">
+          <div style="border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; border-radius: 4px;">
+            <h3>Gerenciamento de Usuários</h3>
+            <label for="hubMinPasswordLength" style="display: block; margin-bottom: 5px;">Tamanho Mínimo de Senha Global:</label>
+            <input type="number" id="hubMinPasswordLength" placeholder="Ex: 16" min="8" max="64" value="16" style="width: 100%; margin-bottom: 10px;" />
+          </div>
+
+          <div style="border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; border-radius: 4px;">
+            <h3>SaaS Protect</h3>
+            <label for="hubBlockedDomains" style="display: block; margin-bottom: 5px;">Domínios Bloqueados (um por linha):</label>
+            <textarea id="hubBlockedDomains" rows="4" placeholder="exemplo.com&#10;jogos.com" style="width: 100%; font-family: monospace;"></textarea>
+            <p class="fs-09 mt-8" style="color: #666;">Acesso a estes domínios será bloqueado na extensão.</p>
+          </div>
+
+          <button type="submit" class="mt-8">Salvar Políticas</button>
+        </form>
+        <button id="backFromBusinessHubBtn" class="secondary mt-8">Voltar ao Cofre</button>
       </section>
 
       <section id="security-dashboard-section" class="hidden">

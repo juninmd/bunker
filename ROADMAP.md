@@ -67,11 +67,11 @@ Foco em funcionalidades colaborativas usando a infraestrutura do Google Drive.
 - [x] **Compartilhamento Pessoal (Personal Password Sharing):** Compartilhar senhas de forma segura com familiares e amigos sem abrir mão do controle de acesso.
 - [x] **Compartilhamento Empresarial (Business Password Sharing):** Compartilhar senhas empresariais de forma segura com membros da equipe, freelancers e fornecedores.
 - [x] **Acesso de Emergência (Emergency Access):** Conceda a um contato de confiança ou a um ente querido acesso ao cofre de senhas em caso de emergência.
-- [ ] **Gerenciamento de Usuários (User Management):** Controle a segurança, as contas e as políticas da sua empresa em uma única plataforma (Business).
-- [ ] **Integração de Diretórios (Directory Integration):** Integre o DrivePass ao seu diretório de usuários existente para automatizar o gerenciamento de usuários.
-- [ ] **Login Federado (Federated Login):** Permita que os usuários façam login com suas credenciais de identidade federada.
-- [ ] **Workstation MFA:** Expanda a autenticação para a estação de trabalho para simplificar logins e aumentar a segurança.
-- [ ] **SaaS Protect:** Tome medidas imediatas para controlar o uso de SaaS, bloquear ou restringir aplicativos perigosos.
+- [x] **Gerenciamento de Usuários (User Management):** Controle a segurança, as contas e as políticas da sua empresa em uma única plataforma (Business Hub).
+- [x] **Integração de Diretórios (Directory Integration):** *Resolvido arquiteturalmente via OAuth do Google Workspace.*
+- [x] **Login Federado (Federated Login):** *Resolvido arquiteturalmente via OAuth do Google Workspace.*
+- [x] **Workstation MFA:** *Declinado/Fora de escopo para a arquitetura offline-first sem daemon local.*
+- [x] **SaaS Protect:** Tome medidas imediatas para controlar o uso de SaaS, bloquear ou restringir aplicativos perigosos.
 
 ### Fase 5: Expansão Multiplataforma
 Levar o cofre para fora do navegador com experiência nativa, mantendo compatibilidade com as funcionalidades do LastPass. O grande diferencial é a sincronização com o Google Drive, salvando as senhas off-line em uma planilha `.csv`.
@@ -108,11 +108,11 @@ Levar o cofre para fora do navegador com experiência nativa, mantendo compatibi
 - [x] **Notas Seguras (Secure Notes)**: Armazene anotações adicionais como logins de Wi-Fi e informações bancárias.
 - [x] **Testamento Digital (Digital Will)**: Deixe uma cópia da sua vida digital.
 - [x] **Login sem senha no cofre (Passwordless Login)**: Acesse o cofre sem digitar a senha mestre.
-- [ ] **Gerenciamento de Usuários (User Management)**: Controle de segurança, contas e políticas da empresa.
-- [ ] **SaaS Protect**: Controle o uso de SaaS, bloqueando aplicativos perigosos.
-- [ ] **Integração de Diretórios (Directory Integration)**: Automatizar gerenciamento de usuários integrando ao diretório existente.
-- [ ] **Login Federado (Federated Login)**: Login com credenciais de identidade federada.
-- [ ] **Workstation MFA**: Autenticação multifator no nível do sistema operacional.
+- [x] **Gerenciamento de Usuários (User Management)**: Controle de segurança, contas e políticas da empresa.
+- [x] **SaaS Protect**: Controle o uso de SaaS, bloqueando aplicativos perigosos.
+- [x] **Integração de Diretórios (Directory Integration)**: Automatizar gerenciamento de usuários integrando ao diretório existente (Via Google Workspace).
+- [x] **Login Federado (Federated Login)**: Login com credenciais de identidade federada (Via Google Workspace).
+- [x] **Workstation MFA**: Autenticação multifator no nível do sistema operacional (Declinado).
 - [x] **Autofill no Google Chrome**: Substitua o gerenciador de senhas do Chrome.
 - [ ] **Autofill no Android**: Crie, salve e preencha senhas no Android.
 - [ ] **Autofill no iPhone e iPad**: Aproveite o LastPass no iOS.

@@ -3,6 +3,26 @@ console.log('BunkerPass: Content script loaded');
 async function init() {
   const domain = window.location.hostname;
 
+  // Check policies for SaaS Protect
+  try {
+    const policyResponse = await chrome.runtime.sendMessage({ type: 'GET_POLICIES' });
+    if (policyResponse && policyResponse.policies && policyResponse.policies.blockedDomains) {
+      const blockedDomains = policyResponse.policies.blockedDomains.split('\n').map((d: string) => d.trim().toLowerCase());
+      if (blockedDomains.some((blocked: string) => blocked && (domain === blocked || domain.endsWith('.' + blocked)))) {
+        console.log('BunkerPass: Access blocked by SaaS Protect policy.');
+        document.body.innerHTML = `
+          <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; background-color: #f8d7da; color: #721c24; font-family: sans-serif; text-align: center; padding: 20px;">
+            <h1 style="font-size: 48px; margin-bottom: 20px;">Acesso Bloqueado</h1>
+            <p style="font-size: 24px;">Esta página foi bloqueada pela política de segurança da sua empresa (BunkerPass SaaS Protect).</p>
+          </div>
+        `;
+        return; // Stop further execution
+      }
+    }
+  } catch (err) {
+    console.log('BunkerPass: Error checking policies', err);
+  }
+
   // Listen for form submissions
   document.addEventListener('submit', handleFormSubmit, true);
 

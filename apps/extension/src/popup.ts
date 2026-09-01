@@ -59,6 +59,12 @@ const backFromEmergencyBtn = document.getElementById('backFromEmergencyBtn') as 
 
 const businessShareBtn = document.getElementById('businessShareBtn') as HTMLButtonElement;
 const businessShareSection = document.getElementById('business-share-section') as HTMLElement;
+const businessHubBtn = document.getElementById('businessHubBtn') as HTMLButtonElement;
+const businessHubSection = document.getElementById('business-hub-section') as HTMLElement;
+const businessHubForm = document.getElementById('businessHubForm') as HTMLFormElement;
+const hubMinPasswordLength = document.getElementById('hubMinPasswordLength') as HTMLInputElement;
+const hubBlockedDomains = document.getElementById('hubBlockedDomains') as HTMLTextAreaElement;
+const backFromBusinessHubBtn = document.getElementById('backFromBusinessHubBtn') as HTMLButtonElement;
 const backFromBusinessShareBtn = document.getElementById('backFromBusinessShareBtn') as HTMLButtonElement;
 const businessFolderSelect = document.getElementById('businessFolderSelect') as HTMLSelectElement;
 const exportBusinessFolderBtn = document.getElementById('exportBusinessFolderBtn') as HTMLButtonElement;
@@ -147,6 +153,52 @@ importEmergencyBtn.addEventListener('click', handleImportEmergencyVault);
 
 businessShareBtn.addEventListener('click', showBusinessShareSection);
 backFromBusinessShareBtn.addEventListener('click', hideBusinessShareSection);
+
+businessHubBtn.addEventListener('click', showBusinessHubSection);
+backFromBusinessHubBtn.addEventListener('click', () => {
+    businessHubSection.classList.add('hidden');
+    vaultSection.classList.remove('hidden');
+});
+
+businessHubForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const vault = vaultService.getVault();
+    const existingIndex = vault.findIndex((i: any) => i.type === 'business-policy' && i.site === 'business-policy');
+    const policyItem = {
+        id: existingIndex >= 0 ? vault[existingIndex].id : crypto.randomUUID(),
+        type: 'business-policy',
+        site: 'business-policy',
+        minPasswordLength: parseInt(hubMinPasswordLength.value, 10) || 16,
+        blockedDomains: hubBlockedDomains.value,
+        updatedAt: new Date().toISOString()
+    };
+
+    if (existingIndex >= 0) {
+        vault[existingIndex] = policyItem;
+    } else {
+        vault.push(policyItem);
+    }
+
+    await vaultService.save(vault);
+    statusEl.textContent = 'Políticas empresariais salvas com sucesso!';
+    statusEl.style.color = 'green';
+    setTimeout(() => {
+        businessHubSection.classList.add('hidden');
+        vaultSection.classList.remove('hidden');
+    }, 1500);
+});
+
+function showBusinessHubSection() {
+    vaultSection.classList.add('hidden');
+    businessHubSection.classList.remove('hidden');
+
+    const vault = vaultService.getVault();
+    const policyItem = vault.find((i: any) => i.type === 'business-policy' && i.site === 'business-policy');
+    if (policyItem) {
+        hubMinPasswordLength.value = policyItem.minPasswordLength?.toString() || '16';
+        hubBlockedDomains.value = policyItem.blockedDomains || '';
+    }
+}
 exportBusinessFolderBtn.addEventListener('click', handleExportBusinessFolder);
 importBusinessFolderBtn.addEventListener('click', handleImportBusinessFolder);
 
