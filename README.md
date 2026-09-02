@@ -61,13 +61,14 @@ This project follows the **Antigravity** code standards:
 - Migrated Desktop Application (`apps/desktop`) to TypeScript, renaming files to `.ts`, configuring `tsconfig.json` for ES2022+ module compatibility, and updating Electron build process.
 - Updated `apps/desktop/src/main.ts` with explicit security preferences (`webviewTag: false`).
 - Migrated Android Application (`apps/android`) to TypeScript, converting `.js` files to `.tsx` / `.ts` and configuring `tsconfig.json`.
+- Integrated Android Autofill subsystem into the Expo App via a Custom Config Plugin, registering `DrivePassAutofillService` and providing React Native bindings to check/enable System Autofill settings.
 
 **Known Bugs**:
 - None explicitly identified currently.
 
 **Next Tasks**:
 
-- Begin Phase 5 (Cross-Platform Expansion) features, starting with integrating the Android App (`apps/android`) with the native Android Autofill framework.
+- Implement Autofill Service UI and Logic for the Android App (`apps/android`) to query the offline `passwords.csv` and map credentials into native Android inputs.
 
 ---
 

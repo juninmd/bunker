@@ -80,19 +80,19 @@ Levar o cofre para fora do navegador com experiência nativa, mantendo compatibi
   - [ ] Wrapper da lógica da extensão.
   - [ ] Atalho global para preenchimento em apps nativos.
   - [x] Funcionamento offline robusto com leitura de `passwords.csv`.
-- [ ] **App Android (React Native/Expo):**
-  - [ ] Salvar e preencher automaticamente credenciais (Integração com Autofill Framework do Android).
+- [~] **App Android (React Native/Expo):**
+  - [~] Salvar e preencher automaticamente credenciais (Integração com Autofill Framework do Android - Estrutura nativa iniciada).
   - [x] Acesso biométrico (Fingerprint/FaceID) para desbloqueio.
   - [ ] Sincronização automática de dispositivos via Google Drive.
   - [ ] **APK:** Geração automatizada de APK via GitHub Actions.
 - [ ] **App iOS:**
   - [ ] Salvar e preencher automaticamente no iPhone e iPad.
-- [ ] **Salvar e preencher automaticamente em outros Navegadores e Dispositivos:**
+- [~] **Salvar e preencher automaticamente em outros Navegadores e Dispositivos:**
   - [x] Google Chrome
   - [x] Mozilla Firefox
   - [ ] Apple Safari
   - [ ] Microsoft Edge
-  - [ ] Android (Autofill framework nativo)
+  - [~] Android (Autofill framework nativo estruturado via Expo Config Plugin)
   - [ ] iPhone e iPad (iOS Autofill)
 
 ### Funcionalidades mapeadas do LastPass (Recapitulação Detalhada da página oficial)
