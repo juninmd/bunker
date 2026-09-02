@@ -5,6 +5,7 @@ import { SyncService } from './src/SyncService';
 import { PasswordGenerator } from './src/PasswordGenerator';
 import * as LocalAuthentication from 'expo-local-authentication';
 import * as SecureStore from 'expo-secure-store';
+import AutofillModule from './src/native/AutofillModule';
 
 export default function App() {
   const [isUnlocked, setIsUnlocked] = useState(false);
@@ -12,6 +13,29 @@ export default function App() {
   const [vaultData, setVaultData] = useState<any[]>([]);
   const [isSyncing, setIsSyncing] = useState(false);
   const [showGenerator, setShowGenerator] = useState(false);
+  const [isAutofillEnabled, setIsAutofillEnabled] = useState(false);
+  const [hasAutofillSupport, setHasAutofillSupport] = useState(false);
+
+  const checkAutofillStatus = async () => {
+    try {
+      if (AutofillModule) {
+        const supported = await AutofillModule.hasAutofillSupport();
+        setHasAutofillSupport(supported);
+        if (supported) {
+          const enabled = await AutofillModule.isAutofillEnabled();
+          setIsAutofillEnabled(enabled);
+        }
+      }
+    } catch (e) {
+      console.log('Error checking autofill status', e);
+    }
+  };
+
+  const handleRequestAutofill = () => {
+    if (AutofillModule) {
+      AutofillModule.requestAutofillSetting();
+    }
+  };
 
   const renderItem = useCallback(({ item }: { item: any }) => (
     <TouchableOpacity style={styles.item}>
@@ -24,6 +48,7 @@ export default function App() {
     if (masterPassword.length > 0) {
       await SecureStore.setItemAsync('masterPassword', masterPassword);
       setIsUnlocked(true);
+      checkAutofillStatus();
     }
   };
 
@@ -48,6 +73,7 @@ export default function App() {
         if (stored) {
           setMasterPassword(stored);
           setIsUnlocked(true);
+          checkAutofillStatus();
         } else {
           Alert.alert('Erro', 'Por favor, faça login com sua senha mestre primeiro.');
         }
@@ -110,6 +136,18 @@ export default function App() {
             color="#fbbc05"
           />
         </View>
+
+        {hasAutofillSupport && (
+          <View style={{ marginTop: 15 }}>
+            <Button
+              title={isAutofillEnabled ? "Preenchimento Automático Ativado ✅" : "Ativar Preenchimento Automático do Android"}
+              onPress={handleRequestAutofill}
+              color={isAutofillEnabled ? "#34a853" : "#ea4335"}
+            />
+            {!isAutofillEnabled && <Text style={{fontSize: 12, color: '#666', textAlign: 'center', marginTop: 4}}>Ao clicar, selecione o DrivePass na lista do sistema.</Text>}
+          </View>
+        )}
+
         <Text style={{color: 'orange', textAlign: 'center', marginTop: 10}}>Aviso: Sincronização offline-first com Google Drive ativa.</Text>
       </View>
 
