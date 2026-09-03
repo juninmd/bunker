@@ -1,4 +1,4 @@
-const { withAndroidManifest, withDangerousMod } = require('@expo/config-plugins');
+const { withAndroidManifest, withDangerousMod, withAppBuildGradle } = require('@expo/config-plugins');
 const fs = require('fs');
 const path = require('path');
 
@@ -58,14 +58,30 @@ const withAutofillFiles = (config) => {
       const serviceCode = `package ${packageName};
 
 import android.app.assist.AssistStructure;
+import android.app.assist.AssistStructure.ViewNode;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.CancellationSignal;
 import android.service.autofill.AutofillService;
+import androidx.security.crypto.EncryptedSharedPreferences;
+import androidx.security.crypto.MasterKeys;
+import android.service.autofill.Dataset;
 import android.service.autofill.FillCallback;
+import android.service.autofill.FillContext;
 import android.service.autofill.FillRequest;
 import android.service.autofill.FillResponse;
 import android.service.autofill.SaveCallback;
 import android.service.autofill.SaveRequest;
 import android.util.Log;
+import android.view.autofill.AutofillId;
+import android.view.autofill.AutofillValue;
+import android.widget.RemoteViews;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class DrivePassAutofillService extends AutofillService {
     private static final String TAG = "DrivePassAutofill";
@@ -74,12 +90,126 @@ public class DrivePassAutofillService extends AutofillService {
     public void onFillRequest(FillRequest request, CancellationSignal cancellationSignal, FillCallback callback) {
         Log.d(TAG, "onFillRequest called");
         try {
-            // Very basic empty response for now just to show it handles requests
-            FillResponse response = new FillResponse.Builder().build();
-            callback.onSuccess(response);
+            List<FillContext> contexts = request.getFillContexts();
+            AssistStructure structure = contexts.get(contexts.size() - 1).getStructure();
+
+            List<ViewNode> usernameNodes = new ArrayList<>();
+            List<ViewNode> passwordNodes = new ArrayList<>();
+            final String[] extractedWebDomain = new String[1];
+
+            traverseStructure(structure.getWindowNodeAt(0).getRootViewNode(), usernameNodes, passwordNodes, extractedWebDomain);
+
+            if (usernameNodes.isEmpty() && passwordNodes.isEmpty()) {
+                callback.onSuccess(null);
+                return;
+            }
+
+            String currentPackage = "";
+            if (structure.getActivityComponent() != null) {
+                currentPackage = structure.getActivityComponent().getPackageName();
+            }
+            String currentWebDomain = extractedWebDomain[0] != null ? extractedWebDomain[0] : "";
+
+            SharedPreferences prefs = EncryptedSharedPreferences.create(
+                    "DrivePassAutofill",
+                    MasterKeys.getOrCreate(MasterKeys.AES256_GCM_SPEC),
+                    this,
+                    EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+                    EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+            );
+            String json = prefs.getString("credentials", "[]");
+            JSONArray credentials = new JSONArray(json);
+
+            FillResponse.Builder responseBuilder = new FillResponse.Builder();
+            int matchedCount = 0;
+
+            for (int i = 0; i < credentials.length(); i++) {
+                JSONObject cred = credentials.getJSONObject(i);
+                String title = cred.optString("title", "Unknown");
+                String user = cred.optString("username", "");
+                String pass = cred.optString("password", "");
+
+                boolean match = false;
+                String lowerTitle = title.toLowerCase();
+                String lowerUser = user.toLowerCase();
+
+                if (!currentPackage.isEmpty() && (lowerTitle.contains(currentPackage) || currentPackage.contains(lowerTitle))) {
+                    match = true;
+                }
+                if (!currentWebDomain.isEmpty() && (lowerTitle.contains(currentWebDomain) || currentWebDomain.contains(lowerTitle))) {
+                    match = true;
+                }
+
+                if (!match) continue;
+
+                Dataset.Builder datasetBuilder = new Dataset.Builder();
+                boolean added = false;
+
+                RemoteViews presentation = new RemoteViews(getPackageName(), android.R.layout.simple_list_item_1);
+                presentation.setTextViewText(android.R.id.text1, title + (!user.isEmpty() ? " (" + user + ")" : ""));
+
+                for (ViewNode node : usernameNodes) {
+                    if (node.getAutofillId() != null) {
+                        datasetBuilder.setValue(node.getAutofillId(), AutofillValue.forText(user), presentation);
+                        added = true;
+                    }
+                }
+                for (ViewNode node : passwordNodes) {
+                    if (node.getAutofillId() != null) {
+                        datasetBuilder.setValue(node.getAutofillId(), AutofillValue.forText(pass), presentation);
+                        added = true;
+                    }
+                }
+
+                if (added) {
+                    responseBuilder.addDataset(datasetBuilder.build());
+                    matchedCount++;
+                    if (matchedCount >= 5) break;
+                }
+            }
+
+            if (matchedCount > 0) {
+                callback.onSuccess(responseBuilder.build());
+            } else {
+                callback.onSuccess(null);
+            }
         } catch (Exception e) {
             Log.e(TAG, "Error in onFillRequest", e);
             callback.onFailure(e.getMessage());
+        }
+    }
+
+    private void traverseStructure(ViewNode node, List<ViewNode> usernameNodes, List<ViewNode> passwordNodes, String[] webDomain) {
+        if (node.getWebDomain() != null) {
+            webDomain[0] = node.getWebDomain();
+        }
+
+        if (node.getAutofillHints() != null) {
+            for (String hint : node.getAutofillHints()) {
+                String lowerHint = hint.toLowerCase();
+                if (lowerHint.contains("username") || lowerHint.contains("email")) {
+                    usernameNodes.add(node);
+                } else if (lowerHint.contains("password")) {
+                    passwordNodes.add(node);
+                }
+            }
+        } else {
+            int inputType = node.getInputType();
+            // TYPE_TEXT_VARIATION_PASSWORD = 128, TYPE_TEXT_VARIATION_WEB_PASSWORD = 224, TYPE_NUMBER_VARIATION_PASSWORD = 16
+            if ((inputType & 128) == 128 || (inputType & 224) == 224 || (inputType & 16) == 16) {
+                passwordNodes.add(node);
+            } else if (node.getHint() != null) {
+                String hint = node.getHint().toString().toLowerCase();
+                if (hint.contains("username") || hint.contains("email") || hint.contains("user")) {
+                    usernameNodes.add(node);
+                } else if (hint.contains("password")) {
+                    passwordNodes.add(node);
+                }
+            }
+        }
+
+        for (int i = 0; i < node.getChildCount(); i++) {
+            traverseStructure(node.getChildAt(i), usernameNodes, passwordNodes, webDomain);
         }
     }
 
@@ -99,8 +229,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.provider.Settings;
 import android.view.autofill.AutofillManager;
+import android.content.SharedPreferences;
 
 import androidx.annotation.NonNull;
+import androidx.security.crypto.EncryptedSharedPreferences;
+import androidx.security.crypto.MasterKeys;
 
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
@@ -158,6 +291,23 @@ public class AutofillModule extends ReactContextBaseJavaModule {
             }
         }
     }
+
+    @ReactMethod
+    public void saveCredentials(String json) {
+        try {
+            String masterKeyAlias = MasterKeys.getOrCreate(MasterKeys.AES256_GCM_SPEC);
+            SharedPreferences prefs = EncryptedSharedPreferences.create(
+                    "DrivePassAutofill",
+                    masterKeyAlias,
+                    reactContext,
+                    EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+                    EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+            );
+            prefs.edit().putString("credentials", json).apply();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 }
 `;
       fs.writeFileSync(path.join(javaPath, 'AutofillModule.java'), moduleCode);
@@ -213,8 +363,25 @@ public class AutofillPackage implements ReactPackage {
   ]);
 };
 
+const withAutofillGradle = (config) => {
+  return withAppBuildGradle(config, async config => {
+    const buildGradle = config.modResults.contents;
+    const dependency = "implementation 'androidx.security:security-crypto:1.1.0-alpha06'";
+
+    // Check if the dependency is already added to avoid duplicates
+    if (!buildGradle.includes("androidx.security:security-crypto")) {
+      config.modResults.contents = buildGradle.replace(
+        /dependencies\s*\{/,
+        `dependencies {\n    ${dependency}`
+      );
+    }
+    return config;
+  });
+};
+
 module.exports = function withAutofill(config) {
   config = withAutofillManifest(config);
   config = withAutofillFiles(config);
+  config = withAutofillGradle(config);
   return config;
 };

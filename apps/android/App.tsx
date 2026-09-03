@@ -123,6 +123,9 @@ export default function App() {
                setIsSyncing(true);
                const data = await SyncService.syncWithGoogleDrive();
                setVaultData(data as any[]);
+               if (AutofillModule) {
+                 AutofillModule.saveCredentials(JSON.stringify(data));
+               }
                setIsSyncing(false);
                console.log('Sincronizado com passwords.csv no Drive!'); // NOSONAR
              }}

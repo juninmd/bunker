@@ -68,7 +68,7 @@ This project follows the **Antigravity** code standards:
 
 **Next Tasks**:
 
-- Implement Autofill Service UI and Logic for the Android App (`apps/android`) to query the offline `passwords.csv` and map credentials into native Android inputs.
+- Configure Google Play Store deployment pipelines via EAS and fastlane.
 
 ---
 
