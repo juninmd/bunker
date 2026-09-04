@@ -62,13 +62,15 @@ This project follows the **Antigravity** code standards:
 - Updated `apps/desktop/src/main.ts` with explicit security preferences (`webviewTag: false`).
 - Migrated Android Application (`apps/android`) to TypeScript, converting `.js` files to `.tsx` / `.ts` and configuring `tsconfig.json`.
 - Integrated Android Autofill subsystem into the Expo App via a Custom Config Plugin, registering `DrivePassAutofillService` and providing React Native bindings to check/enable System Autofill settings.
+- Implemented exact URL and package matching inside `DrivePassAutofillService` to prevent false positive credential suggestions.
+- Configured automated real APK builds (via Gradle and Expo Prebuild) within the GitHub Actions `build-artifacts` workflow.
 
 **Known Bugs**:
 - None explicitly identified currently.
 
 **Next Tasks**:
-
-- Configure Google Play Store deployment pipelines via EAS and fastlane.
+- App iOS: Salvar e preencher automaticamente no iPhone e iPad.
+- Autofill no Safari: Acesse o cofre enquanto navega no Safari.
 
 ---
 
