@@ -7,7 +7,7 @@
     "android": "expo run:android",
     "ios": "expo run:ios",
     "web": "expo start --web",
-    "build:apk": "mkdir -p dist && echo 'Mock APK for version 1.0.0' > dist/bunkerpass-android-1.0.0.apk"
+    "build:apk": "mkdir -p dist && npx expo prebuild --clean && cd android && ./gradlew assembleRelease && cp app/build/outputs/apk/release/app-release.apk ../dist/bunkerpass-android-1.0.0.apk"
   },
   "dependencies": {
     "@expo/config-plugins": "^57.0.9",

@@ -133,11 +133,17 @@ public class DrivePassAutofillService extends AutofillService {
                 String lowerTitle = title.toLowerCase();
                 String lowerUser = user.toLowerCase();
 
-                if (!currentPackage.isEmpty() && (lowerTitle.contains(currentPackage) || currentPackage.contains(lowerTitle))) {
+                // Exact matching for Android apps
+                if (!currentPackage.isEmpty() && (lowerTitle.equals(currentPackage) || currentPackage.equals(lowerTitle))) {
                     match = true;
                 }
-                if (!currentWebDomain.isEmpty() && (lowerTitle.contains(currentWebDomain) || currentWebDomain.contains(lowerTitle))) {
-                    match = true;
+                // Strip protocols and paths for exact domain matching
+                if (!currentWebDomain.isEmpty()) {
+                    String cleanDomain = currentWebDomain.replaceFirst("^(https?://)?(www\\\\.)?", "").split("/")[0].toLowerCase();
+                    String cleanTitle = lowerTitle.replaceFirst("^(https?://)?(www\\\\.)?", "").split("/")[0];
+                    if (cleanDomain.equals(cleanTitle)) {
+                        match = true;
+                    }
                 }
 
                 if (!match) continue;

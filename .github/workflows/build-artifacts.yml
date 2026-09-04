@@ -33,6 +33,12 @@ jobs:
           zip -r ../../dist/bunkerpass-desktop-${{ github.ref_name }}.zip ./*
           cd ../..
 
+      - name: Setup Java for Android
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
       - name: Build Android APK
         run: |
           cd apps/android
