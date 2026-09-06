@@ -1,14 +1,15 @@
-# CRON Cycle Results: Android Autofill Matching & Automated APK Pipeline
+# CRON Cycle Results: Multiplataforma (Mobile Rename) & iOS Autofill (Expo Config Plugin)
 
 ## Task Completed
-- Implemented exact matching logic in `DrivePassAutofillService` (via `apps/android/plugins/withAutofill.js`) for both Android App Package IDs and Domain URLs (stripping protocols and paths). This eliminates false-positive credential suggestions and fortifies security.
-- Replaced the mock Android APK builder script (`apps/android/package.json`) with the actual native build sequence using `expo prebuild` and `gradlew assembleRelease`.
-- Updated the `.github/workflows/build-artifacts.yml` CI workflow to include the necessary Java 17 setup (`actions/setup-java@v4`) and configured it to capture the real `app-release.apk` artifact.
-- Checked off the Automated APK Roadmap item and documented changes in `README.md`.
+- Refatorou-se o diretório `apps/android` para `apps/mobile` no repositório, ajustando referências no CI/CD `.github/workflows/build-artifacts.yml` e no `package.json`.
+- Implementado um Config Plugin do Expo (`apps/mobile/plugins/ios-autofill`) que via `xcode` injeta de forma programática a extensão nativa (`DrivePassAutofill`) no projeto iOS.
+- Foram provisionados os arquivos `CredentialProviderViewController.swift`, `Info.plist` e configurados Entitlements para suportar `AuthenticationServices` e `Keychain Access Groups`.
+- Módulo `IosAutofillModule.ts` criado exportando uma interface comum para permitir abstração com a UI no futuro.
+- Documentação do `ROADMAP.md` e `README.md` atualizadas marcando o item de Autofill iOS como implementado estruturalmente.
 
 ## Known Bugs
-- None explicitly identified currently.
+- Nenhuma regressão imediata, prebuild executa localmente. Implementação Swift mínima aguardando integração completa JS -> Swift via UserDefaults/Keychain.
 
 ## Next Steps
-- App iOS: Salvar e preencher automaticamente no iPhone e iPad.
-- Autofill no Safari: Acesse o cofre enquanto navega no Safari.
+- Implementar a comunicação bi-direcional JS <-> Swift (NativeModule -> App Group -> ViewController).
+- Salvar e preencher automaticamente em outros Navegadores e Dispositivos (Ex: Apple Safari).
