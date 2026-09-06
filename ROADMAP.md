@@ -85,15 +85,15 @@ Levar o cofre para fora do navegador com experiência nativa, mantendo compatibi
   - [x] Acesso biométrico (Fingerprint/FaceID) para desbloqueio.
   - [ ] Sincronização automática de dispositivos via Google Drive.
   - [x] **APK:** Geração automatizada de APK via GitHub Actions.
-- [ ] **App iOS:**
-  - [ ] Salvar e preencher automaticamente no iPhone e iPad.
+- [~] **App iOS:**
+  - [~] Salvar e preencher automaticamente no iPhone e iPad (Estrutura nativa iniciada via Expo).
 - [~] **Salvar e preencher automaticamente em outros Navegadores e Dispositivos:**
   - [x] Google Chrome
   - [x] Mozilla Firefox
   - [ ] Apple Safari
   - [ ] Microsoft Edge
   - [~] Android (Autofill framework nativo estruturado via Expo Config Plugin)
-  - [ ] iPhone e iPad (iOS Autofill)
+  - [~] iPhone e iPad (iOS Autofill - Estrutura nativa iniciada via Expo Config Plugin)
 
 ### Funcionalidades mapeadas do LastPass (Recapitulação Detalhada da página oficial)
 - [x] **Gerador de Senhas (Password Generator)**: Criar senhas fortes, exclusivas e resistentes a hackers.

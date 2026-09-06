@@ -60,7 +60,7 @@ This project follows the **Antigravity** code standards:
 - Implemented secure Biometric Unlock (Fingerprint/FaceID) for Android App using `expo-local-authentication` and `expo-secure-store`.
 - Migrated Desktop Application (`apps/desktop`) to TypeScript, renaming files to `.ts`, configuring `tsconfig.json` for ES2022+ module compatibility, and updating Electron build process.
 - Updated `apps/desktop/src/main.ts` with explicit security preferences (`webviewTag: false`).
-- Migrated Android Application (`apps/android`) to TypeScript, converting `.js` files to `.tsx` / `.ts` and configuring `tsconfig.json`.
+- Migrated Android Application (`apps/mobile`) to TypeScript, converting `.js` files to `.tsx` / `.ts` and configuring `tsconfig.json`.
 - Integrated Android Autofill subsystem into the Expo App via a Custom Config Plugin, registering `DrivePassAutofillService` and providing React Native bindings to check/enable System Autofill settings.
 - Implemented exact URL and package matching inside `DrivePassAutofillService` to prevent false positive credential suggestions.
 - Configured automated real APK builds (via Gradle and Expo Prebuild) within the GitHub Actions `build-artifacts` workflow.

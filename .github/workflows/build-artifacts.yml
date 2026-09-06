@@ -41,10 +41,10 @@ jobs:
 
       - name: Build Android APK
         run: |
-          cd apps/android
+          cd apps/mobile
           npm install
           npm run build:apk
-          mv dist/bunkerpass-android-1.0.0.apk ../../dist/bunkerpass-android-${{ github.ref_name }}.apk
+          mv dist/bunkerpass-mobile-1.0.0.apk ../../dist/bunkerpass-mobile-${{ github.ref_name }}.apk
 
       - name: Upload Release Artifacts
         uses: softprops/action-gh-release@v2
