@@ -90,7 +90,7 @@ Levar o cofre para fora do navegador com experiência nativa, mantendo compatibi
 - [~] **Salvar e preencher automaticamente em outros Navegadores e Dispositivos:**
   - [x] Google Chrome
   - [x] Mozilla Firefox
-  - [ ] Apple Safari
+  - [x] Apple Safari
   - [ ] Microsoft Edge
   - [~] Android (Autofill framework nativo estruturado via Expo Config Plugin)
   - [~] iPhone e iPad (iOS Autofill - Estrutura nativa iniciada via Expo Config Plugin)
@@ -116,7 +116,7 @@ Levar o cofre para fora do navegador com experiência nativa, mantendo compatibi
 - [x] **Autofill no Google Chrome**: Substitua o gerenciador de senhas do Chrome.
 - [ ] **Autofill no Android**: Crie, salve e preencha senhas no Android.
 - [ ] **Autofill no iPhone e iPad**: Aproveite o LastPass no iOS.
-- [ ] **Autofill no Safari**: Acesse o cofre enquanto navega no Safari.
+- [x] **Autofill no Safari**: Acesse o cofre enquanto navega no Safari.
 - [x] **Autofill no Mozilla Firefox**: Salve e preencha senhas no Firefox.
 - [x] **Armazenamento Google Drive (O Diferencial)**: Diferente do LastPass, o DrivePass salva as senhas em um cofre no Google Drive (`.csv` offline), garantindo que apenas o usuário detenha as chaves de sua vida digital.
 
