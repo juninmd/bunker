@@ -24,6 +24,15 @@ function addEntitlements(config) {
     if (!entitlements['keychain-access-groups'].includes(group)) {
       entitlements['keychain-access-groups'].push(group);
     }
+
+    // Add App Group entitlement for sharing data between App and Extension
+    const appGroup = `group.${config.ios?.bundleIdentifier || 'com.drivepass.app'}.autofill`;
+    if (!entitlements['com.apple.security.application-groups']) {
+      entitlements['com.apple.security.application-groups'] = [];
+    }
+    if (!entitlements['com.apple.security.application-groups'].includes(appGroup)) {
+      entitlements['com.apple.security.application-groups'].push(appGroup);
+    }
     return config;
   });
 }
@@ -80,9 +89,26 @@ function createExtensionFiles(config) {
 class CredentialProviderViewController: ASCredentialProviderViewController {
 
     override func prepareCredentialList(for serviceIdentifiers: [ASCredentialServiceIdentifier]) {
-        let ext = NSExtensionContext()
-        ext.completeRequest(returningItems: [], completionHandler: nil)
-        self.extensionContext?.completeRequest(returningItems: [], completionHandler: nil)
+        let accessGroup = "$(AppIdentifierPrefix)${config.ios?.bundleIdentifier || 'com.drivepass.app'}"
+        let query: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: "DrivePassAutofillService",
+            kSecAttrAccount as String: "DrivePassAutofillAccount",
+            kSecAttrAccessGroup as String: accessGroup,
+            kSecReturnData as String: true,
+            kSecMatchLimit as String: kSecMatchLimitOne
+        ]
+
+        var dataTypeRef: AnyObject?
+        let status = SecItemCopyMatching(query as CFDictionary, &dataTypeRef)
+
+        if status == errSecSuccess, let data = dataTypeRef as? Data, let jsonString = String(data: data, encoding: .utf8) {
+            // In a real implementation, parse the JSON and return matching ASPasswordCredentialIdentity objects based on domain
+            // Here we indicate completion.
+            self.extensionContext?.completeRequest(returningItems: [], completionHandler: nil)
+        } else {
+            self.extensionContext?.completeRequest(returningItems: [], completionHandler: nil)
+        }
     }
 
     override func provideCredentialWithoutUserInteraction(for credentialIdentity: ASPasswordCredentialIdentity) {
@@ -100,6 +126,7 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
 `;
       fs.writeFileSync(path.join(extensionPath, 'CredentialProviderViewController.swift'), swiftContent);
 
+      const appGroup = `group.${config.ios?.bundleIdentifier || 'com.drivepass.app'}.autofill`;
       const entitlementsContent = `<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
@@ -110,9 +137,84 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
     <array>
         <string>$(AppIdentifierPrefix)${config.ios?.bundleIdentifier || 'com.drivepass.app'}</string>
     </array>
+    <key>com.apple.security.application-groups</key>
+    <array>
+        <string>${appGroup}</string>
+    </array>
 </dict>
 </plist>`;
       fs.writeFileSync(path.join(extensionPath, `${EXTENSION_NAME}.entitlements`), entitlementsContent);
+
+      // Create native module files for the main app target
+      const appPath = path.join(projectRoot, 'ios', config.name || 'DrivePass');
+
+      const moduleHeaderContent = `#import <React/RCTBridgeModule.h>
+
+@interface IosAutofillModule : NSObject <RCTBridgeModule>
+@end
+`;
+      fs.writeFileSync(path.join(appPath, 'IosAutofillModule.h'), moduleHeaderContent);
+
+      const moduleObjcContent = `#import "IosAutofillModule.h"
+#import <AuthenticationServices/AuthenticationServices.h>
+
+@implementation IosAutofillModule
+
+RCT_EXPORT_MODULE();
+
+RCT_EXPORT_METHOD(hasAutofillSupport:(RCTPromiseResolveBlock)resolve
+                  rejecter:(RCTPromiseRejectBlock)reject) {
+    if (@available(iOS 12.0, *)) {
+        resolve(@(YES));
+    } else {
+        resolve(@(NO));
+    }
+}
+
+RCT_EXPORT_METHOD(isAutofillEnabled:(RCTPromiseResolveBlock)resolve
+                  rejecter:(RCTPromiseRejectBlock)reject) {
+    if (@available(iOS 12.0, *)) {
+        [ASCredentialIdentityStore.sharedStore getStateWithCompletion:^(ASCredentialIdentityStoreState * _Nonnull state) {
+            resolve(@(state.isEnabled));
+        }];
+    } else {
+        resolve(@(NO));
+    }
+}
+
+RCT_EXPORT_METHOD(requestAutofillSetting) {
+    // There is no direct API to open autofill settings. The user must navigate manually.
+    // iOS doesn't allow programmatic redirection to the Password AutoFill settings page.
+}
+
+RCT_EXPORT_METHOD(saveCredentials:(NSString *)json) {
+    NSString *appGroup = @"group.${config.ios?.bundleIdentifier || 'com.drivepass.app'}.autofill";
+
+    // Save credentials to Keychain securely with shared access group
+    NSDictionary *query = @{
+        (__bridge id)kSecClass: (__bridge id)kSecClassGenericPassword,
+        (__bridge id)kSecAttrService: @"DrivePassAutofillService",
+        (__bridge id)kSecAttrAccount: @"DrivePassAutofillAccount",
+        (__bridge id)kSecAttrAccessGroup: @"$(AppIdentifierPrefix)${config.ios?.bundleIdentifier || 'com.drivepass.app'}"
+    };
+
+    // First, delete any existing item
+    SecItemDelete((__bridge CFDictionaryRef)query);
+
+    // Then add the new item
+    NSData *passwordData = [json dataUsingEncoding:NSUTF8StringEncoding];
+    NSMutableDictionary *addQuery = [query mutableCopy];
+    [addQuery setObject:passwordData forKey:(__bridge id)kSecValueData];
+
+    OSStatus status = SecItemAdd((__bridge CFDictionaryRef)addQuery, NULL);
+    if (status != errSecSuccess) {
+        NSLog(@"Failed to save credentials to Keychain for Autofill. Error code: %d", (int)status);
+    }
+}
+
+@end
+`;
+      fs.writeFileSync(path.join(appPath, 'IosAutofillModule.m'), moduleObjcContent);
 
       return config;
     },
@@ -164,6 +266,17 @@ function modifyXcodeProject(config) {
             proj.addBuildProperty('PRODUCT_BUNDLE_IDENTIFIER', `"${options.PRODUCT_BUNDLE_IDENTIFIER}"`, null, target.name);
             proj.addBuildProperty('CODE_SIGN_ENTITLEMENTS', `"${options.CODE_SIGN_ENTITLEMENTS}"`, null, target.name);
             proj.addBuildProperty('SWIFT_VERSION', options.SWIFT_VERSION, null, target.name);
+
+            // Add Native Module files to the main app target
+            const mainAppTargetName = config.name || 'DrivePass';
+            const targetUuid = proj.findTargetKey(mainAppTargetName);
+            if (targetUuid) {
+                const groupKey = proj.findPBXGroupKey({ name: mainAppTargetName });
+                if (groupKey) {
+                    proj.addHeaderFile(`${mainAppTargetName}/IosAutofillModule.h`, null, groupKey);
+                    proj.addSourceFile(`${mainAppTargetName}/IosAutofillModule.m`, null, groupKey);
+                }
+            }
         }
     } catch (e) {
         console.error("Error modifying xcode project: ", e);

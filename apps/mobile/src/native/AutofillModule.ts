@@ -1,4 +1,4 @@
-import { NativeModules } from 'react-native';
+import { NativeModules, Platform } from 'react-native';
 
 interface AutofillModuleType {
   hasAutofillSupport(): Promise<boolean>;
@@ -7,6 +7,6 @@ interface AutofillModuleType {
   saveCredentials(json: string): void;
 }
 
-const { AutofillModule } = NativeModules;
+const { AutofillModule, IosAutofillModule } = NativeModules;
 
-export default AutofillModule as AutofillModuleType;
+export default (Platform.OS === 'ios' ? IosAutofillModule : AutofillModule) as AutofillModuleType;
