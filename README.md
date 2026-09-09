@@ -42,6 +42,7 @@ This project follows the **Antigravity** code standards:
 ## 🔄 Current Progress & Next Steps (CRON Loop)
 
 **Progress**:
+- Integrated bi-directional communication between React Native and iOS App Extension via a shared Keychain Group, completing iOS AutoFill functionality.
 - Finalized Phase 4 features (Business Hub, User Management, SaaS Protect).
 - Implemented SaaS Protect in the extension, blocking access to configured domains.
 - Documented architectural decisions resolving Directory Integration and Federated Login natively via Google Workspace OAuth for the offline-first context.
@@ -70,7 +71,7 @@ This project follows the **Antigravity** code standards:
 - None explicitly identified currently.
 
 **Next Tasks**:
-- App iOS: Salvar e preencher automaticamente no iPhone e iPad. Integrar a comunicação bidirecional JS <-> Swift (NativeModule -> App Group -> ViewController).
+- Passkeys (WebAuthn): Implementar suporte nativo para criar e usar Passkeys no Desktop e App Mobile (já analisado para a extensão).
 
 ---
 
