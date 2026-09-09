@@ -86,9 +86,16 @@ function createExtensionFiles(config) {
 
       const swiftContent = `import AuthenticationServices
 
+struct VaultItem: Codable {
+    let id: String
+    let title: String
+    let username: String
+    let password: String
+}
+
 class CredentialProviderViewController: ASCredentialProviderViewController {
 
-    override func prepareCredentialList(for serviceIdentifiers: [ASCredentialServiceIdentifier]) {
+    private func getVaultItems() -> [VaultItem] {
         let accessGroup = "$(AppIdentifierPrefix)${config.ios?.bundleIdentifier || 'com.drivepass.app'}"
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
@@ -102,17 +109,38 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
         var dataTypeRef: AnyObject?
         let status = SecItemCopyMatching(query as CFDictionary, &dataTypeRef)
 
-        if status == errSecSuccess, let data = dataTypeRef as? Data, let jsonString = String(data: data, encoding: .utf8) {
-            // In a real implementation, parse the JSON and return matching ASPasswordCredentialIdentity objects based on domain
-            // Here we indicate completion.
-            self.extensionContext?.completeRequest(returningItems: [], completionHandler: nil)
-        } else {
-            self.extensionContext?.completeRequest(returningItems: [], completionHandler: nil)
+        if status == errSecSuccess, let data = dataTypeRef as? Data {
+            let decoder = JSONDecoder()
+            if let items = try? decoder.decode([VaultItem].self, from: data) {
+                return items
+            }
         }
+        return []
+    }
+
+    override func prepareCredentialList(for serviceIdentifiers: [ASCredentialServiceIdentifier]) {
+        let items = getVaultItems()
+        var credentialIdentities: [ASPasswordCredentialIdentity] = []
+
+        for item in items {
+            let identity = ASPasswordCredentialIdentity(serviceIdentifier: ASCredentialServiceIdentifier(identifier: item.title, type: .domain),
+                                                        user: item.username,
+                                                        recordIdentifier: item.id)
+            credentialIdentities.append(identity)
+        }
+
+        self.extensionContext?.completeRequest(returningItems: credentialIdentities, completionHandler: nil)
     }
 
     override func provideCredentialWithoutUserInteraction(for credentialIdentity: ASPasswordCredentialIdentity) {
-        self.extensionContext?.cancelRequest(withError: NSError(domain: ASExtensionErrorDomain, code: ASExtensionError.userInteractionRequired.rawValue, userInfo: nil))
+        let items = getVaultItems()
+        if let recordIdentifier = credentialIdentity.recordIdentifier,
+           let item = items.first(where: { $0.id == recordIdentifier }) {
+            let credential = ASPasswordCredential(user: item.username, password: item.password)
+            self.extensionContext?.completeRequest(withSelectedCredential: credential, completionHandler: nil)
+        } else {
+            self.extensionContext?.cancelRequest(withError: NSError(domain: ASExtensionErrorDomain, code: ASExtensionError.userInteractionRequired.rawValue, userInfo: nil))
+        }
     }
 
     override func prepareInterfaceToProvideCredential(for credentialIdentity: ASPasswordCredentialIdentity) {

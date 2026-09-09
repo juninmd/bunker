@@ -85,15 +85,15 @@ Levar o cofre para fora do navegador com experiência nativa, mantendo compatibi
   - [x] Acesso biométrico (Fingerprint/FaceID) para desbloqueio.
   - [ ] Sincronização automática de dispositivos via Google Drive.
   - [x] **APK:** Geração automatizada de APK via GitHub Actions.
-- [~] **App iOS:**
-  - [~] Salvar e preencher automaticamente no iPhone e iPad (Estrutura nativa iniciada via Expo).
+- [x] **App iOS:**
+  - [x] Salvar e preencher automaticamente no iPhone e iPad (Integração Autofill App Extension via App Group concluída).
 - [~] **Salvar e preencher automaticamente em outros Navegadores e Dispositivos:**
   - [x] Google Chrome
   - [x] Mozilla Firefox
   - [x] Apple Safari
   - [ ] Microsoft Edge
   - [~] Android (Autofill framework nativo estruturado via Expo Config Plugin)
-  - [~] iPhone e iPad (iOS Autofill - Estrutura nativa iniciada via Expo Config Plugin)
+  - [x] iPhone e iPad (iOS Autofill - Integração App Extension via Keychain Group concluída)
 
 ### Funcionalidades mapeadas do LastPass (Recapitulação Detalhada da página oficial)
 - [x] **Gerador de Senhas (Password Generator)**: Criar senhas fortes, exclusivas e resistentes a hackers.
@@ -115,7 +115,7 @@ Levar o cofre para fora do navegador com experiência nativa, mantendo compatibi
 - [x] **Workstation MFA**: Autenticação multifator no nível do sistema operacional (Declinado).
 - [x] **Autofill no Google Chrome**: Substitua o gerenciador de senhas do Chrome.
 - [ ] **Autofill no Android**: Crie, salve e preencha senhas no Android.
-- [ ] **Autofill no iPhone e iPad**: Aproveite o LastPass no iOS.
+- [x] **Autofill no iPhone e iPad**: Aproveite o LastPass no iOS.
 - [x] **Autofill no Safari**: Acesse o cofre enquanto navega no Safari.
 - [x] **Autofill no Mozilla Firefox**: Salve e preencha senhas no Firefox.
 - [x] **Armazenamento Google Drive (O Diferencial)**: Diferente do LastPass, o DrivePass salva as senhas em um cofre no Google Drive (`.csv` offline), garantindo que apenas o usuário detenha as chaves de sua vida digital.
