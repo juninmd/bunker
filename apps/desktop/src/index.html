@@ -110,10 +110,8 @@
         <button style="font-size: 14px; padding: 5px 10px; background-color: #666;">Dark Web</button>
         <button style="font-size: 14px; padding: 5px 10px; background-color: #666;">SaaS Protect</button>
         <button style="font-size: 14px; padding: 5px 10px; background-color: #666;">Testamento Digital</button>
+        <button style="font-size: 14px; padding: 5px 10px; background-color: #9c27b0; color: #fff;">Passkeys</button>
     </div>
-
-    <div style="display: flex; gap: 10px; justify-content: center; margin-top: 10px; flex-wrap: wrap;">
-        </div>
 
     <span class="badge">Sincronização Ativa (Google Drive)</span>
   </div>
@@ -236,13 +234,14 @@
            if (item.url === 'http' + '://sn') typeBadge.textContent = 'Nota Segura';
            else if (item.url === 'http' + '://cc') typeBadge.textContent = 'Cartão';
            else if (item.url === 'http' + '://id') typeBadge.textContent = 'Endereço';
+           else if (item.url === 'http' + '://pk') typeBadge.textContent = 'Passkey';
            else typeBadge.textContent = 'Senha';
 
            titleDiv.appendChild(typeBadge);
            headerDiv.appendChild(titleDiv);
            itemDiv.appendChild(headerDiv);
 
-           if (item.username && item.url !== 'http' + '://sn' && item.url !== 'http' + '://cc' && item.url !== 'http' + '://id') {
+           if (item.username && item.url !== 'http' + '://sn' && item.url !== 'http' + '://cc' && item.url !== 'http' + '://id' && item.url !== 'http' + '://pk') {
              const userDiv = document.createElement('div');
              userDiv.style.cssText = 'font-size: 14px; color: #666; word-break: break-all;';
              userDiv.textContent = item.username;
