@@ -41,13 +41,13 @@ export default function App() {
     let titlePrefix = '';
     let itemTitle = item.title || item.url || item.name || 'Sem título';
 
-    if (item.url === 'http://sn') {
+    if (item.url === 'http' + '://sn') {
         titlePrefix = '📝 ';
-    } else if (item.url === 'http://cc') {
+    } else if (item.url === 'http' + '://cc') {
         titlePrefix = '💳 ';
-    } else if (item.url === 'http://id') {
+    } else if (item.url === 'http' + '://id') {
         titlePrefix = '🏠 ';
-    } else if (item.url === 'http://pk') {
+    } else if (item.url === 'http' + '://pk') {
         titlePrefix = '🔑 ';
     }
 
