@@ -37,12 +37,27 @@ export default function App() {
     }
   };
 
-  const renderItem = useCallback(({ item }: { item: any }) => (
-    <TouchableOpacity style={styles.item}>
-      <Text style={styles.title}>{item.title}</Text>
-      <Text style={styles.subtitle}>{item.username}</Text>
-    </TouchableOpacity>
-  ), []);
+  const renderItem = useCallback(({ item }: { item: any }) => {
+    let titlePrefix = '';
+    let itemTitle = item.title || item.url || item.name || 'Sem título';
+
+    if (item.url === 'http://sn') {
+        titlePrefix = '📝 ';
+    } else if (item.url === 'http://cc') {
+        titlePrefix = '💳 ';
+    } else if (item.url === 'http://id') {
+        titlePrefix = '🏠 ';
+    } else if (item.url === 'http://pk') {
+        titlePrefix = '🔑 ';
+    }
+
+    return (
+      <TouchableOpacity style={styles.item}>
+        <Text style={styles.title}>{titlePrefix}{itemTitle}</Text>
+        <Text style={styles.subtitle}>{item.username || ''}</Text>
+      </TouchableOpacity>
+    );
+  }, []);
 
   const handleUnlock = async () => {
     if (masterPassword.length > 0) {

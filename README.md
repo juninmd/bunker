@@ -42,6 +42,7 @@ This project follows the **Antigravity** code standards:
 ## 🔄 Current Progress & Next Steps (CRON Loop)
 
 **Progress**:
+- Updated the Desktop and Mobile apps' rendering logic to parse and display passkeys (`http://pk`) natively in the vault interface. Full WebAuthn implementation is deferred due to complexity.
 - Integrated bi-directional communication between React Native and iOS App Extension via a shared Keychain Group, completing iOS AutoFill functionality.
 - Finalized Phase 4 features (Business Hub, User Management, SaaS Protect).
 - Implemented SaaS Protect in the extension, blocking access to configured domains.
@@ -71,7 +72,7 @@ This project follows the **Antigravity** code standards:
 - None explicitly identified currently.
 
 **Next Tasks**:
-- Passkeys (WebAuthn): Implementar suporte nativo para criar e usar Passkeys no Desktop e App Mobile (já analisado para a extensão).
+- Aprimorar UX: Implementar sincronização automática de dispositivos via Google Drive para o App Mobile (já feito para a extensão).
 
 ---
 
