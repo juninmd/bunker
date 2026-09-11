@@ -1,12 +1,12 @@
-# CRON Cycle Results: Passkeys Native Rendering Integration
+# CRON Cycle Results: Mobile Background Sync
 
 ## Task Completed
-- Atualizado `apps/desktop/src/index.html` para exibir itens de Passkeys que utilizam o formato `http://pk`.
-- Atualizado `apps/mobile/App.tsx` para adicionar o identificador de Passkeys (`http://pk`) utilizando o prefixo visual 🔑 na renderização nativa da lista.
-- Adicionada UI básica de parsing, porém a implementação completa de Passkeys (WebAuthn) nas plataformas foi diferida (assim como na Extensão) devido à alta complexidade arquitetural no momento.
+- Adicionada Sincronização automática de dispositivos (Background Device Sync) via Google Drive para o App Mobile (`apps/mobile`).
+- Implementada lógica utilizando `AppState` no React Native e intervalos periódicos de 15 minutos enquanto o app estiver em execução (foreground/active) ou retornar do background.
+- Atualizado o provedor de sincronização `SyncService.ts` com cache local na memória (`cachedAccessToken`) para evitar reprompts constantes do Google OAuth de forma interativa enquanto trabalha no background.
 
 ## Known Bugs
-- Nenhuma regressão detectada. Renderização condicional foi implementada de forma segura nas interfaces do Desktop e Mobile.
+- O fluxo de autenticação primária OAuth via `expo-auth-session` não suporta um "silent refresh" completo sem interação em alguns cenários. A solução foca em usar os tokens de sessão ativos via cache pelo máximo tempo suportado pelo token (~1 hora).
 
 ## Next Steps
-- Implementar sincronização automática de dispositivos (Device Sync) no App Mobile via Google Drive (já implementado na Extensão Web), para manter as senhas sempre atualizadas sem intervenção manual contínua.
+- Aprimorar a experiência de "Salvar e preencher automaticamente credenciais" integrando as APIs restantes com o Autofill Framework nativo.

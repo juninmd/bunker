@@ -51,6 +51,7 @@ This project follows the **Antigravity** code standards:
 - Implemented Emergency Access (Acesso de Emergência) in the browser extension, allowing users to securely export and import their entire encrypted vault with a temporary PIN for trusted contacts.
 - Expanded the Desktop Application (`apps/desktop`) to feature a robust offline CSV viewer with search filtering, item grouping, and secure password toggling.
 - Implemented Digital Will (Testamento Digital) and Personal Password Sharing (Compartilhamento Pessoal) in the browser extension.
+- Implemented Automatic Background Device Sync for the React Native mobile app to keep vault credentials fresh automatically.
 - Implemented Automatic Background Device Sync for the browser extension to synchronize vault items without manual user interaction.
 - Verified Password History feature and officially updated roadmap mapping.
 - Implemented Account Recovery mechanism for the browser extension using a securely generated high-entropy code.
@@ -72,7 +73,7 @@ This project follows the **Antigravity** code standards:
 - None explicitly identified currently.
 
 **Next Tasks**:
-- Aprimorar UX: Implementar sincronização automática de dispositivos via Google Drive para o App Mobile (já feito para a extensão).
+- Aprimorar App Android: Salvar e preencher automaticamente credenciais (Integração total com Autofill Framework).
 
 ---
 
