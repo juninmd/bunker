@@ -1,12 +1,12 @@
-# CRON Cycle Results: Passkeys Native Rendering Integration
+# CRON Execution Artifact
 
-## Task Completed
-- Atualizado `apps/desktop/src/index.html` para exibir itens de Passkeys que utilizam o formato `http://pk`.
-- Atualizado `apps/mobile/App.tsx` para adicionar o identificador de Passkeys (`http://pk`) utilizando o prefixo visual 🔑 na renderização nativa da lista.
-- Adicionada UI básica de parsing, porém a implementação completa de Passkeys (WebAuthn) nas plataformas foi diferida (assim como na Extensão) devido à alta complexidade arquitetural no momento.
-
-## Known Bugs
-- Nenhuma regressão detectada. Renderização condicional foi implementada de forma segura nas interfaces do Desktop e Mobile.
+## Completed Tasks
+- **Feature**: Automatic Background Device Sync for Mobile App
+  - **Refactored `SyncService.ts`**: Implemented `cachedAccessToken` to allow subsequent Google Drive syncs without triggering the interactive OAuth popup.
+  - **Updated `App.tsx`**:
+    - Added `AppState` listeners to trigger background sync when returning to the foreground (`active` state).
+    - Implemented a 60-second interval sync while the app is actively used in the foreground.
+- **Documentation**: Updated `README.md` to reflect the completed task and designated Passkeys (WebAuthn) as the next major focus.
 
 ## Next Steps
-- Implementar sincronização automática de dispositivos (Device Sync) no App Mobile via Google Drive (já implementado na Extensão Web), para manter as senhas sempre atualizadas sem intervenção manual contínua.
+- Implement full native support for WebAuthn (Passkeys) or finalize associated interface testing in accordance with Phase 2 of the ROADMAP.
