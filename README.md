@@ -42,6 +42,7 @@ This project follows the **Antigravity** code standards:
 ## 🔄 Current Progress & Next Steps (CRON Loop)
 
 **Progress**:
+- Aprimorar UX: Implementar sincronização automática de dispositivos via Google Drive para o App Mobile.
 - Updated the Desktop and Mobile apps' rendering logic to parse and display passkeys (`http://pk`) natively in the vault interface. Full WebAuthn implementation is deferred due to complexity.
 - Integrated bi-directional communication between React Native and iOS App Extension via a shared Keychain Group, completing iOS AutoFill functionality.
 - Finalized Phase 4 features (Business Hub, User Management, SaaS Protect).
@@ -72,7 +73,7 @@ This project follows the **Antigravity** code standards:
 - None explicitly identified currently.
 
 **Next Tasks**:
-- Aprimorar UX: Implementar sincronização automática de dispositivos via Google Drive para o App Mobile (já feito para a extensão).
+- Implementar suporte completo a WebAuthn (Passkeys) nativo ou atualizar testes da interface (Fase 2 do ROADMAP).
 
 ---
 
