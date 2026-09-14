@@ -1,6 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, Button, FlatList, TouchableOpacity, TextInput, ActivityIndicator, Alert } from 'react-native';
-import { useCallback, useState } from 'react';
+import { StyleSheet, Text, View, Button, FlatList, TouchableOpacity, TextInput, ActivityIndicator, Alert, AppState } from 'react-native';
+import { useCallback, useState, useEffect } from 'react';
 import { SyncService } from './src/SyncService';
 import { PasswordGenerator } from './src/PasswordGenerator';
 import * as LocalAuthentication from 'expo-local-authentication';
@@ -15,6 +15,47 @@ export default function App() {
   const [showGenerator, setShowGenerator] = useState(false);
   const [isAutofillEnabled, setIsAutofillEnabled] = useState(false);
   const [hasAutofillSupport, setHasAutofillSupport] = useState(false);
+
+  const performSilentSync = async () => {
+    if (!isUnlocked || isSyncing) return;
+    try {
+      setIsSyncing(true);
+      const data = await SyncService.syncWithGoogleDrive(false); // interactive = false
+      setVaultData(data as any[]);
+      if (AutofillModule) {
+        AutofillModule.saveCredentials(JSON.stringify(data));
+      }
+      console.log('Silent sync completed'); // NOSONAR
+    } catch (e) {
+      console.log('Silent sync skipped or failed', e);
+    } finally {
+      setIsSyncing(false);
+    }
+  };
+
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', nextAppState => {
+      if (nextAppState === 'active' && isUnlocked) {
+        performSilentSync();
+      }
+    });
+
+    return () => {
+      subscription.remove();
+    };
+  }, [isUnlocked]);
+
+  useEffect(() => {
+    let intervalId: any;
+    if (isUnlocked) {
+      intervalId = setInterval(() => {
+        performSilentSync();
+      }, 5 * 60 * 1000); // 5 minutes
+    }
+    return () => {
+      if (intervalId) clearInterval(intervalId);
+    };
+  }, [isUnlocked]);
 
   const checkAutofillStatus = async () => {
     try {
@@ -89,6 +130,7 @@ export default function App() {
           setMasterPassword(stored);
           setIsUnlocked(true);
           checkAutofillStatus();
+          setTimeout(performSilentSync, 1000); // Initial sync after unlock
         } else {
           Alert.alert('Erro', 'Por favor, faça login com sua senha mestre primeiro.');
         }
