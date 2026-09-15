@@ -1,12 +1,12 @@
-# CRON Cycle Results: Passkeys Native Rendering Integration
+# CRON Cycle Results: Mobile Device Sync Integration
 
 ## Task Completed
-- Atualizado `apps/desktop/src/index.html` para exibir itens de Passkeys que utilizam o formato `http://pk`.
-- Atualizado `apps/mobile/App.tsx` para adicionar o identificador de Passkeys (`http://pk`) utilizando o prefixo visual 🔑 na renderização nativa da lista.
-- Adicionada UI básica de parsing, porém a implementação completa de Passkeys (WebAuthn) nas plataformas foi diferida (assim como na Extensão) devido à alta complexidade arquitetural no momento.
+- Atualizado `apps/mobile/src/SyncService.ts` para suportar autenticação silenciosa via Google Drive OAuth usando cache em memória (`cachedAccessToken`) e `expo-secure-store`.
+- Atualizado `apps/mobile/App.tsx` para sincronizar automaticamente quando o app volta ao primeiro plano (usando `AppState`) e via `setInterval` a cada 15 minutos enquanto ativo.
+- Corrigida indentação no `SyncService.ts`.
 
 ## Known Bugs
-- Nenhuma regressão detectada. Renderização condicional foi implementada de forma segura nas interfaces do Desktop e Mobile.
+- O uso de `setInterval` tem limitações quando o app vai para segundo plano. Isso será aprimorado com bibliotecas nativas de background em um passo futuro.
 
 ## Next Steps
-- Implementar sincronização automática de dispositivos (Device Sync) no App Mobile via Google Drive (já implementado na Extensão Web), para manter as senhas sempre atualizadas sem intervenção manual contínua.
+- Integrar `expo-background-fetch` e `expo-task-manager` para aprimorar a sincronização em segundo plano no app móvel.
