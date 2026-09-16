@@ -83,7 +83,7 @@ Levar o cofre para fora do navegador com experiência nativa, mantendo compatibi
 - [~] **App Android (React Native/Expo):**
   - [~] Salvar e preencher automaticamente credenciais (Integração com Autofill Framework do Android - Estrutura nativa iniciada).
   - [x] Acesso biométrico (Fingerprint/FaceID) para desbloqueio.
-  - [ ] Sincronização automática de dispositivos via Google Drive.
+  - [x] Sincronização automática de dispositivos via Google Drive.
   - [x] **APK:** Geração automatizada de APK via GitHub Actions.
 - [x] **App iOS:**
   - [x] Salvar e preencher automaticamente no iPhone e iPad (Integração Autofill App Extension via App Group concluída).
