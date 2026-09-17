@@ -1,31 +1,51 @@
 import * as Crypto from 'expo-crypto';
 import { parseCSV } from '../../extension/src/utils/csv-utils.js';
 import * as AuthSession from 'expo-auth-session';
+import * as SecureStore from 'expo-secure-store';
 
 export class SyncService {
+    static cachedAccessToken: string | null = null;
+
     /**
      * Download passwords.csv from Google Drive
      */
-    static async syncWithGoogleDrive() {
+    static async syncWithGoogleDrive(interactive: boolean = true): Promise<any[]> {
         try {
-            // Initiate a real OAuth2 flow with expo-auth-session
-            const redirectUri = AuthSession.makeRedirectUri();
+            let accessToken = this.cachedAccessToken;
+
+            if (!accessToken) {
+                accessToken = await SecureStore.getItemAsync('driveAccessToken');
+                if (accessToken) {
+                    this.cachedAccessToken = accessToken;
+                }
+            }
+
+            if (!accessToken && !interactive) {
+                console.log('No access token found and silent mode requested.');
+                return [];
+            }
+
+            if (!accessToken) {
+                // Initiate a real OAuth2 flow with expo-auth-session
+                const redirectUri = AuthSession.makeRedirectUri();
 
             // This is a placeholder client ID, it should be replaced with the actual Google Cloud Project client ID
             // in a real environment.
             const clientId = 'YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com';
 
-            const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=token&scope=https://www.googleapis.com/auth/drive.file`;
+                const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=token&scope=https://www.googleapis.com/auth/drive.file`;
 
-            // startAsync might be missing in type definitions or deprecated in favor of hooks,
-            // using any cast for the module to bypass TS error since it's a runtime API in older Expo
-            const result = await (AuthSession as any).startAsync({ authUrl }) as any;
+                // startAsync might be missing in type definitions or deprecated in favor of hooks,
+                // using any cast for the module to bypass TS error since it's a runtime API in older Expo
+                const result = await (AuthSession as any).startAsync({ authUrl }) as any;
 
-            let accessToken = null;
-            if (result.type === 'success' && result.params.access_token) {
-                accessToken = result.params.access_token;
-            } else {
-                throw new Error('OAuth authentication failed or was cancelled.');
+                if (result.type === 'success' && result.params.access_token) {
+                    accessToken = result.params.access_token;
+                    this.cachedAccessToken = accessToken;
+                    await SecureStore.setItemAsync('driveAccessToken', accessToken!);
+                } else {
+                    throw new Error('OAuth authentication failed or was cancelled.');
+                }
             }
 
             // Real fetch API call to Google Drive
@@ -35,6 +55,18 @@ export class SyncService {
                     Authorization: `Bearer ${accessToken}`
                 }
             });
+            if (searchResponse.status === 401) {
+                // Token expired or invalid
+                this.cachedAccessToken = null;
+                await SecureStore.deleteItemAsync('driveAccessToken');
+                if (interactive) {
+                    return this.syncWithGoogleDrive(true);
+                } else {
+                    console.log('Access token expired and silent mode requested.');
+                    return [];
+                }
+            }
+
             const searchData = await searchResponse.json();
 
             if (!searchData.files || searchData.files.length === 0) {
