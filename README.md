@@ -66,13 +66,14 @@ This project follows the **Antigravity** code standards:
 - Integrated Android Autofill subsystem into the Expo App via a Custom Config Plugin, registering `DrivePassAutofillService` and providing React Native bindings to check/enable System Autofill settings.
 - Implemented exact URL and package matching inside `DrivePassAutofillService` to prevent false positive credential suggestions.
 - Configured automated real APK builds (via Gradle and Expo Prebuild) within the GitHub Actions `build-artifacts` workflow.
+- Implemented Automatic Background Device Sync for the Android Mobile App via Google Drive to keep passwords updated without manual intervention.
 - Adicionada compatibilidade com Safari à extensão (Safari Web Extension format) via manifest `browser_specific_settings`.
 
 **Known Bugs**:
 - None explicitly identified currently.
 
 **Next Tasks**:
-- Aprimorar UX: Implementar sincronização automática de dispositivos via Google Drive para o App Mobile (já feito para a extensão).
+- Completar integração com Autofill Framework do Android: preenchimento de senhas salvo via Config Plugin.
 
 ---
 
