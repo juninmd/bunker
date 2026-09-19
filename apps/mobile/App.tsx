@@ -1,6 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, Button, FlatList, TouchableOpacity, TextInput, ActivityIndicator, Alert } from 'react-native';
-import { useCallback, useState } from 'react';
+import { StyleSheet, Text, View, Button, FlatList, TouchableOpacity, TextInput, ActivityIndicator, Alert, AppState, AppStateStatus } from 'react-native';
+import { useCallback, useState, useEffect, useRef } from 'react';
 import { SyncService } from './src/SyncService';
 import { PasswordGenerator } from './src/PasswordGenerator';
 import * as LocalAuthentication from 'expo-local-authentication';
@@ -15,6 +15,58 @@ export default function App() {
   const [showGenerator, setShowGenerator] = useState(false);
   const [isAutofillEnabled, setIsAutofillEnabled] = useState(false);
   const [hasAutofillSupport, setHasAutofillSupport] = useState(false);
+  const appState = useRef(AppState.currentState);
+  const isSyncingRef = useRef(false);
+
+  const performSilentSync = async () => {
+      if (isSyncingRef.current) return;
+      isSyncingRef.current = true;
+      setIsSyncing(true);
+      try {
+          const data = await SyncService.syncWithGoogleDrive(false);
+          if (data && data.length > 0) {
+              setVaultData(data as any[]);
+              if (AutofillModule) {
+                  AutofillModule.saveCredentials(JSON.stringify(data));
+              }
+              console.log('Silent sync completed'); // NOSONAR
+          }
+      } catch (e) {
+          console.log('Silent sync skipped or failed', e);
+      } finally {
+          isSyncingRef.current = false;
+          setIsSyncing(false);
+      }
+  };
+
+  useEffect(() => {
+      if (!isUnlocked) return;
+
+      // Perform initial silent sync upon unlock
+      performSilentSync();
+
+      // Set up interval for automatic syncing (every 15 minutes)
+      const syncInterval = setInterval(() => {
+          performSilentSync();
+      }, 15 * 60 * 1000);
+
+      // Listen for app state changes to sync when returning to foreground
+      const subscription = AppState.addEventListener('change', nextAppState => {
+          if (
+              appState.current.match(/inactive|background/) &&
+              nextAppState === 'active'
+          ) {
+              console.log('App has come to the foreground!');
+              performSilentSync();
+          }
+          appState.current = nextAppState;
+      });
+
+      return () => {
+          clearInterval(syncInterval);
+          subscription.remove();
+      };
+  }, [isUnlocked]);
 
   const checkAutofillStatus = async () => {
     try {
@@ -136,7 +188,7 @@ export default function App() {
              title="Sincronizar com Google Drive (CSV)"
              onPress={async () => {
                setIsSyncing(true);
-               const data = await SyncService.syncWithGoogleDrive();
+               const data = await SyncService.syncWithGoogleDrive(true);
                setVaultData(data as any[]);
                if (AutofillModule) {
                  AutofillModule.saveCredentials(JSON.stringify(data));
