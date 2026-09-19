@@ -1,9 +1,23 @@
-1.  **Refatorar diretório Mobile**: Já mudamos `apps/android` para `apps/mobile`. Renomeamos referências em `package.json`, `.github/workflows/build-artifacts.yml`, e `app.json`.
-2.  **Configurar dependência `xcode`**: Adicionamos o pacote `xcode` no `apps/mobile/package.json` para permitir a manipulação programática do `.pbxproj` pelo plugin do Expo.
-3.  **Desenvolver Plugin Expo (`ios-autofill`)**:
-    - Cria a pasta do Native Target (`DrivePassAutofill`).
-    - Adiciona `Info.plist`, `CredentialProviderViewController.swift`, e Entitlements corretos.
-    - Usa a lib `xcode` dentro do config-plugin para adicionar o novo target `app_extension`, ligar os arquivos Swift e configurar os build settings (`CODE_SIGN_ENTITLEMENTS`, `PRODUCT_BUNDLE_IDENTIFIER`, etc).
-4.  **Atualizar Roadmap/README**: Marcar a task de "Salvar e preencher automaticamente no iPhone e iPad" (iOS Autofill) como iniciada/parcialmente implementada ou testável via expo.
-5.  **Pre-commit steps**: `pre_commit_instructions`
-6.  **Submeter a branch com a funcionalidade (Submit)**.
+1. **Atualizar `SyncService.ts` no Mobile App**
+   - Importar `SecureStore`.
+   - Adicionar variável global em memória `cachedAccessToken`.
+   - Modificar `syncWithGoogleDrive` para aceitar `interactive: boolean = true`.
+   - Armazenar e recuperar o token no `SecureStore` e memória.
+   - Tratar erro 401 para limpar cache/store de tokens.
+
+2. **Atualizar `App.tsx` no Mobile App**
+   - Importar `AppState` e `useEffect`, `useRef`.
+   - Adicionar listener de `AppState` para iniciar um sync background (silencioso) ao voltar para o foreground se desbloqueado.
+   - Adicionar intervalo (`setInterval`) de 15 minutos enquanto o app estiver no foreground.
+   - Ajustar botão de sync manual para invocar com `interactive: true`.
+
+3. **Atualizar o arquivo `README.md`**
+   - Mover tarefa de "Implementar sincronização automática de dispositivos (Device Sync) no App Mobile via Google Drive" de `Next Tasks` para `Progress`.
+   - Atualizar `ROADMAP.md` e checklist (marcar como completo, se necessário).
+   - Atualizar a versão e documentação de progresso.
+
+4. **Completar passos de pré-commit**
+   - Rodar verificação (e.g. teste TS no App mobile) para certificar que compila.
+
+5. **Completar CRON_ARTIFACT.md**
+   - Finalizar o loop gerando o artefato de encerramento do cron.
