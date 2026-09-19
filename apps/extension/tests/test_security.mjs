@@ -5,6 +5,7 @@ const { chrome, listeners } = installChromeMock();
 const { VaultService } = await import('../src/services/vault-service.js');
 const { SyncService } = await import('../src/services/sync-service.js');
 const { encryptPayload, bytesToBase64 } = await import('../src/utils/crypto.js');
+const { openRemoteVault } = await import('../src/utils/vault-envelope.js');
 await import('../src/background.js');
 
 const MASTER = 'correct horse battery staple';
@@ -73,6 +74,9 @@ async function testSyncUploadsOnlyCiphertext() {
   syncB.driveService = drive;
   const { vault } = await syncB.sync();
   assert.strictEqual(vault[0].password, SECRET, 'a device with a different local salt must open the remote vault');
+
+  const downgraded = { ...JSON.parse(drive.files.get('vault.enc')), iterations: 250000 };
+  await assert.rejects(openRemoteVault(JSON.stringify(downgraded), MASTER), /Unsupported/, 'tampered file must not lower the KDF cost');
 }
 
 async function testPinIsMemoryOnlyAndWipedAfterFailures() {
@@ -106,6 +110,7 @@ async function testAutofillTrustsSenderOrigin() {
   assert.strictEqual((await send({ type: 'GET_CREDENTIALS', domain: 'bank.com' }, fromBank)).credentials[0].password, SECRET);
   assert.deepStrictEqual((await send({ type: 'GET_CREDENTIALS', domain: 'bank.com' }, fromEvil)).credentials, [], 'claimed domain must be ignored');
   assert.strictEqual((await send({ type: 'GET_CREDENTIALS' }, { id: 'other-ext', tab: {}, url: 'https://bank.com/' })).error, 'FORBIDDEN');
+  assert.strictEqual((await send({ type: 'GET_CREDENTIALS' }, { ...fromBank, url: 'http://bank.com/' })).error, 'FORBIDDEN', 'plain http is spoofable by a network attacker');
 
   const check = await send({ type: 'CHECK_CREDENTIAL', username: 'me', password: 'guess' }, { ...fromBank, url: 'https://bank.com/' });
   assert.deepStrictEqual(check, { stored: true, same: false }, 'check must never echo the stored password');

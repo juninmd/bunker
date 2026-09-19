@@ -47,7 +47,7 @@ export class SyncService {
       schemaVersion: this.VAULT_SCHEMA_VERSION,
       credentials: mergedVault
     };
-    const encrypted = await sealRemoteVault(payload, masterPassword, this.vaultService.iterations);
+    const encrypted = await sealRemoteVault(payload, masterPassword);
 
     try { // NOSONAR
       if (vaultFile) {

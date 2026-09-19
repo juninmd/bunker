@@ -61,8 +61,8 @@ export class CredentialService {
 
   static async saveCredential(domain: string, data: any, sendResponse: (response: any) => void, onActivity?: () => void) {
     await withVault(sendResponse, async ({ key, iterations, credentials }) => {
-      // An empty vault has no KDF cost on record yet; only the popup may create one.
-      if (!iterations) return { error: 'LOCKED' };
+      // No stored vault means no KDF cost on record; only the popup may create one.
+      if (!iterations) return { error: 'NO_VAULT' };
       if (onActivity) onActivity();
       const now = new Date().toISOString();
       const existing = credentials.find((i: any) => (!i.type || i.type === 'password') && i.site === domain && i.username === data.username);

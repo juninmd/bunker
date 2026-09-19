@@ -51,7 +51,9 @@ function senderHostname(sender: chrome.runtime.MessageSender): string | null {
   if (sender.id !== chrome.runtime.id || !sender.tab || !sender.url) return null;
   try {
     const url = new URL(sender.url);
-    return url.protocol === 'https:' || url.protocol === 'http:' ? url.hostname : null;
+    // Plain http has no origin authenticity; only loopback is exempt for local development.
+    const loopback = url.hostname === 'localhost' || url.hostname === '127.0.0.1';
+    return url.protocol === 'https:' || (url.protocol === 'http:' && loopback) ? url.hostname : null;
   } catch {
     return null;
   }

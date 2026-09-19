@@ -28,7 +28,7 @@ async function init() {
 
   // Attempt to get credentials from background
   try {
-    const response = await chrome.runtime.sendMessage({ type: 'GET_CREDENTIALS', domain });
+    const response = await chrome.runtime.sendMessage({ type: 'GET_CREDENTIALS' });
 
     if (chrome.runtime.lastError) {
       // Ignore if background script is not ready or no listener
