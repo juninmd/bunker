@@ -60,7 +60,7 @@ export function openPolicies(ctx: AppContext) {
 export function openFolderShare(ctx: AppContext) {
   ctx.openPanel('Compartilhar pasta', body => {
     const items = visibleItems(ctx.vault.getVault());
-    const folders = Array.from(new Set(items.map(i => i.grouping).filter(Boolean))).sort();
+    const folders = Array.from(new Set(items.map(i => i.grouping).filter(Boolean))).sort((a, b) => a.localeCompare(b));
     if (folders.length === 0) {
       body.append(el('p', 'muted', 'Crie uma pasta ao editar um item para poder compartilhá-la.'));
       return;

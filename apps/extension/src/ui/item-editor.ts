@@ -90,7 +90,7 @@ export function initEditor(ctx: AppContext) {
       Object.entries({ ...f.card, ...f.address }).forEach(([k, input]) => { input.value = data[k] || ''; });
     }
     const folders = new Set(ctx.vault.getVault().map(i => i.grouping).filter(Boolean));
-    f.datalist.replaceChildren(...[...folders].sort().map(name => Object.assign(el('option'), { value: name })));
+    f.datalist.replaceChildren(...[...folders].sort((a, b) => a.localeCompare(b)).map(name => Object.assign(el('option'), { value: name })));
     byId('editorTitle').textContent = item ? itemTitle(item) : 'Novo item';
     f.share.hidden = f.remove.hidden = !item;
     renderHistory(item);
