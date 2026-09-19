@@ -176,8 +176,8 @@ export class SyncService {
   }
 
   generateCSVContent(vault: any[]) {
-      // LastPass CSV format: url,username,password,extra,name,grouping,fav
-      const headers = ['url', 'username', 'password', 'extra', 'name', 'grouping', 'fav'];
+      // LastPass CSV format: url,username,password,totp,extra,name,grouping,fav
+      const headers = ['url', 'username', 'password', 'totp', 'extra', 'name', 'grouping', 'fav'];
       const data = vault.map(mapVaultItemToCSVRow);
       return generateCSV(data, headers);
   }

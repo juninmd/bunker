@@ -1,5 +1,6 @@
 import { base64ToBytes, decryptWithKey, encryptWithKey } from '../utils/crypto.js';
 import { formatLocalBlob, parseLocalBlob } from '../utils/vault-envelope.js';
+import { matchesHost, sameHost } from '../utils/site-match.js';
 
 const STORAGE_KEY = 'bunkerpass.vault.v1';
 
@@ -45,7 +46,7 @@ export class CredentialService {
       if (onActivity) onActivity();
       return {
         credentials: credentials.filter((item: any) =>
-          isLivePassword(item) && item.site && (domain === item.site || domain.endsWith('.' + item.site)))
+          isLivePassword(item) && matchesHost(domain, item.site))
       };
     });
   }
@@ -53,7 +54,7 @@ export class CredentialService {
   static async checkCredential(domain: string, username: string, password: string, sendResponse: (response: any) => void, onActivity?: () => void) {
     await withVault(sendResponse, async ({ credentials }) => {
       if (onActivity) onActivity();
-      const cred = credentials.find((item: any) => isLivePassword(item) && item.site === domain && item.username === username);
+      const cred = credentials.find((item: any) => isLivePassword(item) && sameHost(item.site, domain) && item.username === username);
       // Answer with a comparison only; the stored password never goes back to the page context.
       return { stored: !!cred, same: !!cred && cred.password === password };
     });
@@ -65,7 +66,7 @@ export class CredentialService {
       if (!iterations) return { error: 'NO_VAULT' };
       if (onActivity) onActivity();
       const now = new Date().toISOString();
-      const existing = credentials.find((i: any) => (!i.type || i.type === 'password') && i.site === domain && i.username === data.username);
+      const existing = credentials.find((i: any) => (!i.type || i.type === 'password') && sameHost(i.site, domain) && i.username === data.username);
 
       if (existing) {
         existing.password = data.password;

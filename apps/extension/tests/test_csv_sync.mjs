@@ -125,10 +125,10 @@ function createVaultItem(id, site, username, password, grouping) {
 
     const csvContent = service.generateCSVContent(vault);
     // Should contain "Deleted" in grouping column
-    // headers: url,username,password,extra,name,grouping,fav
-    // Expected: google.com,user1,,,google.com,Deleted,0
+    // headers: url,username,password,totp,extra,name,grouping,fav
+    // Expected: google.com,user1,,,,google.com,Deleted,0
 
-    assert.match(csvContent, /google\.com,user1,,,google\.com,Deleted,0/);
+    assert.match(csvContent, /google\.com,user1,,,,google\.com,Deleted,0/);
     console.log('Test 6 Passed: Export Deleted Tombstones');
 }
 
@@ -146,10 +146,10 @@ function createVaultItem(id, site, username, password, grouping) {
     const csvContent = service.generateCSVContent(vault);
     // Expected: http://sn,My Secret,,,My Secret,Secure Notes,0
     // Note: extra column gets notes.
-    // headers: url,username,password,extra,name,grouping,fav
+    // headers: url,username,password,totp,extra,name,grouping,fav
     // url=http://sn, username=My Secret, password=, extra=Secret content
 
-    assert.match(csvContent, /http:\/\/sn,My Secret,,Secret content,My Secret,Secure Notes,0/);
+    assert.match(csvContent, /http:\/\/sn,My Secret,,,Secret content,My Secret,Secure Notes,0/);
     console.log('Test 7 Passed: Export Secure Notes');
 }
 

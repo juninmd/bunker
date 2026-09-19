@@ -145,10 +145,12 @@ export function mapCSVRowToVaultItem(row: Record<string, any>): Record<string, a
         site: isNote ? (row.username || row.name || 'Sem Título') : (isCard || isAddress) ? (row.username || row.name || 'Sem Título') : url,
         username: type === 'note' || type === 'card' || type === 'address' ? '' : row.username || '',
         password: row.password || '',
-        notes: row.extra || row.notes || row.password || '', // fallback to row.password for notes as extra safety
+        notes: row.extra || row.notes || '',
+        title: type === 'password' ? (row.name || '') : '',
         updatedAt: new Date().toISOString(),
         createdAt: new Date().toISOString(),
-        grouping: row.grouping || ''
+        grouping: row.grouping || '',
+        totp: type === 'password' ? (row.totp || '') : ''
     };
 }
 
@@ -195,6 +197,7 @@ export function mapVaultItemToCSVRow(item: Record<string, any>): Record<string, 
         url: item.site,
         username: item.username,
         password: item.password,
+        totp: item.totp || '',
         extra: item.notes || '',
         name: item.site,
         grouping: item.grouping || '',
