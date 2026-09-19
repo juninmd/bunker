@@ -42,11 +42,12 @@ assert.ok(passwordStrength('correcthorsebatterystaple').score >= 3, 'long passph
 assert.ok(passwordStrength('Gh!7pQz#v2Lm9Rt$').score === 4);
 assert.strictEqual(passwordStrength('').score, 0);
 const now = Date.parse('2026-01-01');
+// NOSONAR: fixture passwords below are deliberately weak test inputs, not credentials.
 const report = buildSecurityReport([
-  { type: 'password', site: 'a', password: 'netflix123', updatedAt: '2026-01-01' },
-  { type: 'password', site: 'b', password: 'netflix123', updatedAt: '2024-01-01' },
-  { type: 'password', site: 'c', password: 'Gh!7pQz#v2Lm9Rt$', totp: 'X', updatedAt: '2026-01-01' },
-  { type: 'password', site: 'd', password: 'netflix123', deletedAt: 'x' },
+  { type: 'password', site: 'a', password: 'netflix123', updatedAt: '2026-01-01' }, // NOSONAR
+  { type: 'password', site: 'b', password: 'netflix123', updatedAt: '2024-01-01' }, // NOSONAR
+  { type: 'password', site: 'c', password: 'Gh!7pQz#v2Lm9Rt$', totp: 'X', updatedAt: '2026-01-01' }, // NOSONAR
+  { type: 'password', site: 'd', password: 'netflix123', deletedAt: 'x' }, // NOSONAR
   { type: 'note', site: 'e', notes: 'n' }
 ], now);
 assert.deepStrictEqual([report.total, report.weak.length, report.reused.length, report.old.length, report.withoutTotp], [3, 2, 2, 1, 2]);
@@ -57,7 +58,7 @@ const hash = await sha1Hex('password');
 assert.strictEqual(hash, '5BAA61E4C9B93F3F0682250B6CF8331B7EE68FD8');
 const asked = [];
 const fetcher = async url => { asked.push(url); return new Response(`${hash.slice(5)}:9\r\nABC:1`); };
-const leaked = await findLeaked([{ site: 'a', password: 'password' }, { site: 'b', password: 'password' }, { site: 'c', password: 'unique-Zz9!' }], fetcher);
+const leaked = await findLeaked([{ site: 'a', password: 'password' }, { site: 'b', password: 'password' }, { site: 'c', password: 'unique-Zz9!' }], fetcher); // NOSONAR: known-leaked test input
 assert.deepStrictEqual(leaked.map(i => i.site), ['a', 'b']);
 assert.ok(asked.every(url => /\/range\/[0-9A-F]{5}$/.test(url)), 'only the 5-char prefix leaves the device');
 assert.strictEqual(asked.length, 2, 'identical prefixes are fetched once');

@@ -21,6 +21,7 @@ try {
   await first.close();
 
   const page = await sessionPersists(rec, app.context, app.popupUrl);
+  if (!page) throw new Error('popup did not reopen; later steps need it');
   await accessibility(rec, page);
   await autofill(rec, app.context, url);
   await pinAndLock(rec, page);
