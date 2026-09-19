@@ -43,14 +43,14 @@ export async function pinAndLock({ step, shot }, page) {
     await page.click('[data-tab=settings]');
     await settle(page);
     await page.getByRole('button', { name: /PIN rápido/ }).click();
-    await dialog(page).locator('input').fill('4821');
+    await dialog(page).locator('input').fill('482193');
     await dialog(page).locator('button[value=ok]').click();
     await settle(page);
     await page.getByRole('button', { name: /Bloquear agora/ }).click();
     await page.waitForSelector('#pinForm:not([hidden])');
     await settle(page);
     await shot(page, '13-desbloqueio-pin.png');
-    await page.fill('#pinInput', '4821');
+    await page.fill('#pinInput', '482193');
     await page.press('#pinInput', 'Enter');
     await page.waitForSelector('#view-vault:not([hidden])', { timeout: 8000 });
   });

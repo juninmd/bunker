@@ -20,7 +20,7 @@ export function startSite() {
   return new Promise(ok => server.listen(0, '127.0.0.1', () => ok({ server, url: `http://127.0.0.1:${server.address().port}/` })));
 }
 
-export async function launch() {
+export async function launch({ keepProfile = false } = {}) {
   const profile = mkdtempSync(join(tmpdir(), 'bunker-e2e-'));
   const context = await chromium.launchPersistentContext(profile, {
     channel: 'chromium',
@@ -33,9 +33,9 @@ export async function launch() {
   const id = new URL(worker.url()).host;
   const close = async () => {
     await context.close();
-    rmSync(profile, { recursive: true, force: true });
+    if (!keepProfile) rmSync(profile, { recursive: true, force: true });
   };
-  return { context, worker, id, popupUrl: `chrome-extension://${id}/src/popup.html`, close };
+  return { context, worker, id, profile, popupUrl: `chrome-extension://${id}/src/popup.html`, close };
 }
 
 export function recorder() {
