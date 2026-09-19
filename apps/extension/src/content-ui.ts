@@ -21,6 +21,22 @@ function lockGlyph(color: string): SVGSVGElement {
   return svg;
 }
 
+// Page scripts can .click() anything in the DOM; only a real, visible, unobscured user click may reveal or fill.
+function genuineClick(event: MouseEvent, target: HTMLElement): boolean {
+  if (!event.isTrusted) return false;
+  // Shrunk or clipped icons (scale(0), 1px boxes) are hidden from the user even when fully opaque.
+  const box = target.getBoundingClientRect();
+  if (box.width < 16 || box.height < 16) return false;
+  for (let node: Element | null = target; node; node = node.parentElement) {
+    const style = getComputedStyle(node);
+    if (Number(style.opacity) < 1 || style.visibility !== 'visible' || style.clipPath !== 'none') return false;
+  }
+  // Keyboard activation reports no pointer position (detail 0); a pointer click must land on the target itself.
+  if (event.detail === 0) return true;
+  const hit = document.elementFromPoint(event.clientX, event.clientY);
+  return !!hit && target.contains(hit);
+}
+
 // One positioned button per password field; follows the field on scroll and resize.
 function attachFieldIcon(passInput: HTMLInputElement, locked: boolean, onClick: (icon: HTMLElement) => void) {
   if (passInput.dataset.bunkerpassInjected) return;
@@ -47,7 +63,7 @@ function attachFieldIcon(passInput: HTMLInputElement, locked: boolean, onClick: 
   icon.addEventListener('click', event => {
     event.preventDefault();
     event.stopPropagation();
-    onClick(icon);
+    if (genuineClick(event, icon)) onClick(icon);
   });
 }
 
@@ -69,7 +85,7 @@ function pickerItem(cred: { username?: string }, onPick: () => void): HTMLButton
   item.addEventListener('blur', () => highlight(false));
   item.addEventListener('click', event => {
     event.stopPropagation();
-    onPick();
+    if (genuineClick(event, item)) onPick();
   });
   return item;
 }

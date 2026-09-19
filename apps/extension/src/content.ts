@@ -1,59 +1,43 @@
-console.log('BunkerPass: Content script loaded');
-
 async function init() {
-  const domain = window.location.hostname;
   // Registered before any await so a fast submit is never missed.
   document.addEventListener('submit', handleFormSubmit, true);
 
-  // Check policies for SaaS Protect
   try {
-    const policyResponse = await chrome.runtime.sendMessage({ type: 'GET_POLICIES' });
-    if (policyResponse && policyResponse.policies && policyResponse.policies.blockedDomains) {
-      const blockedDomains = policyResponse.policies.blockedDomains.split('\n').map((d: string) => d.trim().toLowerCase());
-      if (blockedDomains.some((blocked: string) => blocked && (domain === blocked || domain.endsWith('.' + blocked)))) {
-        console.log('BunkerPass: Access blocked by SaaS Protect policy.');
-        document.body.innerHTML = `
-          <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; background-color: #f8d7da; color: #721c24; font-family: sans-serif; text-align: center; padding: 20px;">
-            <h1 style="font-size: 48px; margin-bottom: 20px;">Acesso Bloqueado</h1>
-            <p style="font-size: 24px;">Esta página foi bloqueada pela política de segurança da sua empresa (BunkerPass SaaS Protect).</p>
-          </div>
-        `;
-        return; // Stop further execution
-      }
-    }
-  } catch (err) {
-    console.log('BunkerPass: Error checking policies', err);
+    const policy = await chrome.runtime.sendMessage({ type: 'IS_BLOCKED' });
+    if (policy?.blocked) return blockPage();
+  } catch {
+    // Worker not ready; autofill below retries the connection.
   }
   promptPendingSave();
 
-  // Attempt to get credentials from background
   try {
-    const response = await chrome.runtime.sendMessage({ type: 'GET_CREDENTIALS' });
-
-    if (chrome.runtime.lastError) {
-      // Ignore if background script is not ready or no listener
-      return;
-    }
-
-    if (response && response.credentials && response.credentials.length > 0) {
-      console.log('BunkerPass: Credentials received', response.credentials.length);
-      injectIcons(response.credentials);
-    } else if (response && response.error === 'LOCKED') {
-      console.log('BunkerPass: Vault is locked.');
-      injectLockedIcon();
-    }
-  } catch (err) {
-    console.log('BunkerPass: Error communicating with background', err);
+    const response = await chrome.runtime.sendMessage({ type: 'LIST_ACCOUNTS' });
+    if (response?.accounts?.length) injectIcons(response.accounts);
+    else if (response?.error === 'LOCKED') injectLockedIcon();
+  } catch {
+    // No worker, no autofill; the page keeps working.
   }
+}
+
+// SaaS Protect: fixed text only; nothing from the policy reaches the DOM.
+function blockPage() {
+  const box = document.createElement('div');
+  box.style.cssText = 'display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;background:#f8d7da;color:#721c24;font-family:sans-serif;text-align:center;padding:20px;';
+  const title = document.createElement('h1');
+  title.textContent = 'Acesso bloqueado';
+  const text = document.createElement('p');
+  text.textContent = 'Esta página foi bloqueada pela política de segurança da sua empresa (Bunker SaaS Protect).';
+  box.append(title, text);
+  document.body.replaceChildren(box);
 }
 
 function passwordFields(): HTMLInputElement[] {
   return [...document.querySelectorAll<HTMLInputElement>('input[type="password"]')];
 }
 
-function injectIcons(credentials) {
+function injectIcons(accounts) {
   passwordFields().forEach(passInput => attachFieldIcon(passInput, false, icon =>
-    showPicker(icon, credentials, index => fillCredential(passInput, credentials[index]))));
+    showPicker(icon, accounts, index => fillAccount(passInput, accounts[index].ref))));
 }
 
 function injectLockedIcon() {
@@ -61,7 +45,9 @@ function injectLockedIcon() {
     alert('Cofre bloqueado. Abra a extensão Bunker para desbloquear.')));
 }
 
-function fillCredential(passInput, cred) {
+async function fillAccount(passInput, ref) {
+  const cred = await chrome.runtime.sendMessage({ type: 'FILL_CREDENTIAL', ref });
+  if (!cred || cred.error) return;
   const userInput = findUsernameInput(passInput);
   if (userInput) {
     userInput.value = cred.username;
