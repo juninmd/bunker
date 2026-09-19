@@ -57,3 +57,11 @@ export async function decryptWithKey(payload: string, key: CryptoKey): Promise<a
   const plaintext = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: iv } as AesGcmParams, key, cipher.buffer as ArrayBuffer);
   return JSON.parse(new TextDecoder().decode(plaintext));
 }
+
+export async function exportRawKey(key: CryptoKey): Promise<string> {
+  return bytesToBase64(new Uint8Array(await crypto.subtle.exportKey('raw', key)));
+}
+
+export async function importRawKey(rawB64: string): Promise<CryptoKey> {
+  return crypto.subtle.importKey('raw', base64ToBytes(rawB64) as BufferSource, 'AES-GCM', true, ['encrypt', 'decrypt']);
+}

@@ -12,6 +12,7 @@
     "typescript": "^7.0.2"
   },
   "devDependencies": {
-    "@types/chrome": "^0.2.6"
+    "@types/chrome": "^0.2.6",
+    "playwright": "1.62.1"
   }
 }

@@ -1,4 +1,4 @@
-import { LEGACY_KDF_ITERATIONS, VAULT_KDF_ITERATIONS, base64ToBytes, bytesToBase64, decryptPayload, encryptPayload } from './crypto.js';
+import { LEGACY_KDF_ITERATIONS, VAULT_KDF_ITERATIONS, base64ToBytes, bytesToBase64, encryptWithKey } from './crypto.js';
 
 const LOCAL_PREFIX = 'pbkdf2-';
 const REMOTE_FORMAT = 'bunkerpass.vault.v2';
@@ -15,15 +15,19 @@ export function parseLocalBlob(stored: string): { iterations: number; ciphertext
   return { iterations: Number(match[1]), ciphertext: match[2] as string };
 }
 
-// Remote file carries its own salt so every device can open it with the master password alone.
-export async function sealRemoteVault(payload: unknown, masterPassword: string): Promise<string> {
-  const iterations = VAULT_KDF_ITERATIONS;
-  const salt = crypto.getRandomValues(new Uint8Array(16));
-  const data = await encryptPayload(payload, masterPassword, salt, iterations);
+export interface RemoteEnvelope {
+  salt: Uint8Array;
+  iterations: number;
+  data: string;
+}
+
+// The remote file declares the KDF salt and cost shared by every device, so a device holding the key syncs without the password.
+export async function sealRemoteVault(payload: unknown, key: CryptoKey, salt: Uint8Array, iterations: number): Promise<string> {
+  const data = await encryptWithKey(payload, key);
   return JSON.stringify({ format: REMOTE_FORMAT, salt: bytesToBase64(salt), iterations, data });
 }
 
-export async function openRemoteVault(content: string, masterPassword: string): Promise<any> {
+export function parseRemoteEnvelope(content: string): RemoteEnvelope {
   let envelope: { format?: string; salt?: string; iterations?: number; data?: string };
   try {
     envelope = JSON.parse(content);
@@ -36,5 +40,11 @@ export async function openRemoteVault(content: string, masterPassword: string): 
   if (format !== REMOTE_FORMAT || !salt || !data || !Number.isInteger(cost) || cost < VAULT_KDF_ITERATIONS || cost > MAX_KDF_ITERATIONS) {
     throw new Error('Unsupported remote vault format');
   }
-  return decryptPayload(data, masterPassword, base64ToBytes(salt), iterations);
+  const saltBytes = base64ToBytes(salt);
+  if (saltBytes.length < 16) throw new Error('Unsupported remote vault format');
+  return { salt: saltBytes, iterations: cost, data };
+}
+
+export function sameKdf(envelope: RemoteEnvelope, salt: Uint8Array | null, iterations: number): boolean {
+  return !!salt && envelope.iterations === iterations && bytesToBase64(envelope.salt) === bytesToBase64(salt);
 }

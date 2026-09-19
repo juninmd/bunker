@@ -31,7 +31,7 @@ async function run() {
 
     const vault = await vaultService.unlockWithPin('1234');
     assert.strictEqual(vault.length, 1);
-    assert.strictEqual(vaultService.masterPassword, 'master123-long-enough');
+    assert.ok(vaultService.isUnlocked, 'PIN must reopen the vault');
 
     console.log('PIN Test Passed');
 }

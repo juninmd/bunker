@@ -38,6 +38,11 @@ function lockVault() {
   });
 }
 
+// Locking the OS screen locks the vault too.
+chrome.idle?.onStateChanged.addListener((state) => {
+  if (state === 'locked') lockVault();
+});
+
 // Reset autolock on any session key update (which happens on unlock)
 chrome.storage.session.onChanged.addListener((changes: { [key: string]: chrome.storage.StorageChange }) => {
   if (changes.sessionKey && changes.sessionKey.newValue) {
@@ -80,6 +85,12 @@ chrome.runtime.onMessage.addListener((request: any, sender: chrome.runtime.Messa
   if (request.type === 'SAVE_CREDENTIAL') {
     CredentialService.saveCredential(domain as string, request.data, sendResponse, resetAutoLock);
     return true;
+  }
+
+  if (request.type === 'ACTIVITY' && sender.id === chrome.runtime.id && !sender.tab) {
+    resetAutoLock();
+    sendResponse({ status: 'ACK' });
+    return false;
   }
 
   if (request.type === 'GET_POLICIES') {

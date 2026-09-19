@@ -1,6 +1,7 @@
 import { GoogleDriveService } from './google-drive.js';
 import { generateCSV, parseCSV, mapCSVRowToVaultItem, mapVaultItemToCSVRow } from '../utils/csv-utils.js';
-import { openRemoteVault, sealRemoteVault } from '../utils/vault-envelope.js';
+import { parseRemoteEnvelope, sameKdf, sealRemoteVault } from '../utils/vault-envelope.js';
+import { decryptPayload, decryptWithKey } from '../utils/crypto.js';
 
 export class SyncService {
   vaultService: any;
@@ -18,9 +19,10 @@ export class SyncService {
   }
 
   // Only the encrypted vault ever leaves the device; a plaintext CSV in the cloud would expose every password.
-  async sync() {
-    const masterPassword = this.vaultService.masterPassword;
-    if (!masterPassword) {
+  // askPassword is consulted only when the remote file uses another salt (first sync on a new device, or a password change elsewhere).
+  async sync(askPassword: () => Promise<string | null> = async () => null) {
+    const vault = this.vaultService;
+    if (!vault.key) {
       throw new Error('Vault locked'); // NOSONAR
     }
 
@@ -30,24 +32,26 @@ export class SyncService {
     let remoteVault: any[] = [];
 
     if (vaultFile) {
-      const content = await this.driveService.getFileContent(vaultFile.id);
-      try { // NOSONAR
-        remoteVault = this.vaultService.sanitizeVault(await openRemoteVault(content, masterPassword));
-      } catch (e) {
-        throw new Error('Failed to decrypt remote vault. Check password.'); // NOSONAR
+      const envelope = parseRemoteEnvelope(await this.driveService.getFileContent(vaultFile.id));
+      if (sameKdf(envelope, vault.salt, vault.iterations)) {
+        remoteVault = vault.sanitizeVault(await decryptWithKey(envelope.data, vault.key));
+      } else {
+        const password = vault.masterPassword ?? await askPassword();
+        if (!password) throw new Error('MASTER_PASSWORD_REQUIRED');
+        try { // NOSONAR
+          remoteVault = vault.sanitizeVault(await decryptPayload(envelope.data, password, envelope.salt, envelope.iterations));
+        } catch (e) {
+          throw new Error('Failed to decrypt remote vault. Check password.'); // NOSONAR
+        }
+        await vault.rekey(password, envelope.salt, envelope.iterations);
       }
     }
 
-    const localVault = this.vaultService.getVault();
-    const { vault: mergedVault, stats } = this.mergeVaults(localVault, remoteVault) as { vault: any[], stats: any };
+    const { vault: mergedVault, stats } = this.mergeVaults(vault.getVault(), remoteVault) as { vault: any[], stats: any };
+    await vault.save(mergedVault);
 
-    await this.vaultService.save(mergedVault);
-
-    const payload = {
-      schemaVersion: this.VAULT_SCHEMA_VERSION,
-      credentials: mergedVault
-    };
-    const encrypted = await sealRemoteVault(payload, masterPassword);
+    const payload = { schemaVersion: this.VAULT_SCHEMA_VERSION, credentials: mergedVault };
+    const encrypted = await sealRemoteVault(payload, vault.key, vault.salt, vault.iterations);
 
     try { // NOSONAR
       if (vaultFile) {
@@ -63,7 +67,7 @@ export class SyncService {
   }
 
   async importCSV() {
-      if (!this.vaultService.masterPassword) throw new Error('Locked');
+      if (!this.vaultService.key) throw new Error('Locked');
       await this.driveService.authorize();
 
       const csvFile = await this.driveService.findFile(this.CSV_FILE);

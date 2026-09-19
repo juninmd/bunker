@@ -5,7 +5,7 @@ const { chrome, listeners } = installChromeMock();
 const { VaultService } = await import('../src/services/vault-service.js');
 const { SyncService } = await import('../src/services/sync-service.js');
 const { encryptPayload, bytesToBase64 } = await import('../src/utils/crypto.js');
-const { openRemoteVault } = await import('../src/utils/vault-envelope.js');
+const { parseRemoteEnvelope } = await import('../src/utils/vault-envelope.js');
 await import('../src/background.js');
 
 const MASTER = 'correct horse battery staple';
@@ -76,7 +76,27 @@ async function testSyncUploadsOnlyCiphertext() {
   assert.strictEqual(vault[0].password, SECRET, 'a device with a different local salt must open the remote vault');
 
   const downgraded = { ...JSON.parse(drive.files.get('vault.enc')), iterations: 250000 };
-  await assert.rejects(openRemoteVault(JSON.stringify(downgraded), MASTER), /Unsupported/, 'tampered file must not lower the KDF cost');
+  assert.throws(() => parseRemoteEnvelope(JSON.stringify(downgraded)), /Unsupported/, 'tampered file must not lower the KDF cost');
+
+  // A device restored from the session has only the key: it must ask for the password once, then adopt the shared salt.
+  resetStorage();
+  const deviceC = new VaultService();
+  await deviceC.unlock('another device password');
+  await deviceC.exportSessionKey();
+  const restored = new VaultService();
+  assert.ok(await restored.restoreSession(), 'session key must reopen the vault without the password');
+  const syncC = new SyncService(restored);
+  syncC.driveService = drive;
+  let asked = 0;
+  await assert.rejects(syncC.sync(async () => { asked++; return null; }), /MASTER_PASSWORD_REQUIRED/);
+  const merged = await syncC.sync(async () => { asked++; return MASTER; });
+  assert.strictEqual(asked, 2);
+  assert.strictEqual(merged.vault[0].password, SECRET);
+  const again = new VaultService();
+  assert.ok(await again.restoreSession(), 're-keyed session must still open');
+  const syncAgain = new SyncService(again);
+  syncAgain.driveService = drive;
+  await syncAgain.sync(async () => { throw new Error('must not ask twice'); });
 }
 
 async function testPinIsMemoryOnlyAndWipedAfterFailures() {
@@ -90,7 +110,7 @@ async function testPinIsMemoryOnlyAndWipedAfterFailures() {
   assert.ok(![...chrome.storage.local.data.keys()].some(k => k.includes('pin')), 'PIN envelope must never hit disk');
   vault.lock();
   await vault.unlockWithPin('4821');
-  assert.strictEqual(vault.masterPassword, MASTER);
+  assert.ok(vault.isUnlocked && vault.masterPassword === null, 'PIN unlocks with the wrapped key, never the password');
 
   for (let i = 0; i < 5; i++) await assert.rejects(vault.unlockWithPin('0000'), /Invalid PIN/);
   assert.strictEqual(await vault.hasPin(), false, 'PIN must be wiped after 5 failures');
@@ -123,7 +143,30 @@ async function testAutofillTrustsSenderOrigin() {
   assert.ok(!reopened.some(c => c.site === 'bank.com' && c.username === 'new'));
 }
 
-for (const test of [testWeakMasterPasswordRejected, testLegacyVaultMigratesKdf, testSyncUploadsOnlyCiphertext, testPinIsMemoryOnlyAndWipedAfterFailures, testAutofillTrustsSenderOrigin]) {
+async function testSessionRestoreAndPasswordChange() {
+  resetStorage();
+  const vault = new VaultService();
+  await vault.unlock(MASTER);
+  await vault.save([{ id: '1', site: 'a.com', password: SECRET }]);
+  await vault.exportSessionKey();
+  await vault.generateRecoveryKey();
+
+  const reopened = new VaultService();
+  assert.ok(await reopened.restoreSession());
+  assert.strictEqual(reopened.getVault()[0].password, SECRET, 'reopening the popup keeps the vault open');
+  await assert.rejects(reopened.generateRecoveryKey(), /MASTER_PASSWORD_REQUIRED/);
+
+  await assert.rejects(reopened.changeMasterPassword(MASTER, 'short'), /WEAK_MASTER_PASSWORD/);
+  await reopened.changeMasterPassword(MASTER, 'a brand new master phrase');
+  await assert.rejects(new VaultService().unlock(MASTER), /Invalid password/);
+  assert.strictEqual((await new VaultService().unlock('a brand new master phrase'))[0].password, SECRET);
+  assert.strictEqual(await reopened.hasRecoveryKey(), false, 'recovery wrapping the old password must be dropped');
+
+  reopened.lock();
+  assert.strictEqual(await new VaultService().restoreSession(), false, 'lock must end the session');
+}
+
+for (const test of [testSessionRestoreAndPasswordChange, testWeakMasterPasswordRejected, testLegacyVaultMigratesKdf, testSyncUploadsOnlyCiphertext, testPinIsMemoryOnlyAndWipedAfterFailures, testAutofillTrustsSenderOrigin]) {
   await test();
   console.log(`${test.name} passed`);
 }
