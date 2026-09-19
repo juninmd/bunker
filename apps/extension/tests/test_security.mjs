@@ -110,7 +110,9 @@ async function testAutofillTrustsSenderOrigin() {
   assert.strictEqual((await send({ type: 'GET_CREDENTIALS', domain: 'bank.com' }, fromBank)).credentials[0].password, SECRET);
   assert.deepStrictEqual((await send({ type: 'GET_CREDENTIALS', domain: 'bank.com' }, fromEvil)).credentials, [], 'claimed domain must be ignored');
   assert.strictEqual((await send({ type: 'GET_CREDENTIALS' }, { id: 'other-ext', tab: {}, url: 'https://bank.com/' })).error, 'FORBIDDEN');
-  assert.strictEqual((await send({ type: 'GET_CREDENTIALS' }, { ...fromBank, url: 'http://bank.com/' })).error, 'FORBIDDEN', 'plain http is spoofable by a network attacker');
+  // NOSONAR: the insecure http origin is the input under test; the assertion proves it is rejected.
+  const insecureSender = { ...fromBank, url: 'http://bank.com/' }; // NOSONAR
+  assert.strictEqual((await send({ type: 'GET_CREDENTIALS' }, insecureSender)).error, 'FORBIDDEN', 'plain http is spoofable by a network attacker');
 
   const check = await send({ type: 'CHECK_CREDENTIAL', username: 'me', password: 'guess' }, { ...fromBank, url: 'https://bank.com/' });
   assert.deepStrictEqual(check, { stored: true, same: false }, 'check must never echo the stored password');
