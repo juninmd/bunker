@@ -1,15 +1,16 @@
+// Spreadsheets run cells starting with these as formulas; secrets stay verbatim so a migration stays exact.
+const FORMULA_START = /^[=+\-@\t\r]/;
+const VERBATIM_COLUMNS = new Set(['password', 'totp']);
+
 /**
- * Escapes a CSV field.
- * Encloses in quotes if it contains comma, quote, or newline.
- * Escapes quotes by doubling them.
- * @param {string} field
- * @returns {string}
+ * Escapes a CSV field: neutralizes formula triggers, then quotes on comma, quote or newline.
  */
-function escapeCSVField(field: string | null | undefined): string {
+function escapeCSVField(field: string | null | undefined, column = ''): string {
   if (field === null || field === undefined) {
     return '';
   }
-  const stringField = String(field);
+  const raw = String(field);
+  const stringField = !VERBATIM_COLUMNS.has(column) && FORMULA_START.test(raw) ? `'${raw}` : raw;
   if (stringField.includes(',') || stringField.includes('"') || stringField.includes('\n') || stringField.includes('\r')) {
     return `"${stringField.replace(/"/g, '""')}"`;
   }
@@ -23,10 +24,10 @@ function escapeCSVField(field: string | null | undefined): string {
  * @returns {string} The CSV content.
  */
 export function generateCSV(data: Record<string, any>[], headers: string[]): string {
-  const headerRow = headers.map(escapeCSVField).join(',');
+  const headerRow = headers.map(header => escapeCSVField(header)).join(',');
   const rows = data.map(row => {
     return headers.map(header => {
-      return escapeCSVField(row[header]);
+      return escapeCSVField(row[header], header);
     }).join(',');
   });
 

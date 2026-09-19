@@ -25,10 +25,13 @@ async function receive(what: string): Promise<any | null> {
   return openShare(code, passphrase);
 }
 
-function freshCopies(items: any[]): any[] {
+// Internal records (business policy, digital will) are never accepted from someone else.
+const SHAREABLE_TYPES = new Set(['password', 'note', 'card', 'address']);
+
+export function freshCopies(items: any[]): any[] {
   const now = new Date().toISOString();
   return items
-    .filter(item => item && typeof item === 'object' && item.site)
+    .filter(item => item && typeof item === 'object' && typeof item.site === 'string' && item.site && SHAREABLE_TYPES.has(item.type || 'password'))
     .map(item => {
       const copy = { ...item, id: crypto.randomUUID(), createdAt: now, updatedAt: now, history: [] };
       delete copy.deletedAt;

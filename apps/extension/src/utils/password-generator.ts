@@ -1,3 +1,5 @@
+import { randomInt } from './crypto.js';
+
 export interface PasswordOptions {
     uppercase?: boolean;
     lowercase?: boolean;
@@ -65,10 +67,7 @@ function getRandomChar(charSet: string): string {
         throw new Error('Character set cannot be empty');
     }
 
-    const array = new Uint32Array(1);
-    crypto.getRandomValues(array);
-    const randomValue = array[0] ?? 0;
-    const char = charSet[randomValue % charSet.length];
+    const char = charSet[randomInt(charSet.length)];
     if (!char) {
         throw new Error('Failed to generate random character');
     }
@@ -77,10 +76,7 @@ function getRandomChar(charSet: string): string {
 
 function shuffleArray(array: string[]): string[] {
     for (let i = array.length - 1; i > 0; i--) {
-        const rand = new Uint32Array(1);
-        crypto.getRandomValues(rand);
-        const randomValue = rand[0] ?? 0;
-        const j = randomValue % (i + 1);
+        const j = randomInt(i + 1);
         const current = array[i];
         const target = array[j];
         if (current === undefined || target === undefined) {

@@ -64,7 +64,7 @@ function createVaultItem(id, site, username, password, grouping) {
     console.log('Test 2 Passed: Update existing item from CSV');
 }
 
-// Test 3: mergeCSV - Handle "Deleted" grouping (Soft Delete)
+// Test 3: mergeCSV - a file never deletes (a tampered CSV must not erase the vault)
 {
     const item = createVaultItem('1', 'google.com', 'user1', 'pw1', '');
     const localVault = [item];
@@ -75,9 +75,10 @@ function createVaultItem(id, site, username, password, grouping) {
     const { merged, added, updated } = service.mergeCSV(localVault, importedItems);
 
     assert.strictEqual(merged.length, 1);
-    assert.ok(merged[0].deletedAt, 'Item should be marked deleted');
-    assert.strictEqual(updated, 1);
-    console.log('Test 3 Passed: Soft Delete via CSV');
+    assert.ok(!merged[0].deletedAt, 'Import must not delete');
+    assert.strictEqual(merged[0].password, 'pw1');
+    assert.strictEqual(updated, 0);
+    console.log('Test 3 Passed: CSV cannot delete');
 }
 
 // Test 4: mergeCSV - Ignore already deleted items if CSV is also Deleted

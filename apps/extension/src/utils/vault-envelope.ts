@@ -9,10 +9,13 @@ export function formatLocalBlob(iterations: number, ciphertext: string): string 
   return `${LOCAL_PREFIX}${iterations}:${ciphertext}`;
 }
 
+// Storage is writable by anything with profile access: a cost below legacy would weaken the rewrite, one above the cap hangs unlock.
 export function parseLocalBlob(stored: string): { iterations: number; ciphertext: string } {
   const match = /^pbkdf2-(\d+):(.+)$/s.exec(stored);
   if (!match) return { iterations: LEGACY_KDF_ITERATIONS, ciphertext: stored };
-  return { iterations: Number(match[1]), ciphertext: match[2] as string };
+  const iterations = Number(match[1]);
+  if (!Number.isSafeInteger(iterations) || iterations < LEGACY_KDF_ITERATIONS || iterations > MAX_KDF_ITERATIONS) throw new Error('INVALID_KDF');
+  return { iterations, ciphertext: match[2] as string };
 }
 
 export interface RemoteEnvelope {

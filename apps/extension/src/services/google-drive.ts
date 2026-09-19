@@ -28,29 +28,32 @@ export class GoogleDriveService {
     });
   }
 
+  // A revoked or expired token is purged from Chrome's cache and replaced once; a second 401 is a real failure.
+  private async send(url: string, init: RequestInit, action: string): Promise<Response> {
+    for (let attempt = 0; attempt < 2; attempt++) {
+      if (!this.accessToken) await this.authorize();
+      const token = this.accessToken as string;
+      const response = await fetch(url, { ...init, headers: { ...init.headers, Authorization: `Bearer ${token}` } });
+      if (response.status === 401 && attempt === 0) {
+        await chrome.identity.removeCachedAuthToken({ token });
+        this.accessToken = null;
+        continue;
+      }
+      if (!response.ok) throw new Error(`Failed to ${action}: ${response.status} ${await response.text()}`);
+      return response;
+    }
+    throw new Error(`Failed to ${action}: unauthorized`);
+  }
+
   async findFile(name: string): Promise<DriveFile | null> {
-    if (!this.accessToken) await this.authorize();
     // Ensure we don't find trashed files
     const query = `name = '${name}' and trashed = false`;
     const url = `https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(query)}&fields=files(id, name, mimeType, modifiedTime)`;
-
-    const response = await fetch(url, {
-      headers: {
-        Authorization: `Bearer ${this.accessToken}`,
-      },
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`Failed to find file: ${response.status} ${errorText}`);
-    }
-    const data = await response.json();
+    const data = await (await this.send(url, {}, 'find file')).json();
     return data.files.length > 0 ? data.files[0] : null;
   }
 
   async createFile(name: string, content: string, mimeType: string): Promise<DriveFile> {
-    if (!this.accessToken) await this.authorize();
-
     const metadata = {
       name,
       mimeType,
@@ -71,59 +74,19 @@ export class GoogleDriveService {
 
     const url = 'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,modifiedTime';
 
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${this.accessToken}`,
-        'Content-Type': `multipart/related; boundary=${boundary}`,
-      },
-      body: body,
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`Failed to create file: ${response.status} ${errorText}`);
-    }
-    return await response.json();
+    const init = { method: 'POST', headers: { 'Content-Type': `multipart/related; boundary=${boundary}` }, body };
+    return (await this.send(url, init, 'create file')).json();
   }
 
   async updateFile(fileId: string, content: string, mimeType: string): Promise<DriveFile> {
-    if (!this.accessToken) await this.authorize();
-
     // Using uploadType=media for simple content update
-    const url = `https://www.googleapis.com/upload/drive/v3/files/${fileId}?uploadType=media&fields=id,modifiedTime`;
-
-    const response = await fetch(url, {
-      method: 'PATCH',
-      headers: {
-        Authorization: `Bearer ${this.accessToken}`,
-        'Content-Type': mimeType,
-      },
-      body: content,
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`Failed to update file: ${response.status} ${errorText}`);
-    }
-    return await response.json();
+    const url = `https://www.googleapis.com/upload/drive/v3/files/${encodeURIComponent(fileId)}?uploadType=media&fields=id,modifiedTime`;
+    const init = { method: 'PATCH', headers: { 'Content-Type': mimeType }, body: content };
+    return (await this.send(url, init, 'update file')).json();
   }
 
   async getFileContent(fileId: string): Promise<string> {
-    if (!this.accessToken) await this.authorize();
-
-    const url = `https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`;
-
-    const response = await fetch(url, {
-      headers: {
-        Authorization: `Bearer ${this.accessToken}`,
-      },
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`Failed to get file content: ${response.status} ${errorText}`);
-    }
-    return await response.text();
+    const url = `https://www.googleapis.com/drive/v3/files/${encodeURIComponent(fileId)}?alt=media`;
+    return (await this.send(url, {}, 'get file content')).text();
   }
 }

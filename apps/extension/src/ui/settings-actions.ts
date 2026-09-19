@@ -41,6 +41,8 @@ export async function importLastPassFile(ctx: AppContext, file: File) {
     const imported = rows.map(mapCSVRowToVaultItem).filter(i => i.site && (i.type !== 'password' || i.password));
     if (imported.length === 0) return ctx.notify('Nenhum item reconhecido. Use o CSV exportado pelo LastPass.', 'error');
     const { merged, added, updated } = ctx.sync.mergeCSV(ctx.vault.getVault(), imported);
+    const replace = { title: 'Atualizar itens existentes?', message: updated + ' itens do cofre receberão os dados do arquivo. A senha atual de cada um fica no histórico.', confirmLabel: 'Importar' };
+    if (updated > 0 && !(await confirmAction(replace))) return;
     await ctx.persist(merged);
     await showInfo({ title: 'Importação concluída', message: `${added} itens novos e ${updated} atualizados.\n\nApague agora o arquivo CSV do computador e da lixeira: ele tem todas as senhas sem criptografia.` });
     ctx.go('vault');

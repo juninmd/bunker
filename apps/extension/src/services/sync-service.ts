@@ -108,38 +108,21 @@ export class SyncService {
           });
 
           if (existing) {
-              // Check if it's a deletion via CSV
-              if (newItem.grouping === 'Deleted') {
-                  if (!existing.deletedAt) {
-                      existing.deletedAt = new Date().toISOString();
-                      existing.updatedAt = new Date().toISOString();
-                      updatedCount++; // counted as update (state change)
-                  }
-                  return; // Done
-              }
-
-              // Check if it matches the existing data
+              // A file never deletes: a tampered CSV marking rows "Deleted" must not erase the vault.
+              if (newItem.grouping === 'Deleted') return;
               const isDifferent = existing.password !== newItem.password || existing.notes !== newItem.notes;
-
-              if (existing.deletedAt) {
-                  // Zombie check: Only resurrect if data changed (implies manual restore in CSV)
-                  // And if the CSV row itself is NOT marked as Deleted (handled above)
-                  if (isDifferent) {
-                      existing.password = newItem.password;
-                      existing.notes = newItem.notes;
-                      existing.grouping = newItem.grouping;
-                      existing.updatedAt = new Date().toISOString();
-                      delete existing.deletedAt; // Resurrect
-                      updatedCount++;
-                  }
-                  // Else: It's just the old deleted data lingering in CSV -> Ignore
-              } else if (isDifferent || existing.grouping !== newItem.grouping) {
-                  existing.password = newItem.password;
-                  existing.notes = newItem.notes;
-                  existing.grouping = newItem.grouping;
-                  existing.updatedAt = new Date().toISOString();
-                  updatedCount++;
+              // Old deleted data lingering in the file is ignored; changed data restores the item.
+              if (existing.deletedAt ? !isDifferent : !isDifferent && existing.grouping === newItem.grouping) return;
+              if (existing.password && existing.password !== newItem.password) {
+                  // The replaced password stays recoverable from the item history.
+                  existing.history = [...(existing.history || []), { password: existing.password, timestamp: existing.updatedAt || new Date().toISOString() }];
               }
+              existing.password = newItem.password;
+              existing.notes = newItem.notes;
+              existing.grouping = newItem.grouping;
+              existing.updatedAt = new Date().toISOString();
+              delete existing.deletedAt;
+              updatedCount++;
           } else {
               // Only add if not marked as deleted in CSV
               if (newItem.grouping !== 'Deleted') {
