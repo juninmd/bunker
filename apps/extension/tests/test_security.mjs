@@ -108,16 +108,16 @@ async function testPinIsMemoryOnlyAndWipedAfterFailures() {
   await vault.unlock(MASTER);
   assert.ok(![...chrome.storage.local.data.keys()].some(k => k.includes('pin')), 'legacy on-disk PIN must be purged');
 
-  await vault.setupPin('4821');
+  await vault.setupPin('482193');
   assert.ok(![...chrome.storage.local.data.keys()].some(k => k.includes('pin')), 'PIN envelope must never hit disk');
   vault.lock();
-  await vault.unlockWithPin('4821');
+  await vault.unlockWithPin('482193');
   assert.ok(vault.isUnlocked && vault.masterPassword === null, 'PIN unlocks with the wrapped key, never the password');
 
   for (let i = 0; i < 5; i++) await assert.rejects(vault.unlockWithPin('0000'), /Invalid PIN/);
   assert.strictEqual(await hasPin(), false, 'PIN must be wiped after 5 failures');
-  await assert.rejects(vault.unlockWithPin('4821'), /PIN not set/);
-  await assert.rejects(vault.setupPin('12'), /PIN too short/);
+  await assert.rejects(vault.unlockWithPin('482193'), /PIN not set/);
+  await assert.rejects(vault.setupPin('12345'), /PIN too short/, 'PINs under 6 digits are rejected');
 }
 
 async function testAutofillTrustsSenderOrigin() {
@@ -127,22 +127,27 @@ async function testAutofillTrustsSenderOrigin() {
   await vault.save([{ id: '1', site: 'bank.com', username: 'me', password: SECRET }]);
   await vault.exportSessionKey();
 
-  const fromBank = { id: 'bunker-test', tab: {}, url: 'https://login.bank.com/' };
-  const fromEvil = { id: 'bunker-test', tab: {}, url: 'https://evil.com/' };
-  assert.strictEqual((await send({ type: 'GET_CREDENTIALS', domain: 'bank.com' }, fromBank)).credentials[0].password, SECRET);
-  assert.deepStrictEqual((await send({ type: 'GET_CREDENTIALS', domain: 'bank.com' }, fromEvil)).credentials, [], 'claimed domain must be ignored');
-  assert.strictEqual((await send({ type: 'GET_CREDENTIALS' }, { id: 'other-ext', tab: {}, url: 'https://bank.com/' })).error, 'FORBIDDEN');
+  const fromBank = { id: 'bunker-test', tab: { id: 1 }, frameId: 0, url: 'https://login.bank.com/' };
+  const fromEvil = { ...fromBank, url: 'https://evil.com/' };
+  const listed = await send({ type: 'LIST_ACCOUNTS', domain: 'bank.com' }, fromBank);
+  assert.deepStrictEqual(listed.accounts, [{ ref: '1', username: 'me' }], 'listing carries no password');
+  assert.strictEqual((await send({ type: 'FILL_CREDENTIAL', ref: '1' }, fromBank)).password, SECRET);
+  assert.deepStrictEqual((await send({ type: 'LIST_ACCOUNTS', domain: 'bank.com' }, fromEvil)).accounts, [], 'claimed domain must be ignored');
+  assert.strictEqual((await send({ type: 'FILL_CREDENTIAL', ref: '1' }, fromEvil)).error, 'NOT_FOUND', 'a known ref does not unlock another site');
+  assert.strictEqual((await send({ type: 'LIST_ACCOUNTS' }, { ...fromBank, id: 'other-ext' })).error, 'FORBIDDEN');
+  assert.strictEqual((await send({ type: 'FILL_CREDENTIAL', ref: '1' }, { ...fromBank, frameId: 3 })).error, 'FORBIDDEN', 'subframes never get secrets');
   // NOSONAR: the insecure http origin is the input under test; the assertion proves it is rejected.
   const insecureSender = { ...fromBank, url: 'http://bank.com/' }; // NOSONAR
-  assert.strictEqual((await send({ type: 'GET_CREDENTIALS' }, insecureSender)).error, 'FORBIDDEN', 'plain http is spoofable by a network attacker');
+  assert.strictEqual((await send({ type: 'FILL_CREDENTIAL', ref: '1' }, insecureSender)).error, 'FORBIDDEN', 'plain http is spoofable by a network attacker');
+  for (const type of ['GET_CREDENTIALS', 'CHECK_CREDENTIAL', 'SAVE_CREDENTIAL', 'GET_POLICIES']) {
+    assert.strictEqual(listeners.message({ type, data: { username: 'x', password: 'y' } }, fromBank, () => assert.fail(`${type} answered a page`)), false, `${type} is gone`);
+  }
+  assert.deepStrictEqual(await send({ type: 'IS_BLOCKED' }, fromBank), { blocked: false }, 'pages learn only their own block status');
 
-  const check = await send({ type: 'CHECK_CREDENTIAL', username: 'me', password: 'guess' }, { ...fromBank, url: 'https://bank.com/' });
-  assert.deepStrictEqual(check, { stored: true, same: false }, 'check must never echo the stored password');
-
-  await send({ type: 'SAVE_CREDENTIAL', data: { site: 'bank.com', username: 'new', password: 'x' } }, fromEvil);
-  const reopened = await new VaultService().unlock(MASTER);
-  assert.ok(reopened.some(c => c.site === 'evil.com' && c.username === 'new'), 'saved site must be the sender origin');
-  assert.ok(!reopened.some(c => c.site === 'bank.com' && c.username === 'new'));
+  await vault.save([{ site: 'bank.com', username: 'legacy', password: 'L' }, { id: '1', site: 'bank.com', username: 'me', password: SECRET }]);
+  const legacyRef = (await send({ type: 'LIST_ACCOUNTS' }, fromBank)).accounts.find(a => a.username === 'legacy').ref;
+  await vault.save([{ id: '0', site: 'bank.com', username: 'new', password: 'N' }, { site: 'bank.com', username: 'legacy', password: 'L' }]);
+  assert.strictEqual((await send({ type: 'FILL_CREDENTIAL', ref: legacyRef }, fromBank)).password, 'L', 'items without id keep their ref when the vault shifts');
 }
 
 async function testSessionRestoreAndPasswordChange() {

@@ -5,7 +5,7 @@ import { getSessionValue, removeSessionValues, setSessionValues } from '../utils
 const PIN_KEY = 'bunkerpass.pin';
 export const LEGACY_PIN_LOCAL_KEYS = ['bunkerpass.pin.salt', 'bunkerpass.pin.encrypted'];
 export const MAX_PIN_ATTEMPTS = 5;
-export const MIN_PIN_LENGTH = 4;
+export const MIN_PIN_LENGTH = 6;
 
 interface PinRecord {
   salt: string;

@@ -24,12 +24,12 @@ async function run() {
     await vaultService.unlock('master123-long-enough');
     await vaultService.save([{ site: 'example.com', password: 'pw' }]);
 
-    await vaultService.setupPin('1234');
+    await vaultService.setupPin('123456');
 
     vaultService.lock();
     assert.strictEqual(vaultService.masterPassword, null);
 
-    const vault = await vaultService.unlockWithPin('1234');
+    const vault = await vaultService.unlockWithPin('123456');
     assert.strictEqual(vault.length, 1);
     assert.ok(vaultService.isUnlocked, 'PIN must reopen the vault');
 

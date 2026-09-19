@@ -9,3 +9,4 @@ apps/extension/src/**/*.js
 
 # E2E run output
 docs/screenshots/results.json
+docs/screenshots/security-results.json

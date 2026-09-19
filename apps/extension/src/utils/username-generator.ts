@@ -1,3 +1,5 @@
+import { randomInt } from './crypto.js';
+
 export interface UsernameOptions {
   prefix?: string;
   length?: number;
@@ -16,12 +18,7 @@ export function generateUsername(options: UsernameOptions = {}): string {
   const config = { ...defaultOptions, ...options };
   let result = '';
 
-  const randArray = new Uint32Array(1);
-
-  function getSecureRandom(max: number): number {
-    crypto.getRandomValues(randArray);
-    return randArray[0]! % max;
-  }
+  const getSecureRandom = randomInt;
 
   if (config.useWords) {
     const adjectives = ['swift', 'clever', 'brave', 'silent', 'happy', 'lucky', 'cool', 'smart', 'witty', 'bright', 'calm', 'eager', 'gentle', 'proud', 'shiny', 'vast'];

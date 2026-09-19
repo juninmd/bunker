@@ -9,7 +9,7 @@ await import('../src/background.js');
 
 const MASTER = 'correct horse battery staple';
 const send = (message, sender) => new Promise(resolve => listeners.message(message, sender, resolve));
-const tab = (id, url) => ({ id: 'bunker-test', tab: { id }, url });
+const tab = (id, url) => ({ id: 'bunker-test', tab: { id }, frameId: 0, url });
 
 const vault = new VaultService();
 await vault.unlock(MASTER);

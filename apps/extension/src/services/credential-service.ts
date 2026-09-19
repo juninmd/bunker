@@ -33,21 +33,35 @@ async function withVault(sendResponse: (response: any) => void, onUnlocked: (vau
 }
 
 const isLivePassword = (item: any) => (!item.type || item.type === 'password') && !item.deletedAt;
+// Items saved before ids existed are referenced by what they are, so a concurrent save cannot shift the ref.
+const accountRef = (item: any) => (item.id ? String(item.id) : `legacy:${JSON.stringify([item.site, item.username])}`);
 
 export class CredentialService {
-  static async getPolicies(sendResponse: (response: any) => void) {
-    await withVault(sendResponse, async ({ credentials }) => ({
-      policies: credentials.find((item: any) => item.type === 'business-policy' && item.site === 'business-policy') || null
-    }));
+  static async isBlocked(domain: string, sendResponse: (response: any) => void) {
+    await withVault(sendResponse, async ({ credentials }) => {
+      const policy = credentials.find((item: any) => item.type === 'business-policy' && item.site === 'business-policy');
+      const blocked = String(policy?.blockedDomains || '').split(/\r?\n/).map(d => d.trim().toLowerCase()).filter(Boolean);
+      return { blocked: blocked.some(b => domain === b || domain.endsWith(`.${b}`)) };
+    });
   }
 
-  static async getCredentials(domain: string, sendResponse: (response: any) => void, onActivity?: () => void) {
+  // Pages only learn which accounts exist; a password leaves the worker for one item, on a genuine click.
+  static async listAccounts(domain: string, sendResponse: (response: any) => void, onActivity?: () => void) {
     await withVault(sendResponse, async ({ credentials }) => {
       if (onActivity) onActivity();
-      return {
-        credentials: credentials.filter((item: any) =>
-          isLivePassword(item) && matchesHost(domain, item.site))
-      };
+      const accounts = credentials.map((item: any) => ({ item, ref: accountRef(item) }))
+        .filter(({ item }) => isLivePassword(item) && matchesHost(domain, item.site))
+        .map(({ item, ref }) => ({ ref, username: String(item.username || '') }));
+      return { accounts };
+    });
+  }
+
+  static async fillCredential(domain: string, ref: string, sendResponse: (response: any) => void, onActivity?: () => void) {
+    await withVault(sendResponse, async ({ credentials }) => {
+      const item = credentials.find((c: any) => accountRef(c) === ref && isLivePassword(c) && matchesHost(domain, c.site));
+      if (!item) return { error: 'NOT_FOUND' };
+      if (onActivity) onActivity();
+      return { username: String(item.username || ''), password: String(item.password || '') };
     });
   }
 

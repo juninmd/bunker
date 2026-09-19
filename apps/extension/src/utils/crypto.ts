@@ -65,3 +65,12 @@ export async function exportRawKey(key: CryptoKey): Promise<string> {
 export async function importRawKey(rawB64: string): Promise<CryptoKey> {
   return crypto.subtle.importKey('raw', base64ToBytes(rawB64) as BufferSource, 'AES-GCM', true, ['encrypt', 'decrypt']);
 }
+
+// Uniform integer in [0, max): values past the last full multiple of max are redrawn, so no modulo bias.
+export function randomInt(max: number): number {
+  if (!Number.isInteger(max) || max <= 0 || max > 2 ** 32) throw new Error('Invalid range');
+  const limit = 2 ** 32 - (2 ** 32 % max);
+  const buffer = new Uint32Array(1);
+  do crypto.getRandomValues(buffer); while ((buffer[0] as number) >= limit);
+  return (buffer[0] as number) % max;
+}

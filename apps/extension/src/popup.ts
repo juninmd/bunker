@@ -30,6 +30,14 @@ function notify(message: string, tone: Tone = 'info') {
   toastTimer = setTimeout(() => { toast.className = 'toast'; }, tone === 'error' ? 5000 : 3200);
 }
 
+// A locked popup keeps no decrypted data in the DOM: forms, lists, panels and open dialogs are emptied.
+function wipeSecrets() {
+  byId<HTMLFormElement>('credentialForm').reset();
+  document.querySelectorAll('#credentialForm .history, #credentialList, #panelBody, #securityBody').forEach(node => node.replaceChildren());
+  document.querySelectorAll('.gen-output').forEach(node => { node.textContent = ''; });
+  document.querySelectorAll<HTMLDialogElement>('dialog[open]').forEach(dialog => dialog.close());
+}
+
 const onShow: Partial<Record<ViewName, () => void>> = {};
 
 const ctx: AppContext = {
@@ -69,6 +77,7 @@ const ctx: AppContext = {
   },
   lockNow(message) {
     vault.lock();
+    wipeSecrets();
     ctx.go('lock');
     if (message) notify(message);
   }

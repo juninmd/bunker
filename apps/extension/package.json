@@ -4,10 +4,11 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "test": "node tests/unit_tests.mjs && node tests/test_csv.mjs && node tests/test_csv_sync.mjs && node tests/test_sync_logic.mjs && node tests/test_generator.mjs && node tests/test_totp.mjs && node tests/test_vault_tools.mjs && node tests/test_pin.mjs && node tests/test_recovery.mjs && node tests/test_passwordless.mjs && node tests/test_security.mjs && node tests/test_save_offer.mjs",
+    "test": "node tests/unit_tests.mjs && node tests/test_csv.mjs && node tests/test_csv_sync.mjs && node tests/test_sync_logic.mjs && node tests/test_generator.mjs && node tests/test_totp.mjs && node tests/test_vault_tools.mjs && node tests/test_hardening.mjs && node tests/test_pin.mjs && node tests/test_recovery.mjs && node tests/test_passwordless.mjs && node tests/test_security.mjs && node tests/test_save_offer.mjs",
     "typecheck": "tsc -p tsconfig.json",
     "build": "tsc -p tsconfig.json",
-    "e2e": "tsc -p tsconfig.json && node tests/e2e/homologation.mjs"
+    "e2e": "tsc -p tsconfig.json && node tests/e2e/homologation.mjs",
+    "e2e:security": "tsc -p tsconfig.json && node tests/e2e/security-probe.mjs"
   },
   "dependencies": {
     "typescript": "^7.0.2"
