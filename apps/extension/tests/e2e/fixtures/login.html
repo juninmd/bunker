@@ -1,0 +1,14 @@
+<!doctype html>
+<html lang="en">
+  <head><meta charset="UTF-8" /><title>Acme login</title>
+    <style>body{font:15px system-ui;background:#f4f6f8;display:grid;place-items:center;height:100vh;margin:0}form{background:#fff;padding:28px;border-radius:12px;width:300px;display:flex;flex-direction:column;gap:10px;box-shadow:0 1px 3px #0002}input{padding:10px;border:1px solid #ccd;border-radius:8px}button{padding:10px;border:0;border-radius:8px;background:#2451b7;color:#fff}</style>
+  </head>
+  <body>
+    <form id="login" action="/done" method="get">
+      <h2>Acme</h2>
+      <input id="user" name="user" type="email" placeholder="E-mail" autocomplete="username" />
+      <input id="pass" name="pass" type="password" placeholder="Password" autocomplete="current-password" />
+      <button type="submit">Sign in</button>
+    </form>
+  </body>
+</html>

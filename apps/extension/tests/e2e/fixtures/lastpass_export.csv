@@ -1,0 +1,8 @@
+url,username,password,totp,extra,name,grouping,fav
+https://github.com/login,ana.dev@example.com,Gh!7pQz#v2Lm9Rt$,GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQ,,GitHub,Trabalho,1
+https://accounts.google.com/,ana@example.com,correct-horse-battery-staple-42,,,Google,Pessoal,1
+https://www.nubank.com.br/,ana@example.com,Nb#2024-seguro!Xk,JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP,,Nubank,Finanças,0
+https://www.netflix.com/login,ana@example.com,netflix123,,,Netflix,Pessoal,0
+https://twitter.com/login,ana_dev,netflix123,,,X,Pessoal,0
+http://127.0.0.1/,ana@acme.test,Acme-Pa55!phrase,,,Acme (teste local),Trabalho,0
+http://sn,,,,"Senha do Wi-Fi: corvo-azul-77",Wi-Fi de casa,Notas,0
