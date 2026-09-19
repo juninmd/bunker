@@ -3,229 +3,111 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>BunkerPass</title>
-    <link rel="stylesheet" href="popup.css" />
+    <meta name="color-scheme" content="dark light" />
+    <title>Bunker</title>
+    <link rel="stylesheet" href="styles/tokens.css" />
+    <link rel="stylesheet" href="styles/base.css" />
+    <link rel="stylesheet" href="styles/views.css" />
+    <link rel="stylesheet" href="styles/items.css" />
   </head>
   <body>
-    <main class="container">
-      <h1>BunkerPass</h1>
-      <p class="subtitle">MVP de cofre local criptografado (offline-first)</p>
+    <div id="app" class="app" data-view="lock">
+      <section id="view-lock" class="view view-lock" aria-labelledby="lock-title">
+        <svg class="dial" viewBox="0 0 120 120" aria-hidden="true">
+          <circle cx="60" cy="60" r="57" class="dial-rim" />
+          <g class="dial-face">
+            <circle cx="60" cy="60" r="46" class="dial-plate" />
+            <g id="dialTicks"></g>
+            <circle cx="60" cy="60" r="11" class="dial-hub" />
+            <path d="M60 20v14" class="dial-needle" />
+          </g>
+        </svg>
+        <h1 id="lock-title" class="wordmark">Bunker</h1>
+        <p id="lockHint" class="lock-hint">Digite a senha mestra para abrir o cofre.</p>
 
-
-
-      <section id="unlock-section">
-        <label for="masterPassword">Senha mestra</label>
-        <input id="masterPassword" type="password" autocomplete="off" />
-        <button id="unlockButton">Desbloquear</button>
-        <button id="unlockBiometricsBtn" class="secondary hidden" style="margin-top: 8px;">Desbloquear com Biometria</button>
-
-        <div id="pinUnlockContainer" class="hidden" style="margin-top: 16px;">
-          <label for="pinInput">PIN</label>
-          <input id="pinInput" type="password" autocomplete="off" maxlength="6" style="width: 100px; text-align: center; font-size: 1.2em;" />
-          <button id="unlockPinBtn">Desbloquear com PIN</button>
-        </div>
-
-        <div style="margin-top: 16px; border-top: 1px solid #ccc; padding-top: 8px;">
-          <label for="recoveryInput">Código de Recuperação (se perdeu a senha)</label>
-          <input id="recoveryInput" type="text" autocomplete="off" placeholder="Cole o código aqui" style="font-size: 0.9em;" />
-          <button id="unlockRecoveryBtn" class="secondary">Desbloquear com Código</button>
-        </div>
-      </section>
-
-
-
-      <section id="vault-section" class="hidden">
-        <h2>Novo item</h2>
-        <form id="credentialForm">
-          <input type="hidden" id="credentialId" />
-          <div class="type-selector" style="margin-bottom: 8px;">
-            <label><input type="radio" name="itemType" value="password" checked> Senha</label>
-            <label style="margin-left: 10px;"><input type="radio" name="itemType" value="note"> Nota Segura</label>
-            <label style="margin-left: 10px;"><input type="radio" name="itemType" value="card"> Cartão</label>
-            <label style="margin-left: 10px;"><input type="radio" name="itemType" value="address"> Endereço</label>
+        <form id="unlockForm" class="stack" novalidate>
+          <label class="field-label" for="masterPassword">Senha mestra</label>
+          <div class="input-row">
+            <input id="masterPassword" type="password" autocomplete="current-password" required />
+            <button type="button" class="icon-btn" data-reveal="masterPassword" aria-label="Mostrar senha"></button>
           </div>
-
-          <input id="site" placeholder="Site (ex: github.com)" required />
-
-          <!-- Folder / Group Input -->
-          <input id="folder" list="folderOptions" placeholder="Pasta (Opcional)" />
-          <datalist id="folderOptions"></datalist>
-
-          <div class="username-wrapper" id="usernameWrapper" style="display: flex; gap: 8px;">
-            <input id="username" placeholder="Usuário" required style="flex: 1;" />
-            <button type="button" id="generateUsernameBtn" class="icon-btn" title="Gerar nome de usuário seguro">⚡</button>
+          <div id="confirmRow" class="stack" hidden>
+            <label class="field-label" for="masterConfirm">Repita a senha mestra</label>
+            <input id="masterConfirm" type="password" autocomplete="new-password" />
           </div>
-
-          <div class="password-wrapper" id="passwordWrapper">
-            <input id="password" type="password" placeholder="Senha" required />
-            <button type="button" id="generateBtn" class="icon-btn" title="Gerar senha segura">⚡</button>
-            <button type="button" id="viewHistoryBtn" class="icon-btn hidden" title="Ver Histórico de Senhas">🕒</button>
-          </div>
-
-          <div id="passwordHistorySection" class="hidden" style="margin-top: 8px; border: 1px solid #ccc; padding: 8px; border-radius: 4px;">
-            <h3 style="margin-top: 0; font-size: 0.9rem;">Histórico de Senhas</h3>
-            <ul id="passwordHistoryList" style="list-style: none; padding: 0; margin: 0; font-size: 0.85rem;"></ul>
-          </div>
-
-          <div id="cardFields" class="hidden" style="display: flex; flex-direction: column; gap: 8px;">
-            <input id="cardName" placeholder="Nome no Cartão" />
-            <input id="cardNumber" placeholder="Número do Cartão" />
-            <div style="display: flex; gap: 8px;">
-              <input id="cardExp" placeholder="MM/AA" style="flex: 1;" />
-              <input id="cardCvv" placeholder="CVV" style="flex: 1;" />
-            </div>
-          </div>
-
-          <div id="addressFields" class="hidden" style="display: flex; flex-direction: column; gap: 8px;">
-            <input id="addressFullName" placeholder="Nome Completo" />
-            <input id="addressPhone" placeholder="Telefone" />
-            <input id="addressEmail" placeholder="E-mail" />
-            <input id="addressStreet" placeholder="Rua / Endereço" />
-            <div style="display: flex; gap: 8px;">
-              <input id="addressCity" placeholder="Cidade" style="flex: 1;" />
-              <input id="addressState" placeholder="Estado / UF" style="flex: 1;" />
-            </div>
-            <div style="display: flex; gap: 8px;">
-              <input id="addressZip" placeholder="CEP" style="flex: 1;" />
-              <input id="addressCountry" placeholder="País" style="flex: 1;" />
-            </div>
-          </div>
-
-          <div class="password-strength-container hidden" id="passwordStrengthContainer">
-            <div id="password-strength-bar"></div>
-            <span id="password-strength-text"></span>
-          </div>
-
-          <div id="generatorOptions" class="generator-options hidden">
-            <div class="slider-row">
-              <label for="lengthRange">Tamanho: <span id="lengthVal">16</span></label>
-              <input type="range" id="lengthRange" min="8" max="64" value="16">
-            </div>
-            <div class="checkbox-row">
-              <label><input type="checkbox" id="useUppercase" checked> A-Z</label>
-              <label><input type="checkbox" id="useLowercase" checked> a-z</label>
-              <label><input type="checkbox" id="useNumbers" checked> 0-9</label>
-              <label><input type="checkbox" id="useSymbols" checked> !@#</label>
-            </div>
-          </div>
-          <textarea id="notes" placeholder="Notas (opcional)" rows="3" style="width: 100%; margin-top: 8px;"></textarea>
-          <div style="display: flex; gap: 8px; margin-top: 8px;">
-            <button type="submit" style="flex: 1;">Salvar</button>
-            <button type="button" id="shareCredentialBtn" class="secondary hidden" style="flex: 1;">Compartilhar</button>
-          </div>
+          <button id="unlockButton" class="btn primary block" type="submit">Abrir cofre</button>
         </form>
 
-        <h2>Credenciais</h2>
-        <input type="text" id="searchInput" placeholder="Buscar..." aria-label="Buscar credenciais" style="margin-bottom: 8px;">
-        <div id="credentialListContainer">
-          <ul id="credentialList"></ul>
-        </div>
-        <button id="syncButton">Sincronizar com Google Drive</button>
-        <button id="importCsvButton" class="secondary" style="margin-top: 8px;">Importar CSV do Drive</button>
-        <div style="display: flex; gap: 8px; margin-top: 8px;">
-          <button id="downloadCsvBtn" class="secondary" style="flex: 1;">Baixar .csv (Offline)</button>
-          <label class="secondary button-label" style="flex: 1; text-align: center; cursor: pointer; padding: 8px; background: #eee; border: 1px solid #ccc; border-radius: 4px;">
-            Importar .csv Local
-            <input type="file" id="localCsvInput" accept=".csv" style="display: none;" />
+        <form id="pinForm" class="stack" hidden novalidate>
+          <label class="field-label" for="pinInput">PIN rápido</label>
+          <input id="pinInput" type="password" inputmode="numeric" autocomplete="off" maxlength="12" />
+          <button class="btn ghost block" type="submit">Abrir com PIN</button>
+        </form>
+
+        <button id="unlockBiometricsBtn" class="btn ghost block" type="button" hidden>Abrir com biometria</button>
+
+        <details id="recoveryBox" class="recovery">
+          <summary>Esqueci a senha mestra</summary>
+          <form id="recoveryForm" class="stack" novalidate>
+            <label class="field-label" for="recoveryInput">Código de recuperação</label>
+            <input id="recoveryInput" type="text" autocomplete="off" spellcheck="false" />
+            <button class="btn ghost block" type="submit">Abrir com o código</button>
+          </form>
+        </details>
+      </section>
+
+      <section id="view-vault" class="view" aria-label="Cofre" hidden>
+        <header class="topbar">
+          <label class="search">
+            <span class="visually-hidden">Buscar no cofre</span>
+            <input id="searchInput" type="search" placeholder="Buscar no cofre" autocomplete="off" />
           </label>
-        </div>
-        <button id="importSharedBtn" class="secondary mt-8">Importar Credencial Compartilhada</button>
-        <button id="businessShareBtn" class="secondary mt-8">Compartilhamento Empresarial</button>
-        <button id="businessHubBtn" class="secondary mt-8">Gestão Empresarial (Hub)</button>
-        <div id="last-sync" class="last-sync"></div>
-        <button id="securityDashboardBtn" class="secondary">Painel de Segurança</button>
-        <button id="digitalWillBtn" class="secondary">Testamento Digital</button>
-        <button id="emergencyAccessBtn" class="secondary" title="Exportar/Importar cofre completo para acesso de emergência">Acesso de Emergência</button>
-        <button id="setupPasswordlessBtn" class="secondary">Configurar Login sem Senha</button>
-        <button id="setupPinBtn" class="secondary">Configurar PIN Rápido</button>
-        <button id="generateRecoveryBtn" class="secondary">Gerar Código de Recuperação</button>
-        <button id="lockButton" class="secondary">Bloquear</button>
+          <button id="newItemBtn" class="icon-btn accent" type="button" aria-label="Novo item"></button>
+        </header>
+        <nav id="folderChips" class="chips" aria-label="Pastas"></nav>
+        <ul id="credentialList" class="item-list" aria-label="Itens do cofre"></ul>
       </section>
 
-      <section id="digital-will-section" class="hidden">
-        <h2>Testamento Digital</h2>
-        <p class="fs-09 mb-16">Configure um contato de emergência e uma nota de acesso para suas contas em caso de imprevistos.</p>
-        <form id="digitalWillForm">
-          <label for="dwContactName" class="hidden">Nome do Contato</label>
-          <input id="dwContactName" placeholder="Nome do Contato de Emergência" required />
-          <label for="dwContactEmail" class="hidden">E-mail do Contato</label>
-          <input id="dwContactEmail" type="email" placeholder="E-mail do Contato" required />
-          <label for="dwAccessNote" class="hidden">Instruções de acesso</label>
-          <textarea id="dwAccessNote" placeholder="Instruções de acesso / Mensagem de emergência" rows="4" class="w-full mt-8" required></textarea>
-          <button type="submit" class="mt-8">Salvar Testamento Digital</button>
-        </form>
-        <button id="backFromDigitalWillBtn" class="secondary mt-8">Voltar ao Cofre</button>
+      <section id="view-editor" class="view" aria-labelledby="editorTitle" hidden>
+        <header class="subbar">
+          <button type="button" class="icon-btn" data-back aria-label="Voltar"></button>
+          <h2 id="editorTitle">Novo item</h2>
+        </header>
+        <form id="credentialForm" class="editor stack" novalidate></form>
       </section>
 
-      <section id="emergency-access-section" class="hidden">
-        <h2>Acesso de Emergência</h2>
-        <p class="fs-09 mb-16">Exporte todo o seu cofre criptografado com um PIN para um contato de confiança, ou importe um cofre de emergência recebido.</p>
-        <button id="exportEmergencyBtn" class="mt-8">Exportar Cofre de Emergência</button>
-        <button id="importEmergencyBtn" class="secondary mt-8">Importar Cofre de Emergência</button>
-        <button id="backFromEmergencyBtn" class="secondary mt-8">Voltar ao Cofre</button>
+      <section id="view-generator" class="view" aria-labelledby="generatorTitle" hidden>
+        <header class="subbar"><h2 id="generatorTitle">Gerador</h2></header>
+        <div id="generatorBody" class="pad stack"></div>
       </section>
 
-
-      <section id="business-share-section" class="hidden">
-        <h2>Compartilhamento Empresarial</h2>
-        <p class="fs-09 mb-16">Compartilhe uma pasta inteira (equipes, freelancers) com criptografia protegida por PIN.</p>
-
-        <div style="border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; border-radius: 4px;">
-          <h3>Exportar Pasta</h3>
-          <label for="businessFolderSelect" class="hidden">Selecionar Pasta</label>
-          <select id="businessFolderSelect" style="width: 100%; margin-bottom: 8px;">
-            <option value="">Selecione uma pasta...</option>
-          </select>
-          <button id="exportBusinessFolderBtn">Exportar Pasta (Gerar Código)</button>
-        </div>
-
-        <div style="border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; border-radius: 4px;">
-          <h3>Importar Pasta</h3>
-          <button id="importBusinessFolderBtn" class="secondary">Importar Pasta Compartilhada</button>
-        </div>
-
-        <button id="backFromBusinessShareBtn" class="secondary mt-8">Voltar ao Cofre</button>
+      <section id="view-security" class="view" aria-labelledby="securityTitle" hidden>
+        <header class="subbar"><h2 id="securityTitle">Saúde do cofre</h2></header>
+        <div id="securityBody" class="pad stack"></div>
       </section>
 
-      <section id="business-hub-section" class="hidden">
-        <h2>Gestão Empresarial (Hub)</h2>
-        <p class="fs-09 mb-16">Configure as políticas globais de segurança da sua empresa e restrições de SaaS.</p>
-
-        <form id="businessHubForm">
-          <div style="border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; border-radius: 4px;">
-            <h3>Gerenciamento de Usuários</h3>
-            <label for="hubMinPasswordLength" style="display: block; margin-bottom: 5px;">Tamanho Mínimo de Senha Global:</label>
-            <input type="number" id="hubMinPasswordLength" placeholder="Ex: 16" min="8" max="64" value="16" style="width: 100%; margin-bottom: 10px;" />
-          </div>
-
-          <div style="border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; border-radius: 4px;">
-            <h3>SaaS Protect</h3>
-            <label for="hubBlockedDomains" style="display: block; margin-bottom: 5px;">Domínios Bloqueados (um por linha):</label>
-            <textarea id="hubBlockedDomains" rows="4" placeholder="exemplo.com&#10;jogos.com" style="width: 100%; font-family: monospace;"></textarea>
-            <p class="fs-09 mt-8" style="color: #666;">Acesso a estes domínios será bloqueado na extensão.</p>
-          </div>
-
-          <button type="submit" class="mt-8">Salvar Políticas</button>
-        </form>
-        <button id="backFromBusinessHubBtn" class="secondary mt-8">Voltar ao Cofre</button>
+      <section id="view-settings" class="view" aria-labelledby="settingsTitle" hidden>
+        <header class="subbar"><h2 id="settingsTitle">Ajustes</h2></header>
+        <div id="settingsBody" class="settings"></div>
       </section>
 
-      <section id="security-dashboard-section" class="hidden">
-        <h2>Painel de Segurança</h2>
-        <div class="dashboard-stats">
-          <p><strong>Score de Segurança:</strong> <span id="statScore">0</span>/100</p>
-          <p><strong>Total de Senhas:</strong> <span id="statTotal">0</span></p>
-          <p><strong>Senhas Fracas:</strong> <span id="statWeak">0</span></p>
-          <p><strong>Senhas Reutilizadas:</strong> <span id="statReused">0</span></p>
-          <p><strong>Senhas Antigas (> 6 meses):</strong> <span id="statOld">0</span></p>
-          <p><strong>Senhas Vazadas (Dark Web):</strong> <span id="statLeaked">0</span> <button id="checkPwnedBtn" class="secondary" style="font-size: 12px; padding: 4px 8px; margin-left: 8px;">Verificar Vazamentos</button></p>
-        </div>
-        <button id="backToVaultBtn" class="secondary">Voltar ao Cofre</button>
+      <section id="view-panel" class="view" aria-labelledby="panelTitle" hidden>
+        <header class="subbar">
+          <button type="button" class="icon-btn" data-back aria-label="Voltar"></button>
+          <h2 id="panelTitle"></h2>
+        </header>
+        <div id="panelBody" class="pad stack"></div>
       </section>
 
-      <p id="status" role="status" aria-live="polite"></p>
-    </main>
+      <nav id="tabbar" class="tabbar" aria-label="Seções" hidden>
+        <button type="button" data-tab="vault">Cofre</button>
+        <button type="button" data-tab="generator">Gerador</button>
+        <button type="button" data-tab="security">Saúde</button>
+        <button type="button" data-tab="settings">Ajustes</button>
+      </nav>
 
+      <div id="toast" class="toast" role="status" aria-live="polite"></div>
+    </div>
     <script src="popup.js" type="module"></script>
   </body>
 </html>

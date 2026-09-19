@@ -2,6 +2,7 @@ import { GoogleDriveService } from './google-drive.js';
 import { generateCSV, parseCSV, mapCSVRowToVaultItem, mapVaultItemToCSVRow } from '../utils/csv-utils.js';
 import { parseRemoteEnvelope, sameKdf, sealRemoteVault } from '../utils/vault-envelope.js';
 import { decryptPayload, decryptWithKey } from '../utils/crypto.js';
+import { rekeyVault } from './master-password.js';
 
 export class SyncService {
   vaultService: any;
@@ -43,7 +44,7 @@ export class SyncService {
         } catch (e) {
           throw new Error('Failed to decrypt remote vault. Check password.'); // NOSONAR
         }
-        await vault.rekey(password, envelope.salt, envelope.iterations);
+        await rekeyVault(vault, password, envelope.salt, envelope.iterations);
       }
     }
 

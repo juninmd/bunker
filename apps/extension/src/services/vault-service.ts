@@ -1,15 +1,15 @@
-import { VAULT_KDF_ITERATIONS, deriveKey, decryptWithKey, encryptWithKey, encryptPayload, decryptPayload, base64ToBytes, bytesToBase64, exportRawKey, importRawKey } from '../utils/crypto.js';
+import { VAULT_KDF_ITERATIONS, deriveKey, decryptWithKey, encryptWithKey, base64ToBytes, bytesToBase64, exportRawKey, importRawKey } from '../utils/crypto.js';
 import { formatLocalBlob, parseLocalBlob } from '../utils/vault-envelope.js';
 import { getLocal, removeLocal, setLocalMany } from '../utils/local-storage.js';
 import { getSessionValue, removeSessionValues, setSessionValues } from '../utils/session-storage.js';
 import * as pinLock from './pin-lock.js';
+import { createRecoveryCode, recoverMasterPassword } from './recovery-key.js';
+import { changeMasterPassword } from './master-password.js';
 
-const STORAGE_KEY = 'bunkerpass.vault.v1';
-const SALT_KEY = 'bunkerpass.salt.v1';
+export const STORAGE_KEY = 'bunkerpass.vault.v1';
+export const SALT_KEY = 'bunkerpass.salt.v1';
 const SESSION_KEY = 'sessionKey';
-const VAULT_SCHEMA_VERSION = 1;
-const RECOVERY_PREFIX = 'bunkerpass.recovery';
-const PASSWORD_WRAPS = ['bunkerpass.recovery.salt', 'bunkerpass.recovery.encrypted', 'bunkerpass.passwordless.credentialId', 'bunkerpass.passwordless.salt', 'bunkerpass.passwordless.encryptedData'];
+export const VAULT_SCHEMA_VERSION = 1;
 export const MIN_MASTER_PASSWORD_LENGTH = 12;
 
 // The derived key, not the master password, is what keeps the vault open; the password is held only while typed in this popup.
@@ -22,6 +22,10 @@ export class VaultService {
 
   get isUnlocked() {
     return !!this.key;
+  }
+
+  async hasVault() {
+    return !!(await this.getStorage(STORAGE_KEY));
   }
 
   async unlock(masterPassword: string) {
@@ -80,22 +84,8 @@ export class VaultService {
     this.cachedVault = newVault;
   }
 
-  // Re-keys the vault in one write: used to adopt the salt shared through sync and to change the master password.
-  async rekey(masterPassword: string, salt: Uint8Array, iterations: number) {
-    const key = await deriveKey(masterPassword, salt, iterations);
-    const encrypted = await encryptWithKey({ schemaVersion: VAULT_SCHEMA_VERSION, credentials: this.cachedVault }, key);
-    await setLocalMany({ [SALT_KEY]: bytesToBase64(salt), [STORAGE_KEY]: formatLocalBlob(iterations, encrypted) });
-    Object.assign(this, { key, salt, iterations, masterPassword });
-    await pinLock.clearPin();
-    await this.exportSessionKey();
-  }
-
   async changeMasterPassword(current: string, next: string) {
-    if (next.length < MIN_MASTER_PASSWORD_LENGTH) throw new Error('WEAK_MASTER_PASSWORD');
-    await this.unlock(current);
-    await this.rekey(next, crypto.getRandomValues(new Uint8Array(16)), VAULT_KDF_ITERATIONS);
-    // Recovery and passwordless envelopes wrap the old password and would unlock nothing.
-    await this.removeStorage(PASSWORD_WRAPS);
+    await changeMasterPassword(this, current, next);
   }
 
   lock() {
@@ -148,34 +138,12 @@ export class VaultService {
     return await this.unlockWithKey(await importRawKey(await pinLock.recoverVaultKey(pin)));
   }
 
-  async hasPin() {
-    return await pinLock.hasPin();
-  }
-
-  // The recovery code wraps the master password so it survives salt changes from sync.
   async generateRecoveryKey() {
     if (!this.masterPassword) throw new Error('MASTER_PASSWORD_REQUIRED');
-    const recoveryCode = Array.from(crypto.getRandomValues(new Uint8Array(16)), b => b.toString(16).padStart(2, '0')).join('');
-    const salt = crypto.getRandomValues(new Uint8Array(16));
-    const encrypted = await encryptPayload({ masterPassword: this.masterPassword }, recoveryCode, salt);
-    await setLocalMany({ [`${RECOVERY_PREFIX}.salt`]: bytesToBase64(salt), [`${RECOVERY_PREFIX}.encrypted`]: encrypted });
-    return recoveryCode;
+    return createRecoveryCode(this.masterPassword);
   }
 
-  async unlockWithRecoveryKey(recoveryCode: string) {
-    const storedSalt = await this.getStorage(`${RECOVERY_PREFIX}.salt`);
-    const encrypted = await this.getStorage(`${RECOVERY_PREFIX}.encrypted`);
-    if (!storedSalt || !encrypted) throw new Error('Recovery key not set');
-    let payload: { masterPassword: string };
-    try {
-      payload = await decryptPayload(encrypted, recoveryCode, base64ToBytes(storedSalt));
-    } catch (e) {
-      throw new Error('Invalid recovery key');
-    }
-    return await this.unlock(payload.masterPassword);
-  }
-
-  async hasRecoveryKey() {
-    return !!(await this.getStorage(`${RECOVERY_PREFIX}.encrypted`));
+  async unlockWithRecoveryKey(code: string) {
+    return this.unlock(await recoverMasterPassword(code));
   }
 }

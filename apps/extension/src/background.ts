@@ -1,4 +1,6 @@
 import { CredentialService } from './services/credential-service.js';
+import { clearClipboardNow, isClipboardAlarm, scheduleClipboardClear } from './services/clipboard-guard.js';
+import { dropPendingSave, holdPendingSave, resolvePendingSave, settledOffer, takePendingSave, trackOffer } from './services/pending-save.js';
 
 const AUTOLOCK_MINUTES = 15;
 const SYNC_INTERVAL_MINUTES = 15;
@@ -11,6 +13,8 @@ chrome.runtime.onInstalled.addListener(() => {
 chrome.alarms.onAlarm.addListener((alarm: chrome.alarms.Alarm) => {
   if (alarm.name === 'autoLock') {
     lockVault();
+  } else if (isClipboardAlarm(alarm)) {
+    clearClipboardNow().catch(e => console.error('Clipboard clear failed', e));
   } else if (alarm.name === 'syncVault') {
     // If we have a session key, we can trigger sync
     chrome.storage.session.get(['sessionKey'], (result) => {
@@ -38,6 +42,8 @@ function lockVault() {
   });
 }
 
+chrome.tabs.onRemoved.addListener(dropPendingSave);
+
 // Locking the OS screen locks the vault too.
 chrome.idle?.onStateChanged.addListener((state) => {
   if (state === 'locked') lockVault();
@@ -64,9 +70,15 @@ function senderHostname(sender: chrome.runtime.MessageSender): string | null {
   }
 }
 
+// Popup and other extension pages, even when opened in a tab; content scripts report the web page URL instead.
+function fromExtensionPage(sender: chrome.runtime.MessageSender): boolean {
+  return sender.id === chrome.runtime.id && !!sender.url?.startsWith(chrome.runtime.getURL(''));
+}
+
 chrome.runtime.onMessage.addListener((request: any, sender: chrome.runtime.MessageSender, sendResponse: (response: any) => void) => {
   const domain = senderHostname(sender);
-  const needsDomain = ['GET_CREDENTIALS', 'CHECK_CREDENTIAL', 'SAVE_CREDENTIAL'].includes(request.type);
+  const needsDomain = ['GET_CREDENTIALS', 'CHECK_CREDENTIAL', 'SAVE_CREDENTIAL', 'OFFER_SAVE', 'TAKE_PENDING_SAVE', 'RESOLVE_PENDING_SAVE'].includes(request.type);
+  const tabId = sender.id === chrome.runtime.id ? sender.tab?.id : undefined;
   if (needsDomain && !domain) {
     sendResponse({ error: 'FORBIDDEN' });
     return false;
@@ -87,7 +99,38 @@ chrome.runtime.onMessage.addListener((request: any, sender: chrome.runtime.Messa
     return true;
   }
 
-  if (request.type === 'ACTIVITY' && sender.id === chrome.runtime.id && !sender.tab) {
+  if (request.type === 'OFFER_SAVE' && tabId !== undefined) {
+    trackOffer(tabId, new Promise<void>(done => CredentialService.checkCredential(domain as string, request.username, request.password, check => {
+      const offer = !check.error && !check.same;
+      if (offer) holdPendingSave(tabId, domain as string, String(request.username), String(request.password), check.stored);
+      sendResponse({ pending: offer });
+      done();
+    }, resetAutoLock)));
+    return true;
+  }
+
+  if (request.type === 'TAKE_PENDING_SAVE' && tabId !== undefined) {
+    settledOffer(tabId).then(() => sendResponse({ offer: takePendingSave(tabId, domain as string) }));
+    return true;
+  }
+
+  if (request.type === 'RESOLVE_PENDING_SAVE' && tabId !== undefined) {
+    const entry = resolvePendingSave(tabId, domain as string);
+    if (!request.accept || !entry) {
+      sendResponse({ status: 'ACK' });
+      return false;
+    }
+    CredentialService.saveCredential(entry.host, { username: entry.username, password: entry.password }, sendResponse, resetAutoLock);
+    return true;
+  }
+
+  if (request.type === 'CLEAR_CLIPBOARD_LATER' && fromExtensionPage(sender)) {
+    scheduleClipboardClear();
+    sendResponse({ status: 'ACK' });
+    return false;
+  }
+
+  if (request.type === 'ACTIVITY' && fromExtensionPage(sender)) {
     resetAutoLock();
     sendResponse({ status: 'ACK' });
     return false;

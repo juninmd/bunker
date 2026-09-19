@@ -6,6 +6,8 @@ const { VaultService } = await import('../src/services/vault-service.js');
 const { SyncService } = await import('../src/services/sync-service.js');
 const { encryptPayload, bytesToBase64 } = await import('../src/utils/crypto.js');
 const { parseRemoteEnvelope } = await import('../src/utils/vault-envelope.js');
+const { hasPin } = await import('../src/services/pin-lock.js');
+const { hasRecoveryCode } = await import('../src/services/recovery-key.js');
 await import('../src/background.js');
 
 const MASTER = 'correct horse battery staple';
@@ -113,7 +115,7 @@ async function testPinIsMemoryOnlyAndWipedAfterFailures() {
   assert.ok(vault.isUnlocked && vault.masterPassword === null, 'PIN unlocks with the wrapped key, never the password');
 
   for (let i = 0; i < 5; i++) await assert.rejects(vault.unlockWithPin('0000'), /Invalid PIN/);
-  assert.strictEqual(await vault.hasPin(), false, 'PIN must be wiped after 5 failures');
+  assert.strictEqual(await hasPin(), false, 'PIN must be wiped after 5 failures');
   await assert.rejects(vault.unlockWithPin('4821'), /PIN not set/);
   await assert.rejects(vault.setupPin('12'), /PIN too short/);
 }
@@ -160,7 +162,7 @@ async function testSessionRestoreAndPasswordChange() {
   await reopened.changeMasterPassword(MASTER, 'a brand new master phrase');
   await assert.rejects(new VaultService().unlock(MASTER), /Invalid password/);
   assert.strictEqual((await new VaultService().unlock('a brand new master phrase'))[0].password, SECRET);
-  assert.strictEqual(await reopened.hasRecoveryKey(), false, 'recovery wrapping the old password must be dropped');
+  assert.strictEqual(await hasRecoveryCode(), false, 'recovery wrapping the old password must be dropped');
 
   reopened.lock();
   assert.strictEqual(await new VaultService().restoreSession(), false, 'lock must end the session');

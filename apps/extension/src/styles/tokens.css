@@ -1,0 +1,51 @@
+/* Graphite steel with a brass accent: the palette of a vault door, not a SaaS dashboard. */
+:root {
+  --bg: #14181d;
+  --surface: #1c2127;
+  --surface-2: #242a31;
+  --line: #2f363e;
+  --text: #e8e6e1;
+  --muted: #9aa3ad;
+  --brass: #d4a24c;
+  --brass-strong: #e7b95e;
+  --brass-ink: #1e1606;
+  --danger: #ef7a70;
+  --ok: #6cc497;
+  --warn: #e0b04f;
+  --focus: 0 0 0 2px var(--bg), 0 0 0 4px var(--brass);
+
+  --font: "Segoe UI Variable Text", "Segoe UI", -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif;
+  --font-display: "Segoe UI Variable Display", "Segoe UI", -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-code: "Cascadia Mono", "SF Mono", Consolas, monospace;
+
+  --step--1: 12px;
+  --step-0: 13.5px;
+  --step-1: 15px;
+  --step-2: 18px;
+  --step-3: 26px;
+
+  --radius-s: 6px;
+  --radius-m: 10px;
+  --radius-l: 16px;
+  --row-h: 52px;
+  --gutter: 14px;
+  color-scheme: dark;
+}
+
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    --bg: #eef0f2;
+    --surface: #ffffff;
+    --surface-2: #e4e7eb;
+    --line: #d3d8de;
+    --text: #1b1f24;
+    --muted: #5c6670;
+    --brass: #8a5f10;
+    --brass-strong: #74500c;
+    --brass-ink: #fff8ea;
+    --danger: #b3261e;
+    --ok: #1f7a4c;
+    --warn: #8a5f10;
+    color-scheme: light;
+  }
+}

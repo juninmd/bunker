@@ -28,10 +28,12 @@ export function installChromeMock() {
     storage: { local: area(), session: area() },
     runtime: {
       id: 'bunker-test',
+      getURL: path => `chrome-extension://bunker-test/${path}`,
       onInstalled: { addListener() {} },
       onMessage: { addListener(fn) { listeners.message = fn; } }
     },
-    alarms: { create() {}, onAlarm: { addListener() {} } }
+    alarms: { create() {}, onAlarm: { addListener() {} } },
+    tabs: { onRemoved: { addListener() {} } }
   };
   return { chrome: globalThis.chrome, listeners };
 }

@@ -7,7 +7,9 @@
       "ES2022",
       "DOM"
     ],
-    "types": ["chrome"],
+    "types": [
+      "chrome"
+    ],
     "allowJs": true,
     "checkJs": true,
     "strict": true,
@@ -27,6 +29,10 @@
     "src/services/**/*.ts",
     "src/background.ts",
     "src/popup.ts",
-    "src/content.ts"
+    "src/content.ts",
+    "src/content-save.ts",
+    "src/content-ui.ts",
+    "src/ui/**/*.ts",
+    "src/offscreen.ts"
   ]
 }
