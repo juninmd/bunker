@@ -21,32 +21,8 @@ async function run() {
     vaultService.setStorage = async function(k, v) { this.storageMock.set(k, v); };
 
     // First setup
-    await vaultService.unlock('master123');
+    await vaultService.unlock('master123-long-enough');
     await vaultService.save([{ site: 'example.com', password: 'pw' }]);
-
-    // Setup PIN
-    vaultService.setupPin = async function(pin) {
-        if (!this.masterPassword) throw new Error('Locked');
-        const salt = crypto.getRandomValues(new Uint8Array(16));
-        const { encryptPayload } = await import('../src/utils/crypto.js');
-        const { bytesToBase64 } = await import('../src/utils/crypto.js');
-        const encrypted = await encryptPayload({ masterPassword: this.masterPassword }, pin, salt);
-        await this.setStorage('bunkerpass.pin.salt', bytesToBase64(salt));
-        await this.setStorage('bunkerpass.pin.encrypted', encrypted);
-    };
-
-    vaultService.unlockWithPin = async function(pin) {
-        const storedSalt = await this.getStorage('bunkerpass.pin.salt');
-        const encrypted = await this.getStorage('bunkerpass.pin.encrypted');
-        if (!storedSalt || !encrypted) throw new Error('PIN not set');
-        try {
-            const { decryptPayload, base64ToBytes } = await import('../src/utils/crypto.js');
-            const payload = await decryptPayload(encrypted, pin, base64ToBytes(storedSalt));
-            return await this.unlock(payload.masterPassword);
-        } catch (e) {
-            throw new Error('Invalid PIN');
-        }
-    };
 
     await vaultService.setupPin('1234');
 
@@ -55,8 +31,8 @@ async function run() {
 
     const vault = await vaultService.unlockWithPin('1234');
     assert.strictEqual(vault.length, 1);
-    assert.strictEqual(vaultService.masterPassword, 'master123');
+    assert.strictEqual(vaultService.masterPassword, 'master123-long-enough');
 
     console.log('PIN Test Passed');
 }
-run().catch(console.error);
+run().catch(e => { console.error(e); process.exitCode = 1; });

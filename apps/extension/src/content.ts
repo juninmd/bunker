@@ -266,12 +266,10 @@ function handleFormSubmit(event) {
             const username = usernameInput.value;
             const password = passwordInput.value;
 
-            console.log('BunkerPass: Detected form submission', { site, username });
-
             chrome.runtime.sendMessage({
                 type: 'CHECK_CREDENTIAL',
-                domain: site,
-                username: username
+                username: username,
+                password: password
             }, (checkResponse) => {
                 if (chrome.runtime.lastError) {
                     console.error('BunkerPass: Error checking credential', chrome.runtime.lastError);
@@ -286,8 +284,8 @@ function handleFormSubmit(event) {
                     return;
                 }
 
-                if (checkResponse.password) {
-                    if (checkResponse.password !== password) {
+                if (checkResponse.stored) {
+                    if (!checkResponse.same) {
                         // Password exists but is different -> Ask to update
                         if (window.confirm("BunkerPass: Foi detectada uma nova senha para este login. Deseja atualizar a senha no cofre?")) {
                             shouldSave = true;

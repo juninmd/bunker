@@ -1,142 +1,86 @@
-import { decryptWithKey, encryptWithKey } from '../utils/crypto.js';
+import { base64ToBytes, decryptWithKey, encryptWithKey } from '../utils/crypto.js';
+import { formatLocalBlob, parseLocalBlob } from '../utils/vault-envelope.js';
+
+const STORAGE_KEY = 'bunkerpass.vault.v1';
+
+interface UnlockedVault {
+  key: CryptoKey;
+  iterations: number;
+  credentials: any[];
+}
+
+async function loadVault(): Promise<UnlockedVault | 'LOCKED'> {
+  const { sessionKey } = await chrome.storage.session.get('sessionKey');
+  if (!sessionKey) return 'LOCKED';
+  const key = await crypto.subtle.importKey('raw', base64ToBytes(sessionKey as string) as BufferSource, 'AES-GCM', false, ['encrypt', 'decrypt']);
+  const stored = (await chrome.storage.local.get(STORAGE_KEY))[STORAGE_KEY] as string | undefined;
+  if (!stored) return { key, iterations: 0, credentials: [] };
+  const { iterations, ciphertext } = parseLocalBlob(stored);
+  const data = await decryptWithKey(ciphertext, key);
+  const credentials = Array.isArray(data) ? data : Array.isArray(data?.credentials) ? data.credentials : [];
+  return { key, iterations, credentials };
+}
+
+async function withVault(sendResponse: (response: any) => void, onUnlocked: (vault: UnlockedVault) => Promise<any>) {
+  try {
+    const vault = await loadVault();
+    sendResponse(vault === 'LOCKED' ? { error: 'LOCKED' } : await onUnlocked(vault));
+  } catch (e) {
+    console.error(e); // NOSONAR
+    sendResponse({ error: 'DECRYPT_FAILED' });
+  }
+}
+
+const isLivePassword = (item: any) => (!item.type || item.type === 'password') && !item.deletedAt;
 
 export class CredentialService {
   static async getPolicies(sendResponse: (response: any) => void) {
-      chrome.storage.session.get(['sessionKey'], async (sessionResult) => {
-          if (!sessionResult.sessionKey) {
-              sendResponse({ error: 'LOCKED', policies: null });
-              return;
-          }
-          chrome.storage.local.get(['bunkerpass.vault'], async (localResult) => {
-              if (!localResult['bunkerpass.vault']) {
-                  sendResponse({ policies: null });
-                  return;
-              }
-              try {
-                  const decrypted = await decryptWithKey(localResult['bunkerpass.vault'] as string, sessionResult.sessionKey as CryptoKey);
-                  const policyItem = decrypted.find((item: any) => item.type === 'business-policy' && item.site === 'business-policy');
-                  sendResponse({ policies: policyItem || null });
-              } catch (e) {
-                  console.error(e); // NOSONAR
-                  sendResponse({ error: 'DECRYPT_FAILED', policies: null });
-              }
-          });
-      });
+    await withVault(sendResponse, async ({ credentials }) => ({
+      policies: credentials.find((item: any) => item.type === 'business-policy' && item.site === 'business-policy') || null
+    }));
   }
 
   static async getCredentials(domain: string, sendResponse: (response: any) => void, onActivity?: () => void) {
-    chrome.storage.session.get(['sessionKey'], async (sessionResult) => {
-      if (!sessionResult.sessionKey) {
-        sendResponse({ error: 'LOCKED' });
-        return;
-      }
+    await withVault(sendResponse, async ({ credentials }) => {
       if (onActivity) onActivity();
-
-      chrome.storage.local.get(['bunkerpass.vault'], async (localResult) => {
-        if (!localResult['bunkerpass.vault']) {
-          sendResponse({ credentials: [] });
-          return;
-        }
-
-        try {
-          const decrypted = await decryptWithKey(localResult['bunkerpass.vault'] as string, sessionResult.sessionKey as CryptoKey);
-          // Filter matching site and type
-          const credentials = decrypted.filter((item: any) =>
-            (!item.type || item.type === 'password') &&
-            !item.deletedAt &&
-            item.site && (domain === item.site || domain.endsWith('.' + item.site))
-          );
-          sendResponse({ credentials });
-        } catch (e) {
-          console.error(e); // NOSONAR
-          sendResponse({ error: 'DECRYPT_FAILED' });
-        }
-      });
+      return {
+        credentials: credentials.filter((item: any) =>
+          isLivePassword(item) && item.site && (domain === item.site || domain.endsWith('.' + item.site)))
+      };
     });
   }
 
-  static async checkCredential(domain: string, username: string, sendResponse: (response: any) => void, onActivity?: () => void) {
-      chrome.storage.session.get(['sessionKey'], async (sessionResult) => {
-          if (!sessionResult.sessionKey) {
-              sendResponse({ error: 'LOCKED' });
-              return;
-          }
-          if (onActivity) onActivity();
-
-          chrome.storage.local.get(['bunkerpass.vault'], async (localResult) => {
-              if (!localResult['bunkerpass.vault']) {
-                  sendResponse({ password: null });
-                  return;
-              }
-              try {
-                  const decrypted = await decryptWithKey(localResult['bunkerpass.vault'] as string, sessionResult.sessionKey as CryptoKey);
-                  const cred = decrypted.find((item: any) =>
-                      (!item.type || item.type === 'password') &&
-                      !item.deletedAt &&
-                      item.site === domain &&
-                      item.username === username
-                  );
-                  sendResponse({ password: cred ? cred.password : null });
-              } catch (e) {
-                  console.error(e); // NOSONAR
-                  sendResponse({ error: 'DECRYPT_FAILED' });
-              }
-          });
-      });
+  static async checkCredential(domain: string, username: string, password: string, sendResponse: (response: any) => void, onActivity?: () => void) {
+    await withVault(sendResponse, async ({ credentials }) => {
+      if (onActivity) onActivity();
+      const cred = credentials.find((item: any) => isLivePassword(item) && item.site === domain && item.username === username);
+      // Answer with a comparison only; the stored password never goes back to the page context.
+      return { stored: !!cred, same: !!cred && cred.password === password };
+    });
   }
 
-  static async saveCredential(data: any, sendResponse: (response: any) => void, onActivity?: () => void) {
-      chrome.storage.session.get(['sessionKey'], async (sessionResult) => {
-          if (!sessionResult.sessionKey) {
-              sendResponse({ error: 'LOCKED' });
-              return;
-          }
-          if (onActivity) onActivity();
+  static async saveCredential(domain: string, data: any, sendResponse: (response: any) => void, onActivity?: () => void) {
+    await withVault(sendResponse, async ({ key, iterations, credentials }) => {
+      // An empty vault has no KDF cost on record yet; only the popup may create one.
+      if (!iterations) return { error: 'LOCKED' };
+      if (onActivity) onActivity();
+      const now = new Date().toISOString();
+      const existing = credentials.find((i: any) => (!i.type || i.type === 'password') && i.site === domain && i.username === data.username);
 
-          chrome.storage.local.get(['bunkerpass.vault'], async (localResult) => {
-              let vault: any[] = [];
-              if (localResult['bunkerpass.vault']) {
-                  try {
-                      vault = await decryptWithKey(localResult['bunkerpass.vault'] as string, sessionResult.sessionKey as CryptoKey);
-                  } catch (e) {
-                      console.error(e); // NOSONAR
-                      sendResponse({ error: 'DECRYPT_FAILED' });
-                      return;
-                  }
-              }
+      if (existing) {
+        existing.password = data.password;
+        existing.updatedAt = now;
+        delete existing.deletedAt;
+      } else {
+        credentials.push({
+          id: crypto.randomUUID(), type: 'password', site: domain, username: data.username, password: data.password,
+          notes: '', grouping: '', createdAt: now, updatedAt: now
+        });
+      }
 
-              const now = new Date().toISOString();
-              const existingIndex = vault.findIndex((i: any) =>
-                  (!i.type || i.type === 'password') &&
-                  i.site === data.site &&
-                  i.username === data.username
-              );
-
-              if (existingIndex >= 0) {
-                  vault[existingIndex].password = data.password;
-                  vault[existingIndex].updatedAt = now;
-                  if (vault[existingIndex].deletedAt) {
-                      delete vault[existingIndex].deletedAt;
-                  }
-              } else {
-                  vault.push({
-                      id: crypto.randomUUID(),
-                      type: 'password',
-                      site: data.site,
-                      username: data.username,
-                      password: data.password,
-                      notes: '',
-                      grouping: '',
-                      createdAt: now,
-                      updatedAt: now
-                  });
-              }
-
-              const encrypted = await encryptWithKey(vault, sessionResult.sessionKey as CryptoKey);
-              chrome.storage.local.set({ 'bunkerpass.vault': encrypted }, () => {
-                 sendResponse({ success: true });
-              });
-          });
-      });
+      const encrypted = await encryptWithKey({ schemaVersion: 1, credentials }, key);
+      await chrome.storage.local.set({ [STORAGE_KEY]: formatLocalBlob(iterations, encrypted) });
+      return { success: true };
+    });
   }
 }

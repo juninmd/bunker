@@ -21,7 +21,7 @@ async function run() {
     vaultService.setStorage = async function(k, v) { this.storageMock.set(k, v); };
 
     // First setup
-    await vaultService.unlock('master123');
+    await vaultService.unlock('master123-long-enough');
     await vaultService.save([{ site: 'example.com', password: 'pw' }]);
 
     // Polyfill methods
@@ -58,8 +58,8 @@ async function run() {
 
     const vault = await vaultService.unlockWithRecoveryKey(code);
     assert.strictEqual(vault.length, 1);
-    assert.strictEqual(vaultService.masterPassword, 'master123');
+    assert.strictEqual(vaultService.masterPassword, 'master123-long-enough');
 
     console.log('Recovery Key Test Passed');
 }
-run().catch(console.error);
+run().catch(e => { console.error(e); process.exitCode = 1; });

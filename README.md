@@ -14,12 +14,19 @@
 - **Unified Documentation**: Centralized docs for all sub-projects.
 - **Automation Scripts**: Comprehensive shell and python scripts for management and verification.
 - **Release Automation**: Integrated with `release-please` para geração automatizada de tags e atualizações do `README.md`.
-- **Sincronização com Google Drive**: O diferencial é o salvamento off-line das senhas no Google Drive, em uma planilha `.csv`.
+- **Sincronização com Google Drive**: apenas o cofre cifrado (`vault.enc`, AES-256-GCM) é enviado ao Drive; nenhuma senha sai do dispositivo em texto puro.
 - **GitHub Actions Integration**: Automated generation of releases and tags, keeping the README.md updated via scripts.
 
 ## 🛠️ DrivePass (Substituto do LastPass)
 
-O DrivePass é um gerenciador de senhas multiplataforma, que armazena os dados em um `.csv` no Google Drive.
+O DrivePass é um gerenciador de senhas multiplataforma, que sincroniza um cofre cifrado (`vault.enc`) no Google Drive. O `.csv` é só para importar/exportar manualmente (compatível com LastPass).
+
+### 🔐 Modelo de segurança (extensão)
+- Cofre local e remoto cifrados com AES-256-GCM; chave derivada da senha mestra via PBKDF2-SHA256 com 600.000 iterações (cofres antigos com 250.000 são migrados no próximo desbloqueio).
+- Senha mestra de no mínimo 12 caracteres para criar um cofre novo.
+- PIN fica apenas em memória (`chrome.storage.session`): some ao fechar o navegador e é apagado após 5 tentativas erradas.
+- Autofill usa o domínio informado pelo navegador (não pela página) e nunca devolve a senha salva ao verificar um login.
+- ⚠️ Se você usou uma versão anterior que gravava `passwords.csv` no Drive, apague esse arquivo e a lixeira do Drive.
 - Extensão (Firefox/Chrome)
 - App Desktop (Electron - offline)
 - Android APK (React Native / Expo)

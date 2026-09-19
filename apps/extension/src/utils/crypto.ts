@@ -8,13 +8,16 @@ export function base64ToBytes(base64: string): Uint8Array {
   return Uint8Array.from(atob(base64), (char) => char.charCodeAt(0));
 }
 
-export async function deriveKey(masterPassword: string, salt: Uint8Array): Promise<CryptoKey> {
+export const LEGACY_KDF_ITERATIONS = 250000;
+export const VAULT_KDF_ITERATIONS = 600000;
+
+export async function deriveKey(masterPassword: string, salt: Uint8Array, iterations = LEGACY_KDF_ITERATIONS): Promise<CryptoKey> {
   const material = await crypto.subtle.importKey('raw', new TextEncoder().encode(masterPassword), 'PBKDF2', false, ['deriveKey']);
   return crypto.subtle.deriveKey(
     {
       name: 'PBKDF2',
       salt: salt,
-      iterations: 250000,
+      iterations,
       hash: 'SHA-256'
     } as Pbkdf2Params,
     material,
@@ -27,13 +30,13 @@ export async function deriveKey(masterPassword: string, salt: Uint8Array): Promi
   );
 }
 
-export async function encryptPayload(vaultPayload: any, masterPassword: string, salt: Uint8Array): Promise<string> {
-  const key = await deriveKey(masterPassword, salt);
+export async function encryptPayload(vaultPayload: any, masterPassword: string, salt: Uint8Array, iterations = LEGACY_KDF_ITERATIONS): Promise<string> {
+  const key = await deriveKey(masterPassword, salt, iterations);
   return encryptWithKey(vaultPayload, key);
 }
 
-export async function decryptPayload(payload: string, masterPassword: string, salt: Uint8Array): Promise<any> {
-  const key = await deriveKey(masterPassword, salt);
+export async function decryptPayload(payload: string, masterPassword: string, salt: Uint8Array, iterations = LEGACY_KDF_ITERATIONS): Promise<any> {
+  const key = await deriveKey(masterPassword, salt, iterations);
   return decryptWithKey(payload, key);
 }
 

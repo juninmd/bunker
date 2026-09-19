@@ -46,19 +46,37 @@ chrome.storage.session.onChanged.addListener((changes: { [key: string]: chrome.s
 });
 
 // NOSONAR: The message listener delegates action requests to CredentialService. Repeated return true structures are standard for Chrome extension async messaging.
+// The page origin comes from the browser, never from the message, so a frame cannot ask for another site's secrets.
+function senderHostname(sender: chrome.runtime.MessageSender): string | null {
+  if (sender.id !== chrome.runtime.id || !sender.tab || !sender.url) return null;
+  try {
+    const url = new URL(sender.url);
+    return url.protocol === 'https:' || url.protocol === 'http:' ? url.hostname : null;
+  } catch {
+    return null;
+  }
+}
+
 chrome.runtime.onMessage.addListener((request: any, sender: chrome.runtime.MessageSender, sendResponse: (response: any) => void) => {
+  const domain = senderHostname(sender);
+  const needsDomain = ['GET_CREDENTIALS', 'CHECK_CREDENTIAL', 'SAVE_CREDENTIAL'].includes(request.type);
+  if (needsDomain && !domain) {
+    sendResponse({ error: 'FORBIDDEN' });
+    return false;
+  }
+
   if (request.type === 'GET_CREDENTIALS') { // NOSONAR
-    CredentialService.getCredentials(request.domain, sendResponse, resetAutoLock);
+    CredentialService.getCredentials(domain as string, sendResponse, resetAutoLock);
     return true;
   }
 
   if (request.type === 'CHECK_CREDENTIAL') {
-    CredentialService.checkCredential(request.domain, request.username, sendResponse, resetAutoLock);
+    CredentialService.checkCredential(domain as string, request.username, request.password, sendResponse, resetAutoLock);
     return true;
   }
 
   if (request.type === 'SAVE_CREDENTIAL') {
-    CredentialService.saveCredential(request.data, sendResponse, resetAutoLock);
+    CredentialService.saveCredential(domain as string, request.data, sendResponse, resetAutoLock);
     return true;
   }
 

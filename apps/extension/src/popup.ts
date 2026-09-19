@@ -1,4 +1,5 @@
-import { VaultService } from './services/vault-service.js';
+import { VaultService, MIN_MASTER_PASSWORD_LENGTH } from './services/vault-service.js';
+import { MAX_PIN_ATTEMPTS, MIN_PIN_LENGTH } from './services/pin-lock.js';
 import { SyncService } from './services/sync-service.js';
 import { AuthService } from './services/auth-service.js';
 import { generatePassword } from './utils/password-generator.js';
@@ -948,7 +949,9 @@ async function doUnlock(masterPassword: string) {
     setStatus('Cofre desbloqueado.');
   } catch (e: any) {
     console.error(e);
-    setStatus('Senha mestra inválida ou cofre corrompido.');
+    setStatus(e.message === 'WEAK_MASTER_PASSWORD'
+      ? `A senha mestra precisa ter pelo menos ${MIN_MASTER_PASSWORD_LENGTH} caracteres.`
+      : 'Senha mestra inválida ou cofre corrompido.');
   }
 }
 
@@ -988,7 +991,7 @@ async function handleUnlockRecovery() {
 
 // NOSONAR
 async function handleSetupPin() {
-    const pin = prompt('Digite um PIN curto (ex: 4-6 dígitos):');
+    const pin = prompt(`Digite um PIN (mín. ${MIN_PIN_LENGTH} dígitos). Ele vale até o navegador fechar e é apagado após ${MAX_PIN_ATTEMPTS} erros:`);
     if (!pin) return;
     try {
         await vaultService.setupPin(pin);
