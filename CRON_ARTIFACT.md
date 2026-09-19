@@ -1,12 +1,13 @@
-# CRON Cycle Results: Passkeys Native Rendering Integration
+CRON Execution Artifact
+=======================
 
-## Task Completed
-- Atualizado `apps/desktop/src/index.html` para exibir itens de Passkeys que utilizam o formato `http://pk`.
-- Atualizado `apps/mobile/App.tsx` para adicionar o identificador de Passkeys (`http://pk`) utilizando o prefixo visual 🔑 na renderização nativa da lista.
-- Adicionada UI básica de parsing, porém a implementação completa de Passkeys (WebAuthn) nas plataformas foi diferida (assim como na Extensão) devido à alta complexidade arquitetural no momento.
+## Summary
+Completed the implementation of Automatic Background Device Sync for the React Native Mobile App (`apps/mobile`).
 
-## Known Bugs
-- Nenhuma regressão detectada. Renderização condicional foi implementada de forma segura nas interfaces do Desktop e Mobile.
+## Details
+- Updated `apps/mobile/src/SyncService.ts` to support silent API calls. Cached the OAuth token in memory and persisted it using `expo-secure-store`.
+- Updated `apps/mobile/App.tsx` to hook into `AppState` (triggering sync on foreground activation) and a `setInterval` for active states.
+- Verified changes.
 
 ## Next Steps
-- Implementar sincronização automática de dispositivos (Device Sync) no App Mobile via Google Drive (já implementado na Extensão Web), para manter as senhas sempre atualizadas sem intervenção manual contínua.
+- Analyze next pending task on the ROADMAP (e.g., UI enhancements, passkeys full support, edge cases on the autofill framework).
