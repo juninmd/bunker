@@ -3,29 +3,46 @@ import { parseCSV } from '../../extension/src/utils/csv-utils.js';
 import * as AuthSession from 'expo-auth-session';
 
 export class SyncService {
+    private static cachedAccessToken: string | null = null;
+    private static tokenExpiration: number | null = null;
+
     /**
      * Download passwords.csv from Google Drive
+     * @param interactive If true, prompts the user for login if no valid token exists. If false, fails silently.
      */
-    static async syncWithGoogleDrive() {
+    static async syncWithGoogleDrive(interactive: boolean = true) {
         try {
-            // Initiate a real OAuth2 flow with expo-auth-session
-            const redirectUri = AuthSession.makeRedirectUri();
+            let accessToken = this.cachedAccessToken;
+            const now = Date.now();
 
-            // This is a placeholder client ID, it should be replaced with the actual Google Cloud Project client ID
-            // in a real environment.
-            const clientId = 'YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com';
+            if (!accessToken || !this.tokenExpiration || now >= this.tokenExpiration) {
+                if (!interactive) {
+                    console.log('Skipping background sync because no valid access token is cached.');
+                    return null; // Silent failure for background sync
+                }
 
-            const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=token&scope=https://www.googleapis.com/auth/drive.file`;
+                // Initiate a real OAuth2 flow with expo-auth-session
+                const redirectUri = AuthSession.makeRedirectUri();
 
-            // startAsync might be missing in type definitions or deprecated in favor of hooks,
-            // using any cast for the module to bypass TS error since it's a runtime API in older Expo
-            const result = await (AuthSession as any).startAsync({ authUrl }) as any;
+                // This is a placeholder client ID, it should be replaced with the actual Google Cloud Project client ID
+                // in a real environment.
+                const clientId = 'YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com';
 
-            let accessToken = null;
-            if (result.type === 'success' && result.params.access_token) {
-                accessToken = result.params.access_token;
-            } else {
-                throw new Error('OAuth authentication failed or was cancelled.');
+                const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=token&scope=https://www.googleapis.com/auth/drive.file`;
+
+                // startAsync might be missing in type definitions or deprecated in favor of hooks,
+                // using any cast for the module to bypass TS error since it's a runtime API in older Expo
+                const result = await (AuthSession as any).startAsync({ authUrl }) as any;
+
+                if (result.type === 'success' && result.params.access_token) {
+                    accessToken = result.params.access_token;
+                    this.cachedAccessToken = accessToken;
+                    // Token usually expires in 3600 seconds, setting buffer of 5 mins
+                    const expiresIn = result.params.expires_in ? parseInt(result.params.expires_in, 10) : 3600;
+                    this.tokenExpiration = Date.now() + (expiresIn - 300) * 1000;
+                } else {
+                    throw new Error('OAuth authentication failed or was cancelled.');
+                }
             }
 
             // Real fetch API call to Google Drive
