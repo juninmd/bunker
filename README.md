@@ -27,6 +27,16 @@ O DrivePass é um gerenciador de senhas multiplataforma, que sincroniza um cofre
 - PIN fica apenas em memória (`chrome.storage.session`): some ao fechar o navegador e é apagado após 5 tentativas erradas.
 - Autofill usa o domínio informado pelo navegador (não pela página) e nunca devolve a senha salva ao verificar um login.
 - ⚠️ Se você usou uma versão anterior que gravava `passwords.csv` no Drive, apague esse arquivo e a lixeira do Drive.
+- A sessão aberta usa só a chave derivada em `chrome.storage.session`; ela some no bloqueio automático (15 min), ao bloquear o computador e ao fechar o navegador.
+- Senhas copiadas saem da área de transferência após 30 s. Oferta de salvar login fica 60 s na memória do service worker e só grava após confirmação.
+
+### 🚚 Migrar do LastPass
+1. No LastPass: **Opções avançadas > Exportar > Arquivo CSV**.
+2. No Bunker: **Ajustes > Importar CSV do LastPass** (mantém pastas, notas seguras e códigos 2FA). Apague o CSV depois.
+3. Sincronização entre computadores: `node scripts/setup-drive-oauth.mjs` e [docs/SETUP.md](docs/SETUP.md).
+
+### ✅ Homologação
+`cd apps/extension && npm test && npm run e2e` roda a extensão real no Chromium (criar cofre, importar CSV, 2FA, busca, gerador, saúde do cofre, autofill, salvar login, PIN, bloqueio automático, tema claro) e grava os prints em [docs/screenshots](docs/screenshots).
 - Extensão (Firefox/Chrome)
 - App Desktop (Electron - offline)
 - Android APK (React Native / Expo)
