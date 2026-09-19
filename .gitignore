@@ -6,3 +6,6 @@ dist/
 node_modules/
 
 apps/extension/src/**/*.js
+
+# E2E run output
+docs/screenshots/results.json

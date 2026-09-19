@@ -1,0 +1,101 @@
+*, *::before, *::after { box-sizing: border-box; }
+[hidden] { display: none !important; }
+
+html, body { margin: 0; background: var(--bg); color: var(--text); }
+body {
+  width: 380px;
+  height: 580px;
+  font: 400 var(--step-0)/1.45 var(--font);
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+}
+h1, h2, h3, p { margin: 0; }
+h2 { font: 600 var(--step-1)/1.3 var(--font-display); }
+h3 { font: 600 var(--step-0)/1.3 var(--font-display); color: var(--muted); }
+
+.visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.stack { display: flex; flex-direction: column; gap: 8px; }
+.row { display: flex; gap: 8px; align-items: center; }
+.pad { padding: 12px var(--gutter) 16px; }
+.muted { color: var(--muted); }
+.mono { font-family: var(--font-code); font-size: var(--step-0); letter-spacing: .02em; }
+
+input, textarea, select {
+  width: 100%;
+  font: inherit;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-m);
+  padding: 9px 11px;
+}
+textarea { resize: vertical; min-height: 64px; }
+input::placeholder, textarea::placeholder { color: var(--muted); opacity: .8; }
+input:focus, textarea:focus, select:focus { outline: none; border-color: var(--brass); box-shadow: 0 0 0 3px color-mix(in srgb, var(--brass) 22%, transparent); }
+button:focus-visible, summary:focus-visible, a:focus-visible { outline: none; box-shadow: var(--focus); }
+input[type="checkbox"], input[type="radio"], input[type="range"] { width: auto; accent-color: var(--brass); }
+
+.field-label { display: flex; flex-direction: column; gap: 5px; font-size: var(--step--1); color: var(--muted); }
+.input-row { display: flex; gap: 6px; align-items: center; }
+.input-row > input { flex: 1; min-width: 0; }
+
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  font: 600 var(--step-0)/1 var(--font);
+  padding: 10px 14px;
+  border-radius: var(--radius-m);
+  border: 1px solid var(--line);
+  background: var(--surface-2);
+  color: var(--text);
+  cursor: pointer;
+}
+.btn:hover { border-color: var(--muted); }
+.btn.primary { background: var(--brass); border-color: var(--brass); color: var(--brass-ink); }
+.btn.primary:hover { background: var(--brass-strong); }
+.btn.ghost { background: transparent; }
+.btn.danger { background: transparent; color: var(--danger); border-color: color-mix(in srgb, var(--danger) 45%, transparent); }
+.btn.block { width: 100%; }
+.btn:disabled { opacity: .55; cursor: progress; }
+
+.icon-btn {
+  flex: none;
+  display: inline-grid; place-items: center;
+  width: 34px; height: 34px;
+  border-radius: var(--radius-s);
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+}
+.icon-btn:hover { color: var(--text); background: var(--surface-2); }
+.icon-btn.accent { background: var(--brass); color: var(--brass-ink); }
+.icon-btn.accent:hover { background: var(--brass-strong); }
+.icon-btn.done { color: var(--ok); }
+.icon { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+
+.toast {
+  position: fixed; left: 12px; right: 12px; bottom: 62px;
+  padding: 10px 12px;
+  border-radius: var(--radius-m);
+  background: var(--text); color: var(--bg);
+  font-weight: 500;
+  opacity: 0; transform: translateY(6px);
+  transition: opacity .18s, transform .18s;
+  pointer-events: none;
+}
+.toast.show { opacity: 1; transform: none; }
+.toast.error { background: var(--danger); color: #1a0907; }
+
+.bp-dialog {
+  width: 340px; padding: 18px;
+  border: 1px solid var(--line); border-radius: var(--radius-l);
+  background: var(--surface); color: var(--text);
+}
+.bp-dialog::backdrop { background: rgb(8 10 12 / .62); }
+.bp-dialog form { display: flex; flex-direction: column; gap: 12px; }
+.bp-dialog-message { color: var(--muted); white-space: pre-line; }
+.bp-dialog-actions { display: flex; justify-content: flex-end; gap: 8px; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}

@@ -2,6 +2,8 @@ console.log('BunkerPass: Content script loaded');
 
 async function init() {
   const domain = window.location.hostname;
+  // Registered before any await so a fast submit is never missed.
+  document.addEventListener('submit', handleFormSubmit, true);
 
   // Check policies for SaaS Protect
   try {
@@ -22,13 +24,11 @@ async function init() {
   } catch (err) {
     console.log('BunkerPass: Error checking policies', err);
   }
-
-  // Listen for form submissions
-  document.addEventListener('submit', handleFormSubmit, true);
+  promptPendingSave();
 
   // Attempt to get credentials from background
   try {
-    const response = await chrome.runtime.sendMessage({ type: 'GET_CREDENTIALS', domain });
+    const response = await chrome.runtime.sendMessage({ type: 'GET_CREDENTIALS' });
 
     if (chrome.runtime.lastError) {
       // Ignore if background script is not ready or no listener
@@ -47,168 +47,28 @@ async function init() {
   }
 }
 
+function passwordFields(): HTMLInputElement[] {
+  return [...document.querySelectorAll<HTMLInputElement>('input[type="password"]')];
+}
+
 function injectIcons(credentials) {
-  const passwordInputs = document.querySelectorAll('input[type="password"]');
-
-  passwordInputs.forEach(passInput => {
-    if ((passInput as HTMLElement).dataset.bunkerpassInjected) return;
-    (passInput as HTMLElement).dataset.bunkerpassInjected = 'true';
-
-    const icon = document.createElement('div');
-    icon.className = 'bunkerpass-icon';
-    icon.innerHTML = ` // NOSONAR
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-        <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-      </svg>
-    `;
-    icon.style.cssText = `
-      position: absolute;
-      cursor: pointer;
-      z-index: 2147483647;
-      background: white;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      padding: 2px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    `;
-    document.body.appendChild(icon);
-
-    const positionIcon = () => {
-      const rect = passInput.getBoundingClientRect();
-      if (rect.width === 0 || rect.height === 0) {
-        icon.style.display = 'none';
-        return;
-      }
-      icon.style.display = 'flex';
-      icon.style.top = (rect.top + window.scrollY + (rect.height - 22) / 2) + 'px';
-      icon.style.left = (rect.right + window.scrollX - 30) + 'px';
-    };
-
-    positionIcon();
-    window.addEventListener('resize', positionIcon);
-    document.addEventListener('scroll', positionIcon, true);
-
-    icon.addEventListener('click', (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      showDropdown(icon, passInput, credentials, positionIcon);
-    });
-  });
+  passwordFields().forEach(passInput => attachFieldIcon(passInput, false, icon =>
+    showPicker(icon, credentials, index => fillCredential(passInput, credentials[index]))));
 }
 
 function injectLockedIcon() {
-  const passwordInputs = document.querySelectorAll('input[type="password"]');
-
-  passwordInputs.forEach(passInput => {
-    if ((passInput as HTMLElement).dataset.bunkerpassInjected) return;
-    (passInput as HTMLElement).dataset.bunkerpassInjected = 'true';
-
-    const icon = document.createElement('div');
-    icon.className = 'bunkerpass-icon bunkerpass-locked';
-    icon.innerHTML = ` // NOSONAR
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="red" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-        <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-      </svg>
-    `;
-    icon.title = "BunkerPass Bloqueado";
-    icon.style.cssText = `
-      position: absolute;
-      cursor: pointer;
-      z-index: 2147483647;
-      background: white;
-      border: 1px solid #fca5a5;
-      border-radius: 4px;
-      padding: 2px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    `;
-    document.body.appendChild(icon);
-
-    const positionIcon = () => {
-      const rect = passInput.getBoundingClientRect();
-      if (rect.width === 0 || rect.height === 0) {
-        icon.style.display = 'none';
-        return;
-      }
-      icon.style.display = 'flex';
-      icon.style.top = (rect.top + window.scrollY + (rect.height - 22) / 2) + 'px';
-      icon.style.left = (rect.right + window.scrollX - 30) + 'px';
-    };
-
-    positionIcon();
-    window.addEventListener('resize', positionIcon);
-    document.addEventListener('scroll', positionIcon, true);
-
-    icon.addEventListener('click', (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      alert("Cofre bloqueado. Abra a extensão para desbloquear.");
-    });
-  });
+  passwordFields().forEach(passInput => attachFieldIcon(passInput, true, () =>
+    alert('Cofre bloqueado. Abra a extensão Bunker para desbloquear.')));
 }
 
-function showDropdown(icon, passInput, credentials, positionIcon) {
-  document.querySelectorAll('.bunkerpass-dropdown').forEach(d => d.remove());
-
-  const dropdown = document.createElement('div');
-  dropdown.className = 'bunkerpass-dropdown';
-  dropdown.style.cssText = `
-    position: absolute;
-    background: #fff;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    z-index: 2147483647;
-    min-width: 150px;
-    max-height: 200px;
-    overflow-y: auto;
-    font-family: sans-serif;
-  `;
-
-  credentials.forEach(cred => {
-    const item = document.createElement('div');
-    item.textContent = cred.username || '(Sem usuário)';
-    item.style.cssText = `
-      padding: 8px 12px;
-      cursor: pointer;
-      border-bottom: 1px solid #eee;
-      color: #333;
-      font-size: 14px;
-    `;
-    item.addEventListener('mouseover', () => item.style.background = '#f0f0f0');
-    item.addEventListener('mouseout', () => item.style.background = 'transparent');
-    item.addEventListener('click', (e) => {
-      e.stopPropagation();
-      let userInput = findUsernameInput(passInput);
-      if (userInput) {
-        userInput.value = cred.username;
-        dispatchEvents(userInput);
-      }
-      passInput.value = cred.password;
-      dispatchEvents(passInput);
-      dropdown.remove();
-    });
-    dropdown.appendChild(item);
-  });
-
-  document.body.appendChild(dropdown);
-
-  const rect = icon.getBoundingClientRect();
-  dropdown.style.top = (rect.bottom + window.scrollY + 4) + 'px';
-  dropdown.style.left = (rect.left + window.scrollX - 120) + 'px'; // Shift left a bit
-
-  const closeDropdown = (e) => {
-    if (!dropdown.contains(e.target) && !icon.contains(e.target)) {
-      dropdown.remove();
-      document.removeEventListener('click', closeDropdown);
-    }
-  };
-  document.addEventListener('click', closeDropdown);
+function fillCredential(passInput, cred) {
+  const userInput = findUsernameInput(passInput);
+  if (userInput) {
+    userInput.value = cred.username;
+    dispatchEvents(userInput);
+  }
+  passInput.value = cred.password;
+  dispatchEvents(passInput);
 }
 
 function findUsernameInput(passwordInput) {
@@ -255,69 +115,10 @@ function findUsernameInput(passwordInput) {
 }
 
 function handleFormSubmit(event) {
-    // Basic heuristic to detect login submission
-    const form = event.target;
-    const passwordInput = form.querySelector('input[type="password"]');
-
-    if (passwordInput && passwordInput.value) {
-        const usernameInput = findUsernameInput(passwordInput);
-        if (usernameInput && usernameInput.value) {
-            const site = window.location.hostname;
-            const username = usernameInput.value;
-            const password = passwordInput.value;
-
-            console.log('BunkerPass: Detected form submission', { site, username });
-
-            chrome.runtime.sendMessage({
-                type: 'CHECK_CREDENTIAL',
-                domain: site,
-                username: username
-            }, (checkResponse) => {
-                if (chrome.runtime.lastError) {
-                    console.error('BunkerPass: Error checking credential', chrome.runtime.lastError);
-                    return;
-                }
-
-                let shouldSave = false;
-
-                if (checkResponse.error === 'LOCKED') {
-                    console.log('BunkerPass: Vault locked, cannot check if password changed.');
-                    // Optionally prompt the user, or just skip saving silently
-                    return;
-                }
-
-                if (checkResponse.password) {
-                    if (checkResponse.password !== password) {
-                        // Password exists but is different -> Ask to update
-                        if (window.confirm("BunkerPass: Foi detectada uma nova senha para este login. Deseja atualizar a senha no cofre?")) {
-                            shouldSave = true;
-                        }
-                    } else {
-                        // Password is the same -> Do nothing
-                        console.log('BunkerPass: Password identical, no update needed.');
-                    }
-                } else {
-                    // New credential -> Ask to save
-                    if (window.confirm("BunkerPass: Deseja salvar a senha para este novo login no cofre?")) {
-                        shouldSave = true;
-                    }
-                }
-
-                if (shouldSave) {
-                    chrome.runtime.sendMessage({
-                        type: 'SAVE_CREDENTIAL',
-                        data: { site, username, password }
-                    }, (saveResponse) => {
-                        if (chrome.runtime.lastError) {
-                            console.error('BunkerPass: Failed to save credential', chrome.runtime.lastError);
-                        } else {
-                            console.log('BunkerPass: Save response', saveResponse);
-                        }
-                    });
-                }
-            });
-        }
-    }
+  // On change-password forms the new value is the last filled field, after the current one.
+  const passwordInput = [...event.target.querySelectorAll('input[type="password"]')].filter(i => i.value).pop();
+  const usernameInput = passwordInput?.value ? findUsernameInput(passwordInput) : null;
+  if (usernameInput?.value) offerSave(usernameInput.value, passwordInput.value);
 }
 
 function dispatchEvents(element) {

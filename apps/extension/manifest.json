@@ -17,6 +17,8 @@
         "<all_urls>"
       ],
       "js": [
+        "src/content-ui.js",
+        "src/content-save.js",
         "src/content.js"
       ]
     }
@@ -27,7 +29,10 @@
     "scripting",
     "identity",
     "alarms",
-    "unlimitedStorage"
+    "unlimitedStorage",
+    "idle",
+    "offscreen",
+    "clipboardWrite"
   ],
   "oauth2": {
     "client_id": "YOUR_CLIENT_ID.apps.googleusercontent.com",

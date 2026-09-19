@@ -14,12 +14,29 @@
 - **Unified Documentation**: Centralized docs for all sub-projects.
 - **Automation Scripts**: Comprehensive shell and python scripts for management and verification.
 - **Release Automation**: Integrated with `release-please` para geração automatizada de tags e atualizações do `README.md`.
-- **Sincronização com Google Drive**: O diferencial é o salvamento off-line das senhas no Google Drive, em uma planilha `.csv`.
+- **Sincronização com Google Drive**: apenas o cofre cifrado (`vault.enc`, AES-256-GCM) é enviado ao Drive; nenhuma senha sai do dispositivo em texto puro.
 - **GitHub Actions Integration**: Automated generation of releases and tags, keeping the README.md updated via scripts.
 
 ## 🛠️ DrivePass (Substituto do LastPass)
 
-O DrivePass é um gerenciador de senhas multiplataforma, que armazena os dados em um `.csv` no Google Drive.
+O DrivePass é um gerenciador de senhas multiplataforma, que sincroniza um cofre cifrado (`vault.enc`) no Google Drive. O `.csv` é só para importar/exportar manualmente (compatível com LastPass).
+
+### 🔐 Modelo de segurança (extensão)
+- Cofre local e remoto cifrados com AES-256-GCM; chave derivada da senha mestra via PBKDF2-SHA256 com 600.000 iterações (cofres antigos com 250.000 são migrados no próximo desbloqueio).
+- Senha mestra de no mínimo 12 caracteres para criar um cofre novo.
+- PIN fica apenas em memória (`chrome.storage.session`): some ao fechar o navegador e é apagado após 5 tentativas erradas.
+- Autofill usa o domínio informado pelo navegador (não pela página) e nunca devolve a senha salva ao verificar um login.
+- ⚠️ Se você usou uma versão anterior que gravava `passwords.csv` no Drive, apague esse arquivo e a lixeira do Drive.
+- A sessão aberta usa só a chave derivada em `chrome.storage.session`; ela some no bloqueio automático (15 min), ao bloquear o computador e ao fechar o navegador.
+- Senhas copiadas saem da área de transferência após 30 s. Oferta de salvar login fica 60 s na memória do service worker e só grava após confirmação.
+
+### 🚚 Migrar do LastPass
+1. No LastPass: **Opções avançadas > Exportar > Arquivo CSV**.
+2. No Bunker: **Ajustes > Importar CSV do LastPass** (mantém pastas, notas seguras e códigos 2FA). Apague o CSV depois.
+3. Sincronização entre computadores: `node scripts/setup-drive-oauth.mjs` e [docs/SETUP.md](docs/SETUP.md).
+
+### ✅ Homologação
+`cd apps/extension && npm test && npm run e2e` roda a extensão real no Chromium (criar cofre, importar CSV, 2FA, busca, gerador, saúde do cofre, autofill, salvar login, PIN, bloqueio automático, tema claro) e grava os prints em [docs/screenshots](docs/screenshots).
 - Extensão (Firefox/Chrome)
 - App Desktop (Electron - offline)
 - Android APK (React Native / Expo)

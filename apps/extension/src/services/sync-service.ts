@@ -1,6 +1,8 @@
 import { GoogleDriveService } from './google-drive.js';
 import { generateCSV, parseCSV, mapCSVRowToVaultItem, mapVaultItemToCSVRow } from '../utils/csv-utils.js';
-import { decryptWithKey, encryptWithKey } from '../utils/crypto.js';
+import { parseRemoteEnvelope, sameKdf, sealRemoteVault } from '../utils/vault-envelope.js';
+import { decryptPayload, decryptWithKey } from '../utils/crypto.js';
+import { rekeyVault } from './master-password.js';
 
 export class SyncService {
   vaultService: any;
@@ -17,96 +19,56 @@ export class SyncService {
     this.VAULT_SCHEMA_VERSION = 1;
   }
 
-  // Realiza a sincronização bidirecional do cofre e do arquivo .csv no Google Drive
-  // NOSONAR: This method handles the complex Google Drive bidirectional sync algorithm. The logic blocks (CSV updates, vault merging) cannot be trivially abstracted without over-complicating state management.
-  async sync() {
-    if (!this.vaultService.cryptoKey) {
+  // Only the encrypted vault ever leaves the device; a plaintext CSV in the cloud would expose every password.
+  // askPassword is consulted only when the remote file uses another salt (first sync on a new device, or a password change elsewhere).
+  async sync(askPassword: () => Promise<string | null> = async () => null) {
+    const vault = this.vaultService;
+    if (!vault.key) {
       throw new Error('Vault locked'); // NOSONAR
     }
 
     await this.driveService.authorize();
 
-    // 0. Check CSV for updates (Sync In)
-    try { // NOSONAR
-      const csvFile = await this.driveService.findFile(this.CSV_FILE);
-      const lastCsvSync = await this.vaultService.getStorage('bunkerpass.last_csv_sync');
-
-      if (csvFile && csvFile.modifiedTime) {
-        const remoteTime = new Date(csvFile.modifiedTime).getTime();
-        const localTime = lastCsvSync ? new Date(lastCsvSync).getTime() : 0;
-        // Add 2 second buffer to avoid self-update triggering import
-        if (remoteTime > localTime + 2000) {
-          console.log('Remote CSV is newer, importing...');
-          await this.importCSV();
-        }
-      }
-    } catch (e) {
-      console.warn('Failed to check CSV updates', e);
-    }
-
-    // 1. Get Remote Vault
     const vaultFile = await this.driveService.findFile(this.VAULT_FILE);
     let remoteVault: any[] = [];
 
     if (vaultFile) {
-      const content = await this.driveService.getFileContent(vaultFile.id);
-      try { // NOSONAR
-        const data = await decryptWithKey(content, this.vaultService.cryptoKey);
-        remoteVault = this.vaultService.sanitizeVault(data);
-      } catch (e) {
-        throw new Error('Failed to decrypt remote vault. Check password.'); // NOSONAR
+      const envelope = parseRemoteEnvelope(await this.driveService.getFileContent(vaultFile.id));
+      if (sameKdf(envelope, vault.salt, vault.iterations)) {
+        remoteVault = vault.sanitizeVault(await decryptWithKey(envelope.data, vault.key));
+      } else {
+        const password = vault.masterPassword ?? await askPassword();
+        if (!password) throw new Error('MASTER_PASSWORD_REQUIRED');
+        try { // NOSONAR
+          remoteVault = vault.sanitizeVault(await decryptPayload(envelope.data, password, envelope.salt, envelope.iterations));
+        } catch (e) {
+          throw new Error('Failed to decrypt remote vault. Check password.'); // NOSONAR
+        }
+        await rekeyVault(vault, password, envelope.salt, envelope.iterations);
       }
     }
 
-    // 2. Merge
-    const localVault = this.vaultService.getVault();
-    const { vault: mergedVault, stats } = this.mergeVaults(localVault, remoteVault) as { vault: any[], stats: any };
+    const { vault: mergedVault, stats } = this.mergeVaults(vault.getVault(), remoteVault) as { vault: any[], stats: any };
+    await vault.save(mergedVault);
 
-    // 3. Update Local
-    await this.vaultService.save(mergedVault);
-
-    // 4. Update Remote Vault
-    const payload = {
-      schemaVersion: this.VAULT_SCHEMA_VERSION,
-      credentials: mergedVault
-    };
-    const encrypted = await encryptWithKey(payload, this.vaultService.cryptoKey);
+    const payload = { schemaVersion: this.VAULT_SCHEMA_VERSION, credentials: mergedVault };
+    const encrypted = await sealRemoteVault(payload, vault.key, vault.salt, vault.iterations);
 
     try { // NOSONAR
       if (vaultFile) {
-        await this.driveService.updateFile(vaultFile.id, encrypted, 'text/plain');
+        await this.driveService.updateFile(vaultFile.id, encrypted, 'application/json');
       } else {
-        await this.driveService.createFile(this.VAULT_FILE, encrypted, 'text/plain');
+        await this.driveService.createFile(this.VAULT_FILE, encrypted, 'application/json');
       }
     } catch (e: any) {
       throw new Error('Failed to sync encrypted vault to Drive: ' + e.message); // NOSONAR
-    }
-
-    // 5. Update CSV (Export)
-    try { // NOSONAR
-      const csvContent = this.generateCSVContent(mergedVault);
-      const csvFile = await this.driveService.findFile(this.CSV_FILE);
-      let updatedFile;
-
-      if (csvFile) {
-        updatedFile = await this.driveService.updateFile(csvFile.id, csvContent, 'text/csv');
-      } else {
-        updatedFile = await this.driveService.createFile(this.CSV_FILE, csvContent, 'text/csv');
-      }
-
-      if (updatedFile && updatedFile.modifiedTime) {
-        await this.vaultService.setStorage('bunkerpass.last_csv_sync', updatedFile.modifiedTime);
-      }
-    } catch (e: any) { // NOSONAR
-      console.error('Failed to update CSV backup:', e);
-      stats.csvError = e.message;
     }
 
     return { vault: mergedVault, stats };
   }
 
   async importCSV() {
-      if (!this.vaultService.cryptoKey) throw new Error('Locked');
+      if (!this.vaultService.key) throw new Error('Locked');
       await this.driveService.authorize();
 
       const csvFile = await this.driveService.findFile(this.CSV_FILE);
@@ -215,8 +177,8 @@ export class SyncService {
   }
 
   generateCSVContent(vault: any[]) {
-      // LastPass CSV format: url,username,password,extra,name,grouping,fav
-      const headers = ['url', 'username', 'password', 'extra', 'name', 'grouping', 'fav'];
+      // LastPass CSV format: url,username,password,totp,extra,name,grouping,fav
+      const headers = ['url', 'username', 'password', 'totp', 'extra', 'name', 'grouping', 'fav'];
       const data = vault.map(mapVaultItemToCSVRow);
       return generateCSV(data, headers);
   }

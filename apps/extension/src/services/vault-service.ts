@@ -1,70 +1,95 @@
-declare var browser: any;
-import { deriveKey, encryptPayload, decryptPayload, base64ToBytes, bytesToBase64 } from '../utils/crypto.js';
+import { VAULT_KDF_ITERATIONS, deriveKey, decryptWithKey, encryptWithKey, base64ToBytes, bytesToBase64, exportRawKey, importRawKey } from '../utils/crypto.js';
+import { formatLocalBlob, parseLocalBlob } from '../utils/vault-envelope.js';
+import { getLocal, removeLocal, setLocalMany } from '../utils/local-storage.js';
+import { getSessionValue, removeSessionValues, setSessionValues } from '../utils/session-storage.js';
+import * as pinLock from './pin-lock.js';
+import { createRecoveryCode, recoverMasterPassword } from './recovery-key.js';
+import { changeMasterPassword } from './master-password.js';
 
-const STORAGE_KEY = 'bunkerpass.vault.v1';
-const SALT_KEY = 'bunkerpass.salt.v1';
-const VAULT_SCHEMA_VERSION = 1;
+export const STORAGE_KEY = 'bunkerpass.vault.v1';
+export const SALT_KEY = 'bunkerpass.salt.v1';
+const SESSION_KEY = 'sessionKey';
+export const VAULT_SCHEMA_VERSION = 1;
+export const MIN_MASTER_PASSWORD_LENGTH = 12;
 
+// The derived key, not the master password, is what keeps the vault open; the password is held only while typed in this popup.
 export class VaultService {
   cachedVault: any[] = [];
   masterPassword: null | string = null;
   salt: null | Uint8Array = null;
+  iterations = VAULT_KDF_ITERATIONS;
+  key: null | CryptoKey = null;
 
-  constructor() {
-    this.cachedVault = [];
-    this.masterPassword = null;
-    this.salt = null;
+  get isUnlocked() {
+    return !!this.key;
+  }
+
+  async hasVault() {
+    return !!(await this.getStorage(STORAGE_KEY));
   }
 
   async unlock(masterPassword: string) {
-    const storedSalt = await this.getStorage(SALT_KEY);
-    if (!storedSalt) {
-      // First time initialization or reset
-      const newSalt = crypto.getRandomValues(new Uint8Array(16));
-      await this.setStorage(SALT_KEY, bytesToBase64(newSalt));
-      this.salt = newSalt;
-    } else {
-      this.salt = base64ToBytes(storedSalt);
-    }
-
+    this.salt = await this.getSalt() ?? crypto.getRandomValues(new Uint8Array(16));
     const encrypted = await this.getStorage(STORAGE_KEY);
     if (!encrypted) {
-      this.cachedVault = [];
-      // Initialize vault with empty array encrypted
-      await this.saveInternal([], masterPassword, this.salt);
+      if (masterPassword.length < MIN_MASTER_PASSWORD_LENGTH) throw new Error('WEAK_MASTER_PASSWORD');
+      this.iterations = VAULT_KDF_ITERATIONS;
+      this.key = await deriveKey(masterPassword, this.salt, this.iterations);
+      await this.setStorage(SALT_KEY, bytesToBase64(this.salt));
+      await this.save([]);
     } else {
+      const { iterations, ciphertext } = parseLocalBlob(encrypted);
+      const key = await deriveKey(masterPassword, this.salt, iterations);
       try {
-        const data = await decryptPayload(encrypted, masterPassword, this.salt);
-        this.cachedVault = this.sanitizeVault(data);
+        this.cachedVault = this.sanitizeVault(await decryptWithKey(ciphertext, key));
       } catch (e) {
         throw new Error('Invalid password or corrupted vault');
       }
+      this.iterations = Math.max(iterations, VAULT_KDF_ITERATIONS);
+      this.key = iterations < VAULT_KDF_ITERATIONS ? await deriveKey(masterPassword, this.salt, this.iterations) : key;
+      if (iterations < VAULT_KDF_ITERATIONS) await this.save(this.cachedVault);
     }
-
+    await this.removeStorage(pinLock.LEGACY_PIN_LOCAL_KEYS);
     this.masterPassword = masterPassword;
     return this.cachedVault;
   }
 
-  async save(newVault: any[]) {
-    if (!this.masterPassword || !this.salt) {
-      throw new Error('Vault is locked');
+  async unlockWithKey(key: CryptoKey) {
+    const encrypted = await this.getStorage(STORAGE_KEY);
+    if (!encrypted) throw new Error('No vault');
+    const { iterations, ciphertext } = parseLocalBlob(encrypted);
+    this.cachedVault = this.sanitizeVault(await decryptWithKey(ciphertext, key));
+    this.salt = await this.getSalt();
+    this.iterations = iterations;
+    this.key = key;
+    return this.cachedVault;
+  }
+
+  async restoreSession(): Promise<boolean> {
+    const raw = await getSessionValue<string>(SESSION_KEY);
+    if (!raw) return false;
+    try {
+      await this.unlockWithKey(await importRawKey(raw));
+      return true;
+    } catch {
+      await this.clearSessionKey();
+      return false;
     }
-    await this.saveInternal(newVault, this.masterPassword, this.salt);
+  }
+
+  async save(newVault: any[]) {
+    if (!this.key) throw new Error('Vault is locked');
+    const encrypted = await encryptWithKey({ schemaVersion: VAULT_SCHEMA_VERSION, credentials: newVault }, this.key);
+    await this.setStorage(STORAGE_KEY, formatLocalBlob(this.iterations, encrypted));
     this.cachedVault = newVault;
   }
 
-  async saveInternal(vault: any[], password: string, salt: Uint8Array) {
-    const payload = {
-      schemaVersion: VAULT_SCHEMA_VERSION,
-      credentials: vault
-    };
-    const encrypted = await encryptPayload(payload, password, salt);
-    await this.setStorage(STORAGE_KEY, encrypted);
+  async changeMasterPassword(current: string, next: string) {
+    await changeMasterPassword(this, current, next);
   }
 
   lock() {
-    this.masterPassword = null;
-    this.cachedVault = [];
+    Object.assign(this, { masterPassword: null, key: null, cachedVault: [] });
     this.clearSessionKey();
   }
 
@@ -73,97 +98,52 @@ export class VaultService {
   }
 
   sanitizeVault(data: any) {
-    if (!data) return [];
     if (Array.isArray(data)) return data;
-    if (Array.isArray(data.credentials)) return data.credentials;
+    if (Array.isArray(data?.credentials)) return data.credentials;
     return [];
   }
 
   async getStorage(key: string): Promise<any> {
-    if (typeof browser !== 'undefined' && browser.storage?.local) return (await browser.storage.local.get(key))[key];
-    if (typeof chrome !== 'undefined' && chrome.storage?.local) return new Promise(r => chrome.storage.local.get([key], res => r(res[key])));
-    return localStorage.getItem(key);
+    return getLocal(key);
   }
 
   async setStorage(key: string, value: any): Promise<any> {
-    if (typeof browser !== 'undefined' && browser.storage?.local) return browser.storage.local.set({ [key]: value });
-    if (typeof chrome !== 'undefined' && chrome.storage?.local) return new Promise(r => chrome.storage.local.set({ [key]: value }, () => r(undefined)));
-    localStorage.setItem(key, value);
+    return setLocalMany({ [key]: value });
+  }
+
+  async removeStorage(keys: string[]): Promise<void> {
+    return removeLocal(keys);
   }
 
   async getSalt() {
-      if (this.salt) return this.salt;
-      const stored = await this.getStorage(SALT_KEY);
-      if (stored) {
-          this.salt = base64ToBytes(stored);
-          return this.salt;
-      }
-      return null;
+    const stored = await this.getStorage(SALT_KEY);
+    return stored ? base64ToBytes(stored) : null;
   }
 
   async exportSessionKey() {
-      if (!this.masterPassword || !this.salt) throw new Error('Locked');
-      const key = await deriveKey(this.masterPassword, this.salt);
-      const exported = await crypto.subtle.exportKey('raw', key);
-      const b64 = bytesToBase64(new Uint8Array(exported));
-
-      if (typeof chrome !== 'undefined' && chrome.storage?.session) {
-          await chrome.storage.session.set({ sessionKey: b64 });
-      }
-  }
-
-  // NOSONAR: Shared helper for PIN and Recovery to avoid duplication
-  async _setupSecret(secret: string, storagePrefix: string) {
-      if (!this.masterPassword) throw new Error('Locked');
-      const salt = crypto.getRandomValues(new Uint8Array(16));
-      const encrypted = await encryptPayload({ masterPassword: this.masterPassword }, secret, salt);
-      await this.setStorage(`${storagePrefix}.salt`, bytesToBase64(salt));
-      await this.setStorage(`${storagePrefix}.encrypted`, encrypted);
-  }
-
-  // NOSONAR: Shared helper to unlock with PIN or Recovery Key
-  async _unlockWithSecret(secret: string, storagePrefix: string) {
-      const storedSalt = await this.getStorage(`${storagePrefix}.salt`);
-      const encrypted = await this.getStorage(`${storagePrefix}.encrypted`);
-      if (!storedSalt || !encrypted) throw new Error(`${storagePrefix} not set`);
-      try {
-          const payload = await decryptPayload(encrypted, secret, base64ToBytes(storedSalt));
-          return await this.unlock(payload.masterPassword);
-      } catch (e) {
-          throw new Error(`Invalid ${storagePrefix}`);
-      }
-  }
-
-  async setupPin(pin: string) {
-      await this._setupSecret(pin, 'bunkerpass.pin');
-  }
-
-  async unlockWithPin(pin: string) {
-      return await this._unlockWithSecret(pin, 'bunkerpass.pin');
-  }
-
-  async hasPin() {
-      return !!(await this.getStorage('bunkerpass.pin.encrypted'));
-  }
-
-  async generateRecoveryKey() {
-      const recoveryBytes = crypto.getRandomValues(new Uint8Array(16));
-      const recoveryCode = Array.from(recoveryBytes).map(b => b.toString(16).padStart(2, '0')).join('');
-      await this._setupSecret(recoveryCode, 'bunkerpass.recovery');
-      return recoveryCode;
-  }
-
-  async unlockWithRecoveryKey(recoveryCode: string) {
-      return await this._unlockWithSecret(recoveryCode, 'bunkerpass.recovery');
-  }
-
-  async hasRecoveryKey() {
-      return !!(await this.getStorage('bunkerpass.recovery.encrypted'));
+    if (!this.key) throw new Error('Locked');
+    await setSessionValues({ [SESSION_KEY]: await exportRawKey(this.key) });
   }
 
   async clearSessionKey() {
-      if (typeof chrome !== 'undefined' && chrome.storage?.session) {
-          await chrome.storage.session.remove('sessionKey');
-      }
+    await removeSessionValues([SESSION_KEY]);
+  }
+
+  async setupPin(pin: string) {
+    if (!this.key) throw new Error('Locked');
+    await pinLock.setupPin(pin, await exportRawKey(this.key));
+  }
+
+  async unlockWithPin(pin: string) {
+    return await this.unlockWithKey(await importRawKey(await pinLock.recoverVaultKey(pin)));
+  }
+
+  async generateRecoveryKey() {
+    if (!this.masterPassword) throw new Error('MASTER_PASSWORD_REQUIRED');
+    return createRecoveryCode(this.masterPassword);
+  }
+
+  async unlockWithRecoveryKey(code: string) {
+    return this.unlock(await recoverMasterPassword(code));
   }
 }
