@@ -1,6 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, Button, FlatList, TouchableOpacity, TextInput, ActivityIndicator, Alert } from 'react-native';
-import { useCallback, useState } from 'react';
+import { StyleSheet, Text, View, Button, FlatList, TouchableOpacity, TextInput, ActivityIndicator, Alert, AppState, AppStateStatus } from 'react-native';
+import { useCallback, useState, useEffect, useRef } from 'react';
 import { SyncService } from './src/SyncService';
 import { PasswordGenerator } from './src/PasswordGenerator';
 import * as LocalAuthentication from 'expo-local-authentication';
@@ -15,6 +15,46 @@ export default function App() {
   const [showGenerator, setShowGenerator] = useState(false);
   const [isAutofillEnabled, setIsAutofillEnabled] = useState(false);
   const [hasAutofillSupport, setHasAutofillSupport] = useState(false);
+  const appState = useRef(AppState.currentState);
+
+  const performSilentSync = useCallback(async () => {
+    if (isSyncing) return;
+    try {
+      const data = await SyncService.syncWithGoogleDrive(false);
+      setVaultData(data as any[]);
+      if (AutofillModule) {
+        AutofillModule.saveCredentials(JSON.stringify(data));
+      }
+      console.log('Background silent sync complete.'); // NOSONAR
+    } catch (e) {
+      console.log('Silent sync skipped or failed.', e);
+    }
+  }, [isSyncing]);
+
+  useEffect(() => {
+    if (!isUnlocked) return;
+
+    // Initial silent sync on unlock
+    performSilentSync();
+
+    const subscription = AppState.addEventListener('change', nextAppState => {
+      if (appState.current.match(/inactive|background/) && nextAppState === 'active') {
+        performSilentSync();
+      }
+      appState.current = nextAppState;
+    });
+
+    const syncInterval = setInterval(() => {
+      if (appState.current === 'active') {
+        performSilentSync();
+      }
+    }, 15 * 60 * 1000); // Sync every 15 mins while active
+
+    return () => {
+      subscription.remove();
+      clearInterval(syncInterval);
+    };
+  }, [isUnlocked, performSilentSync]);
 
   const checkAutofillStatus = async () => {
     try {
