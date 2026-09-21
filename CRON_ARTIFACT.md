@@ -1,12 +1,14 @@
-# CRON Cycle Results: Passkeys Native Rendering Integration
+# CRON Cycle Results: Mobile Background Device Sync
 
 ## Task Completed
-- Atualizado `apps/desktop/src/index.html` para exibir itens de Passkeys que utilizam o formato `http://pk`.
-- Atualizado `apps/mobile/App.tsx` para adicionar o identificador de Passkeys (`http://pk`) utilizando o prefixo visual 🔑 na renderização nativa da lista.
-- Adicionada UI básica de parsing, porém a implementação completa de Passkeys (WebAuthn) nas plataformas foi diferida (assim como na Extensão) devido à alta complexidade arquitetural no momento.
+- Implementada Sincronização Automática de Dispositivos (Device Sync) no App Mobile (`apps/mobile`) via Google Drive, resolvendo a próxima task do roadmap.
+- O app agora detecta quando retorna do modo background/inactive para o foreground (`AppState`) e realiza uma chamada assíncrona silenciosa para atualizar as senhas (`performSilentSync`).
+- Adicionado um loop de sincronização (interval) que roda a cada 60 segundos enquanto o aplicativo se manter aberto no estado "active".
+- Atualizada a função `syncWithGoogleDrive` para aceitar a flag `interactive` (false por padrão em syncs de background). Em caso de HTTP 401, o token em cache e no `SecureStore` é descartado, forçando login na próxima interação humana.
+- Roadmap e README atualizados.
 
 ## Known Bugs
-- Nenhuma regressão detectada. Renderização condicional foi implementada de forma segura nas interfaces do Desktop e Mobile.
+- Tokens OAuth do Google expiram após 1 hora e a implementação atual força uma reautenticação visual após a expiração. Num próximo ciclo, deve-se avaliar a viabilidade de rotacionar "refresh_tokens" nas APIs do Google Drive para Expo para tornar a operação vitalícia.
 
 ## Next Steps
-- Implementar sincronização automática de dispositivos (Device Sync) no App Mobile via Google Drive (já implementado na Extensão Web), para manter as senhas sempre atualizadas sem intervenção manual contínua.
+- Implementar preenchimento automático para Microsoft Edge e estruturar build e empacotamento específico (via `scripts/package-extension.sh`).
