@@ -60,6 +60,7 @@ This project follows the **Antigravity** code standards:
 ## 🔄 Current Progress & Next Steps (CRON Loop)
 
 **Progress**:
+- Implemented Background Device Sync (Sincronização automática de dispositivos) for the Android App via Google Drive, matching the extension's behavior.
 - Updated the Desktop and Mobile apps' rendering logic to parse and display passkeys (`http://pk`) natively in the vault interface. Full WebAuthn implementation is deferred due to complexity.
 - Integrated bi-directional communication between React Native and iOS App Extension via a shared Keychain Group, completing iOS AutoFill functionality.
 - Finalized Phase 4 features (Business Hub, User Management, SaaS Protect).
@@ -90,7 +91,7 @@ This project follows the **Antigravity** code standards:
 - None explicitly identified currently.
 
 **Next Tasks**:
-- Aprimorar UX: Implementar sincronização automática de dispositivos via Google Drive para o App Mobile (já feito para a extensão).
+- Finalizar a integração com Autofill Framework do Android e iOS, completando o setup nativo de autopreenchimento de credenciais para todas as plataformas listadas no Roadmap.
 
 ---
 
