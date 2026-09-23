@@ -1,12 +1,11 @@
-# CRON Cycle Results: Passkeys Native Rendering Integration
+# CRON Loop Artifact
 
-## Task Completed
-- Atualizado `apps/desktop/src/index.html` para exibir itens de Passkeys que utilizam o formato `http://pk`.
-- Atualizado `apps/mobile/App.tsx` para adicionar o identificador de Passkeys (`http://pk`) utilizando o prefixo visual 🔑 na renderização nativa da lista.
-- Adicionada UI básica de parsing, porém a implementação completa de Passkeys (WebAuthn) nas plataformas foi diferida (assim como na Extensão) devido à alta complexidade arquitetural no momento.
+**Current Status**: Complete.
+**Task Accomplished**: Implemented automatic background device synchronization via Google Drive for the Mobile App (`apps/mobile`), utilizing `AppState` for foreground events and token caching for silent OAuth authentication.
 
-## Known Bugs
-- Nenhuma regressão detectada. Renderização condicional foi implementada de forma segura nas interfaces do Desktop e Mobile.
+**Next Subtask**:
+- Aprimorar preenchimento automático: Finalizar a estrutura nativa iniciada para Salvar e preencher automaticamente credenciais no Android.
 
-## Next Steps
-- Implementar sincronização automática de dispositivos (Device Sync) no App Mobile via Google Drive (já implementado na Extensão Web), para manter as senhas sempre atualizadas sem intervenção manual contínua.
+**Notes**:
+- The SyncService now supports silent OAuth via token caching in SecureStore, handling 401 retries correctly.
+- The App.tsx now listens to active AppState transitions and triggers silent background sync.
