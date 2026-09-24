@@ -1,12 +1,13 @@
-# CRON Cycle Results: Passkeys Native Rendering Integration
+# CRON Cycle Results: Mobile Device Sync via Google Drive
 
 ## Task Completed
-- Atualizado `apps/desktop/src/index.html` para exibir itens de Passkeys que utilizam o formato `http://pk`.
-- Atualizado `apps/mobile/App.tsx` para adicionar o identificador de Passkeys (`http://pk`) utilizando o prefixo visual 🔑 na renderização nativa da lista.
-- Adicionada UI básica de parsing, porém a implementação completa de Passkeys (WebAuthn) nas plataformas foi diferida (assim como na Extensão) devido à alta complexidade arquitetural no momento.
+- Atualizado `apps/mobile/src/SyncService.ts` para suportar autenticação silenciosa no Google Drive via cache de token de acesso em memória e no `SecureStore`.
+- Adicionada flag `interactive` ao método de sincronização para controlar o fluxo do OAuth 2.0.
+- Atualizado `apps/mobile/App.tsx` para observar o `AppState` e acionar automaticamente a sincronização em background sempre que o app retorna ao primeiro plano.
+- Implementado um intervalo de sincronização silenciosa periódica a cada 15 minutos enquanto o app estiver ativo.
 
 ## Known Bugs
-- Nenhuma regressão detectada. Renderização condicional foi implementada de forma segura nas interfaces do Desktop e Mobile.
+- Nenhuma regressão detectada. O tratamento de expiração de token (HTTP 401) foi implementado para limpar o cache de forma segura.
 
 ## Next Steps
-- Implementar sincronização automática de dispositivos (Device Sync) no App Mobile via Google Drive (já implementado na Extensão Web), para manter as senhas sempre atualizadas sem intervenção manual contínua.
+- Refinar a interface e estabilidade das extensões de Autopreenchimento em ambas as plataformas nativas (iOS e Android), revisando relatórios de conflito com outros provedores do sistema.
