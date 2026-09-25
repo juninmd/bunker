@@ -1,6 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, Button, FlatList, TouchableOpacity, TextInput, ActivityIndicator, Alert } from 'react-native';
-import { useCallback, useState } from 'react';
+import { StyleSheet, Text, View, Button, FlatList, TouchableOpacity, TextInput, ActivityIndicator, Alert, AppState } from 'react-native';
+import { useCallback, useState, useEffect } from 'react';
 import { SyncService } from './src/SyncService';
 import { PasswordGenerator } from './src/PasswordGenerator';
 import * as LocalAuthentication from 'expo-local-authentication';
@@ -30,6 +30,46 @@ export default function App() {
       console.log('Error checking autofill status', e);
     }
   };
+
+  const performSilentSync = useCallback(async () => {
+    if (!isUnlocked) return;
+    try {
+      const data = await SyncService.syncWithGoogleDrive(false);
+      if (data) {
+        setVaultData(data as any[]);
+        if (AutofillModule) {
+          AutofillModule.saveCredentials(JSON.stringify(data));
+        }
+        console.log('Sincronização silenciosa bem-sucedida!'); // NOSONAR
+      }
+    } catch (error) {
+      console.log('Sincronização silenciosa falhou', error); // NOSONAR
+    }
+  }, [isUnlocked]);
+
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+
+    if (isUnlocked) {
+      // Sync immediately when unlocked if silent sync is available
+      performSilentSync();
+
+      // Setup periodic sync every 60 seconds
+      interval = setInterval(performSilentSync, 60000);
+
+      // Listen for app coming to foreground
+      const subscription = AppState.addEventListener('change', nextAppState => {
+        if (nextAppState === 'active') {
+          performSilentSync();
+        }
+      });
+
+      return () => {
+        clearInterval(interval);
+        subscription.remove();
+      };
+    }
+  }, [isUnlocked, performSilentSync]);
 
   const handleRequestAutofill = () => {
     if (AutofillModule) {
