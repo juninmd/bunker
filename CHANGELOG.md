@@ -7,6 +7,7 @@ O formato segue o padrão Keep a Changelog e versionamento semântico.
 ## [Unreleased]
 
 ### Added
+- Versão Firefox da extensão (`npm run build:firefox`, Firefox 140+): event page, login do Drive por OAuth PKCE com redirect loopback e limpeza do clipboard sem offscreen; sonda de segurança no Firefox real (`npm run e2e:firefox`).
 - Estrutura inicial da extensão browser em `apps/extension` com popup, CRUD inicial (incluindo remoção) e armazenamento criptografado local.
 - Scaffolds iniciais para módulos `apps/desktop` e `apps/android`.
 - Script de empacotamento `scripts/package-extension.sh`.

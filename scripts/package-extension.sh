@@ -11,5 +11,7 @@ cd "${ROOT_DIR}/apps/extension"
 npm ci
 npm run build
 zip -r "${DIST_DIR}/bunkerpass-extension-${VERSION}.zip" manifest.json src > /dev/null
+node scripts/build-firefox.mjs > /dev/null
+(cd dist/firefox && zip -r "${DIST_DIR}/bunkerpass-firefox-${VERSION}.zip" . > /dev/null)
 
-echo "Extension packed at dist/bunkerpass-extension-${VERSION}.zip"
+echo "Extension packed at dist/bunkerpass-extension-${VERSION}.zip and dist/bunkerpass-firefox-${VERSION}.zip"
