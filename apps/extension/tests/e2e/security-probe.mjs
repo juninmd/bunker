@@ -1,11 +1,11 @@
-import { readdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
+import { rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { launch, startSite, SHOTS_DIR } from './harness.mjs';
-import { createVault, importLastPass, openPopup, MASTER } from './popup-steps.mjs';
+import { leaksIn, scanDir } from './leak-scan.mjs';
+import { createVault, importLastPass, openPopup } from './popup-steps.mjs';
 import { clickjacking, leakCheckPrivacy, lockWipesPopup, messageExtension, otherOrigin, syntheticClick, tamperedKdf } from './security-attacks.mjs';
 
 // Attacks the running extension the way a hostile page or a disk thief would, and records what held.
-const SECRETS = ['Gh!7pQz#v2Lm9Rt$', 'Acme-Pa55!phrase', 'Nb#2024-seguro!Xk', 'JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP', 'corvo-azul-77', 'ana.dev@example.com', MASTER];
 const results = [];
 const quiet = { step: async (name, fn) => fn(), shot: async () => undefined };
 const expect = (cond, message) => { if (!cond) throw new Error(message); };
@@ -19,21 +19,6 @@ async function check(name, fn) {
     results.push({ name, ok: false, error: String(e?.message || e).split('\n')[0] });
     console.log(`FAIL ${name}: ${String(e?.message || e).split('\n')[0]}`);
   }
-}
-
-function leaksIn(buffer) {
-  return SECRETS.filter(s => buffer.includes(Buffer.from(s, 'utf8')) || buffer.includes(Buffer.from(s, 'utf16le')));
-}
-
-function scanDir(dir, found = new Map()) {
-  for (const name of readdirSync(dir)) {
-    const path = join(dir, name);
-    const info = statSync(path, { throwIfNoEntry: false });
-    if (!info) continue;
-    if (info.isDirectory()) scanDir(path, found);
-    else if (info.size < 64 * 1024 * 1024) leaksIn(readFileSync(path)).forEach(s => found.set(s, path));
-  }
-  return found;
 }
 
 const { server, url } = await startSite();
