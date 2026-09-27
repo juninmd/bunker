@@ -1,6 +1,6 @@
 # Homologação de segurança da extensão Bunker
 
-Data: 2026-09-19 · Escopo: `apps/extension` (Chrome MV3) · Como repetir: `cd apps/extension && npm test && npm run e2e && npm run e2e:security`
+Data: 2026-09-19 (Firefox: 2026-09-27) · Escopo: `apps/extension` (Chrome MV3 e Firefox MV3) · Como repetir: `cd apps/extension && npm test && npm run e2e && npm run e2e:security && npm run e2e:firefox`
 
 ## Modelo de ameaça
 
@@ -51,3 +51,22 @@ Data: 2026-09-19 · Escopo: `apps/extension` (Chrome MV3) · Como repetir: `cd a
 - A senha mestra fica em memória enquanto o cofre está aberto (necessária para gerar o código de recuperação).
 - No Windows, o modo `0600` da chave do `setup-drive-oauth` não se aplica; guarde `~/.bunker` em pasta só sua.
 - Senha e TOTP saem sem neutralização no CSV exportado; não abra esse arquivo em planilha.
+
+## Firefox (2026-09-27)
+
+Mesmo código, build gerado por `scripts/build-firefox.mjs`. `npm run e2e:firefox` instala o build no Firefox instalado na máquina (156.0.1 nesta rodada) e repete os ataques que dependem do navegador: 12/12.
+
+| Diferença | Tratamento | Prova |
+|---|---|---|
+| Sem service worker | Mesmo módulo roda como event page | `e2e:firefox`: event page sobe, `chrome.*` com Promise |
+| Sem `offscreen`: a senha copiada nunca era apagada | Event page limpa o clipboard direto | `test_firefox` e `e2e:firefox` falham sem a correção (clipboard ainda com a senha após 30 s) |
+| Sem `identity.getAuthToken` | Authorization code + PKCE (S256) com `state` validado; redirect loopback `127.0.0.1/mozoauth2`, que o Firefox intercepta; sem refresh token; token só em memória | `test_firefox`: redirect forjado, `state` trocado e erro do Google recusados |
+| Google não aceita o domínio de redirect do Firefox | Cliente OAuth "App para computador" próprio | Não testado contra o Google real |
+
+Riscos residuais do Firefox:
+
+- Login no Drive não foi exercitado contra o Google de verdade (sem cliente OAuth de teste); só o fluxo com Google simulado.
+- O Firefox não confirma que reporta o estado `locked` do sistema; se não reportar, valem o bloqueio de 15 min e o fechamento do navegador.
+- Login sem senha (WebAuthn com `rp.id` = ID da extensão) não foi testado no Firefox; tratar como indisponível.
+- Se o Google exigir `client_secret`, ele vai dentro do pacote. Para clientes de computador o Google não o trata como segredo, mas não reutilize esse cliente.
+- Uso permanente exige assinatura da Mozilla; extensão temporária some ao fechar o navegador.

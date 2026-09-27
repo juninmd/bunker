@@ -61,6 +61,23 @@ node scripts/setup-drive-oauth.mjs --client-id 1234567890-abc123.apps.googleuser
 
 No Drive fica só `vault.enc`: o cofre cifrado com AES-256-GCM e a chave derivada da senha mestra (PBKDF2-SHA256, 600 mil iterações). Nenhuma senha sai do navegador em texto puro.
 
+### 7. Firefox
+
+O Firefox usa um build próprio (event page no lugar do service worker, OAuth por PKCE). Requer Firefox 140 ESR ou mais novo.
+
+1. No Google Cloud, crie outro ID do cliente OAuth do tipo **App para computador** (o do Chrome é preso ao ID da extensão Chrome).
+2. Gere o build com esse ID:
+
+```bash
+cd apps/extension
+BUNKER_FIREFOX_CLIENT_ID=1234567890-xyz.apps.googleusercontent.com npm run build:firefox
+```
+
+   Se o Google responder `client_secret is missing`, passe também `BUNKER_FIREFOX_CLIENT_SECRET`. Para clientes de computador o Google não trata esse valor como segredo, mas ele fica no pacote: não reutilize esse cliente em outro app.
+3. Em `about:debugging#/runtime/this-firefox`, clique em **Carregar extensão temporária** e escolha `apps/extension/dist/firefox/manifest.json`. Para uso permanente, o pacote precisa ser assinado pela Mozilla (AMO, listado ou não listado); `scripts/package-extension.sh` gera `dist/bunkerpass-firefox-<versão>.zip`.
+
+O login do Drive abre uma janela do Google e volta para `http://127.0.0.1/mozoauth2/...`, endereço que o próprio Firefox intercepta; nada escuta nessa porta. O token de acesso fica só na memória do popup.
+
 ## Resolução de Problemas
 
 - **Erro "client_id not found" ou "bad client id"**: rode o script de novo com `--client-id` e confira se o ID da extensão em `chrome://extensions` é o mesmo que o script mostrou.

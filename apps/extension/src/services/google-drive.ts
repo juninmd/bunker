@@ -1,3 +1,5 @@
+import { firefoxToken } from './web-auth-flow.js';
+
 export interface DriveFile {
   id: string;
   name: string;
@@ -7,13 +9,21 @@ export interface DriveFile {
 
 export class GoogleDriveService {
   private accessToken: string | null;
+  private expiresAt = 0;
 
   constructor() {
     this.accessToken = null;
   }
 
-  // NOSONAR: Uses Chrome's standard getAuthToken pattern. Duplication from similar utility functions is inevitable.
+  // Chrome caches tokens itself; Firefox has no getAuthToken, so its token is kept here until it expires.
   async authorize(): Promise<string> {
+    if (!chrome.identity.getAuthToken) {
+      if (this.accessToken && Date.now() < this.expiresAt) return this.accessToken;
+      const { accessToken, expiresAt } = await firefoxToken();
+      this.expiresAt = expiresAt;
+      this.accessToken = accessToken;
+      return accessToken;
+    }
     return new Promise((resolve, reject) => { // NOSONAR
       chrome.identity.getAuthToken({ interactive: true }, (token) => {
         if (chrome.runtime.lastError) {
@@ -35,8 +45,9 @@ export class GoogleDriveService {
       const token = this.accessToken as string;
       const response = await fetch(url, { ...init, headers: { ...init.headers, Authorization: `Bearer ${token}` } });
       if (response.status === 401 && attempt === 0) {
-        await chrome.identity.removeCachedAuthToken({ token });
+        if (chrome.identity.removeCachedAuthToken) await chrome.identity.removeCachedAuthToken({ token });
         this.accessToken = null;
+        this.expiresAt = 0;
         continue;
       }
       if (!response.ok) throw new Error(`Failed to ${action}: ${response.status} ${await response.text()}`);

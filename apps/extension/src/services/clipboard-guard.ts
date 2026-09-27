@@ -1,3 +1,5 @@
+import { clearClipboard } from '../utils/clipboard-clear.js';
+
 const ALARM = 'clearClipboard';
 const OFFSCREEN_PATH = 'src/offscreen.html';
 export const CLIPBOARD_CLEAR_SECONDS = 30;
@@ -20,7 +22,11 @@ export function clearClipboardNow(): Promise<void> {
 }
 
 async function runClear() {
-  if (!chrome.offscreen) return;
+  // Firefox has no offscreen API, but its background is an event page with a document of its own.
+  if (!chrome.offscreen) {
+    if (typeof document !== 'undefined') clearClipboard();
+    return;
+  }
   if (!(await chrome.offscreen.hasDocument())) {
     await chrome.offscreen.createDocument({
       url: OFFSCREEN_PATH,
