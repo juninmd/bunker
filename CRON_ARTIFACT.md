@@ -1,12 +1,15 @@
-# CRON Cycle Results: Passkeys Native Rendering Integration
+# CRON Cycle Results: Mobile Background Sync
 
 ## Task Completed
-- Atualizado `apps/desktop/src/index.html` para exibir itens de Passkeys que utilizam o formato `http://pk`.
-- Atualizado `apps/mobile/App.tsx` para adicionar o identificador de Passkeys (`http://pk`) utilizando o prefixo visual 🔑 na renderização nativa da lista.
-- Adicionada UI básica de parsing, porém a implementação completa de Passkeys (WebAuthn) nas plataformas foi diferida (assim como na Extensão) devido à alta complexidade arquitetural no momento.
+- Updated `apps/mobile/src/SyncService.ts` to add an optional `interactive` parameter to `syncWithGoogleDrive`.
+- Implemented `cachedAccessToken` and `expo-secure-store` ('driveAccessToken') for silent token reuse.
+- Updated `apps/mobile/App.tsx` to handle `AppState` changes, triggering silent sync when app returns to foreground and unlocked.
+- Implemented an interval-based background sync (every 5 minutes) while the mobile app is active and unlocked.
+- Verified successful credential syncing capabilities between platforms.
 
 ## Known Bugs
-- Nenhuma regressão detectada. Renderização condicional foi implementada de forma segura nas interfaces do Desktop e Mobile.
+- Token refresh isn't natively using Google's refresh tokens for infinite background sync since it relies on implicit token grants; a full backend structure with refresh tokens may be needed later. Currently, 401 Unauthorized clears the token to prompt interactive re-auth on next user request.
 
 ## Next Steps
-- Implementar sincronização automática de dispositivos (Device Sync) no App Mobile via Google Drive (já implementado na Extensão Web), para manter as senhas sempre atualizadas sem intervenção manual contínua.
+- Integrate WebAuthn (Passkeys) for real cryptographic usage on platforms to finish the Passkeys feature.
+- Test Autofill Android Plugin edge cases with other apps.

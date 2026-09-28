@@ -90,7 +90,7 @@ This project follows the **Antigravity** code standards:
 - None explicitly identified currently.
 
 **Next Tasks**:
-- Aprimorar UX: Implementar sincronização automática de dispositivos via Google Drive para o App Mobile (já feito para a extensão).
+- Aprimorar UX: Implementar sincronização automática de dispositivos via Google Drive para o App Mobile (Concluído).
 
 ---
 

@@ -1,6 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, Button, FlatList, TouchableOpacity, TextInput, ActivityIndicator, Alert } from 'react-native';
-import { useCallback, useState } from 'react';
+import { StyleSheet, Text, View, Button, FlatList, TouchableOpacity, TextInput, ActivityIndicator, Alert, AppState, AppStateStatus } from 'react-native';
+import { useCallback, useState, useEffect, useRef } from 'react';
 import { SyncService } from './src/SyncService';
 import { PasswordGenerator } from './src/PasswordGenerator';
 import * as LocalAuthentication from 'expo-local-authentication';
@@ -15,6 +15,7 @@ export default function App() {
   const [showGenerator, setShowGenerator] = useState(false);
   const [isAutofillEnabled, setIsAutofillEnabled] = useState(false);
   const [hasAutofillSupport, setHasAutofillSupport] = useState(false);
+  const appState = useRef(AppState.currentState);
 
   const checkAutofillStatus = async () => {
     try {
@@ -30,6 +31,56 @@ export default function App() {
       console.log('Error checking autofill status', e);
     }
   };
+
+  const performSilentSync = useCallback(async () => {
+    if (!isUnlocked) return;
+    try {
+      const data = await SyncService.syncWithGoogleDrive(false);
+      if (data && (data as any[]).length > 0) {
+        setVaultData(data as any[]);
+        if (AutofillModule) {
+          AutofillModule.saveCredentials(JSON.stringify(data));
+        }
+        console.log('Silent sync with Google Drive completed successfully.');
+      }
+    } catch (e) {
+      console.log('Silent sync failed:', e);
+    }
+  }, [isUnlocked]);
+
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', nextAppState => {
+      if (
+        appState.current.match(/inactive|background/) &&
+        nextAppState === 'active'
+      ) {
+        // App has come to the foreground
+        if (isUnlocked) {
+          performSilentSync();
+        }
+      }
+      appState.current = nextAppState;
+    });
+
+    return () => {
+      subscription.remove();
+    };
+  }, [isUnlocked, performSilentSync]);
+
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (isUnlocked) {
+      // Background sync every 5 minutes while active
+      interval = setInterval(() => {
+        if (appState.current === 'active') {
+          performSilentSync();
+        }
+      }, 5 * 60 * 1000);
+    }
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [isUnlocked, performSilentSync]);
 
   const handleRequestAutofill = () => {
     if (AutofillModule) {
@@ -64,6 +115,7 @@ export default function App() {
       await SecureStore.setItemAsync('masterPassword', masterPassword);
       setIsUnlocked(true);
       checkAutofillStatus();
+      performSilentSync();
     }
   };
 
@@ -89,6 +141,7 @@ export default function App() {
           setMasterPassword(stored);
           setIsUnlocked(true);
           checkAutofillStatus();
+          performSilentSync();
         } else {
           Alert.alert('Erro', 'Por favor, faça login com sua senha mestre primeiro.');
         }
@@ -136,10 +189,12 @@ export default function App() {
              title="Sincronizar com Google Drive (CSV)"
              onPress={async () => {
                setIsSyncing(true);
-               const data = await SyncService.syncWithGoogleDrive();
-               setVaultData(data as any[]);
-               if (AutofillModule) {
-                 AutofillModule.saveCredentials(JSON.stringify(data));
+               const data = await SyncService.syncWithGoogleDrive(true);
+               if (data && (data as any[]).length > 0) {
+                 setVaultData(data as any[]);
+                 if (AutofillModule) {
+                   AutofillModule.saveCredentials(JSON.stringify(data));
+                 }
                }
                setIsSyncing(false);
                console.log('Sincronizado com passwords.csv no Drive!'); // NOSONAR
