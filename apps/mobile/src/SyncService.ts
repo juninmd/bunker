@@ -12,23 +12,15 @@ export class SyncService {
      * Download passwords.csv from Google Drive
      * @param interactive If true, forces UI prompt when token is missing/expired. If false, fails silently.
      */
-    static async syncWithGoogleDrive(interactive = true) {
+    static async syncWithGoogleDrive(interactive: boolean = true) {
         try {
-            let accessToken = cachedAccessToken;
-
-            if (!accessToken) {
-                const storedToken = await SecureStore.getItemAsync('driveAccessToken');
-                if (storedToken) {
-                    accessToken = storedToken;
-                    cachedAccessToken = storedToken;
-                }
+            if (!cachedAccessToken) {
+                cachedAccessToken = await SecureStore.getItemAsync('driveAccessToken');
             }
 
-            if (!accessToken || interactive) {
-                if (!interactive) {
-                    throw new Error('Interactive login required but interactive=false.');
-                }
+            let accessToken = cachedAccessToken;
 
+            if (interactive) {
                 // Initiate a real OAuth2 flow with expo-auth-session
                 const redirectUri = AuthSession.makeRedirectUri();
 
@@ -51,6 +43,10 @@ export class SyncService {
                 } else {
                     throw new Error('OAuth authentication failed or was cancelled.');
                 }
+            } else {
+                if (!accessToken) {
+                    throw new Error('No access token available for silent sync.');
+                }
             }
 
             // Real fetch API call to Google Drive
@@ -60,11 +56,13 @@ export class SyncService {
                     Authorization: `Bearer ${accessToken}`
                 }
             });
+
             if (searchResponse.status === 401) {
                 cachedAccessToken = null;
                 await SecureStore.deleteItemAsync('driveAccessToken');
-                throw new Error('OAuth token expired. Cleared from cache.');
+                throw new Error('OAuth token expired or invalid.');
             }
+
             const searchData = await searchResponse.json();
 
             if (!searchData.files || searchData.files.length === 0) {
@@ -83,7 +81,7 @@ export class SyncService {
             if (downloadResponse.status === 401) {
                 cachedAccessToken = null;
                 await SecureStore.deleteItemAsync('driveAccessToken');
-                throw new Error('Access token expired or invalid during download');
+                throw new Error('OAuth token expired or invalid.');
             }
 
             const csvText = await downloadResponse.text();
@@ -108,7 +106,9 @@ export class SyncService {
 
         } catch (error) {
             console.log('Real Google Drive sync failed or was missing credentials. Falling back to mock data.', error);
-            if (!interactive) return null;
+            if (!interactive) {
+                throw error;
+            }
             // Fallback for tests/mocking
             return new Promise((resolve) => {
                 const mockCSV = 'url,username,password,extra,name,grouping,fav\ngoogle.com,test@gmail.com,***,,,,\ngithub.com,dev_user,***,,,,\nbank.com,admin_user,***,,,Deleted,\npasskey.com,user,,Passkey Exemplo,,,\n"complex,site.com",user,"p,a""ss",note,,,\n';

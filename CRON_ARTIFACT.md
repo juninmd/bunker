@@ -1,12 +1,14 @@
-# CRON Cycle Results: Mobile App Background Device Sync
+# CRON Cycle Results: Mobile Background Device Sync
 
 ## Task Completed
-- Atualizado `apps/mobile/src/SyncService.ts` para persistir o token de acesso do Google Drive usando `SecureStore` (com fallback para `cachedAccessToken` em memória) e adicionado o parâmetro `interactive` para suportar autenticação silenciosa em segundo plano.
-- Atualizado `apps/mobile/App.tsx` para usar a API `AppState` e `setInterval`. Agora o aplicativo realiza sincronização silenciosa automaticamente (`interactive = false`) quando é desbloqueado, quando volta para o primeiro plano (`active`) e a cada 15 minutos se continuar ativo.
-- O token é limpo do cache e do SecureStore em caso de erro 401 (não autorizado) da API do Google Drive para que uma nova autenticação interativa possa ser solicitada.
+- Implementada Sincronização Automática de Dispositivos (Device Sync) no App Mobile (`apps/mobile`) via Google Drive, resolvendo a próxima task do roadmap.
+- O app agora detecta quando retorna do modo background/inactive para o foreground (`AppState`) e realiza uma chamada assíncrona silenciosa para atualizar as senhas (`performSilentSync`).
+- Adicionado um loop de sincronização (interval) que roda a cada 60 segundos enquanto o aplicativo se manter aberto no estado "active".
+- Atualizada a função `syncWithGoogleDrive` para aceitar a flag `interactive` (false por padrão em syncs de background). Em caso de HTTP 401, o token em cache e no `SecureStore` é descartado, forçando login na próxima interação humana.
+- Roadmap e README atualizados.
 
 ## Known Bugs
-- Nenhuma regressão detectada. A sincronização interativa original continua funcionando normalmente.
+- Tokens OAuth do Google expiram após 1 hora e a implementação atual força uma reautenticação visual após a expiração. Num próximo ciclo, deve-se avaliar a viabilidade de rotacionar "refresh_tokens" nas APIs do Google Drive para Expo para tornar a operação vitalícia.
 
 ## Next Steps
-- Melhorar a integração nativa com o Autofill Framework do Android e iOS, completando o fluxo para salvar credenciais geradas nativamente, preencher e detectar as mudanças (autofill prompt de salvar credencial após login num app nativo, como já existe na extensão web).
+- Implementar preenchimento automático para Microsoft Edge e estruturar build e empacotamento específico (via `scripts/package-extension.sh`).

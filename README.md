@@ -60,7 +60,7 @@ This project follows the **Antigravity** code standards:
 ## 🔄 Current Progress & Next Steps (CRON Loop)
 
 **Progress**:
-- Implemented Automatic Background Device Sync for the Mobile App (`apps/mobile`), enabling silent auto-synchronization with Google Drive using cached tokens and AppState intervals.
+- Implemented Automatic Background Device Sync for the React Native mobile app (`apps/mobile`), leveraging `AppState` and `SecureStore` to keep credentials updated silently while using the app.
 - Updated the Desktop and Mobile apps' rendering logic to parse and display passkeys (`http://pk`) natively in the vault interface. Full WebAuthn implementation is deferred due to complexity.
 - Integrated bi-directional communication between React Native and iOS App Extension via a shared Keychain Group, completing iOS AutoFill functionality.
 - Finalized Phase 4 features (Business Hub, User Management, SaaS Protect).
@@ -93,7 +93,8 @@ This project follows the **Antigravity** code standards:
 - None explicitly identified currently.
 
 **Next Tasks**:
-- Monitorar possíveis otimizações na criptografia ou portar mais recursos para os aplicativos nativos.
+- Implementar preenchimento automático para Microsoft Edge e estruturar build e empacotamento específico (via scripts/package-extension.sh).
+
 
 ---
 
