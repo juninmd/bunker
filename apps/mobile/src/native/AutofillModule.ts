@@ -5,6 +5,8 @@ interface AutofillModuleType {
   isAutofillEnabled(): Promise<boolean>;
   requestAutofillSetting(): void;
   saveCredentials(json: string): void;
+  getPendingSaves?(): Promise<string>;
+  clearPendingSaves?(): Promise<boolean>;
 }
 
 const { AutofillModule, IosAutofillModule } = NativeModules;
