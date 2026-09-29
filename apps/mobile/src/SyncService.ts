@@ -6,21 +6,24 @@ import * as SecureStore from 'expo-secure-store';
 let cachedAccessToken: string | null = null;
 
 export class SyncService {
+    private static cachedAccessToken: string | null = null;
+    private static tokenExpiration: number | null = null;
+
     /**
      * Download passwords.csv from Google Drive
+     * @param interactive If true, prompts the user for login if no valid token exists. If false, fails silently.
      */
     static async syncWithGoogleDrive(interactive: boolean = true) {
         try {
-            if (!cachedAccessToken) {
-                cachedAccessToken = await SecureStore.getItemAsync('driveAccessToken');
-            }
+            let accessToken = this.cachedAccessToken;
+            const now = Date.now();
 
-            if (!cachedAccessToken && !interactive) {
-                console.log('Silent sync skipped: no access token available.');
-                return [];
-            }
+            if (!accessToken || !this.tokenExpiration || now >= this.tokenExpiration) {
+                if (!interactive) {
+                    console.log('Skipping background sync because no valid access token is cached.');
+                    return null; // Silent failure for background sync
+                }
 
-            if (!cachedAccessToken && interactive) {
                 // Initiate a real OAuth2 flow with expo-auth-session
                 const redirectUri = AuthSession.makeRedirectUri();
 
@@ -35,10 +38,11 @@ export class SyncService {
                 const result = await (AuthSession as any).startAsync({ authUrl }) as any;
 
                 if (result.type === 'success' && result.params.access_token) {
-                    cachedAccessToken = result.params.access_token;
-                    if (cachedAccessToken) {
-                        await SecureStore.setItemAsync('driveAccessToken', cachedAccessToken);
-                    }
+                    accessToken = result.params.access_token;
+                    this.cachedAccessToken = accessToken;
+                    // Token usually expires in 3600 seconds, setting buffer of 5 mins
+                    const expiresIn = result.params.expires_in ? parseInt(result.params.expires_in, 10) : 3600;
+                    this.tokenExpiration = Date.now() + (expiresIn - 300) * 1000;
                 } else {
                     throw new Error('OAuth authentication failed or was cancelled.');
                 }
@@ -48,12 +52,12 @@ export class SyncService {
             // First, find the file ID
             const searchResponse = await fetch('https://www.googleapis.com/drive/v3/files?q=name="passwords.csv" and trashed=false', {
                 headers: {
-                    Authorization: `Bearer ${cachedAccessToken}`
+                    Authorization: `Bearer ${accessToken}`
                 }
             });
 
             if (searchResponse.status === 401) {
-                cachedAccessToken = null;
+                this.cachedAccessToken = null;
                 await SecureStore.deleteItemAsync('driveAccessToken');
                 throw new Error('Unauthorized: Token expired or invalid.');
             }
@@ -69,12 +73,12 @@ export class SyncService {
             // Download the file content
             const downloadResponse = await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`, {
                 headers: {
-                    Authorization: `Bearer ${cachedAccessToken}`
+                    Authorization: `Bearer ${accessToken}`
                 }
             });
 
             if (downloadResponse.status === 401) {
-                cachedAccessToken = null;
+                this.cachedAccessToken = null;
                 await SecureStore.deleteItemAsync('driveAccessToken');
                 throw new Error('Unauthorized: Token expired or invalid during download.');
             }
