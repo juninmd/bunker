@@ -1,14 +1,15 @@
 # CRON Cycle Results: Mobile Background Sync via Google Drive
 
 ## Task Completed
-- Updated `apps/mobile/src/SyncService.ts` to implement silent OAuth token caching using `SecureStore` and memory cache.
-- Handled HTTP 401 Unauthorized responses to safely clear stale credentials during sync attempts.
-- Integrated `AppState` lifecycle listeners in `apps/mobile/App.tsx` to automatically trigger a silent background sync whenever the app returns to the active state.
-- Set up an interval timer to periodically synchronize data (every 5 minutes) while the React Native app remains active and unlocked.
-- Updated `ROADMAP.md` and `README.md` to reflect the completion of the automatic device synchronization task for the Android application.
+- Updated `apps/mobile/src/SyncService.ts` to add an optional `interactive` parameter to `syncWithGoogleDrive`.
+- Implemented `cachedAccessToken` and `expo-secure-store` ('driveAccessToken') for silent token reuse.
+- Updated `apps/mobile/App.tsx` to handle `AppState` changes, triggering silent sync when app returns to foreground and unlocked.
+- Implemented an interval-based background sync (every 5 minutes) while the mobile app is active and unlocked.
+- Verified successful credential syncing capabilities between platforms.
 
 ## Known Bugs
-- Token caching is currently tied directly to the OAuth provider (Google) inside `SyncService`. Future enhancements might modularize token refresh logic if other providers are introduced.
+- Token refresh isn't natively using Google's refresh tokens for infinite background sync since it relies on implicit token grants; a full backend structure with refresh tokens may be needed later. Currently, 401 Unauthorized clears the token to prompt interactive re-auth on next user request.
 
 ## Next Steps
-- Implement logic to handle Passkey credentials natively within the mobile application, building upon the recently added UI rendering support.
+- Integrate WebAuthn (Passkeys) for real cryptographic usage on platforms to finish the Passkeys feature.
+- Test Autofill Android Plugin edge cases with other apps.

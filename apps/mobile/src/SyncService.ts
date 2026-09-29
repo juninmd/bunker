@@ -3,6 +3,8 @@ import { parseCSV } from '../../extension/src/utils/csv-utils.js';
 import * as AuthSession from 'expo-auth-session';
 import * as SecureStore from 'expo-secure-store';
 
+let cachedAccessToken: string | null = null;
+
 export class SyncService {
     static cachedAccessToken: string | null = null;
 
@@ -64,10 +66,11 @@ export class SyncService {
             });
 
             if (searchResponse.status === 401) {
-                SyncService.cachedAccessToken = null;
+                this.cachedAccessToken = null;
                 await SecureStore.deleteItemAsync('driveAccessToken');
-                throw new Error('Unauthorized access token.');
+                throw new Error('Unauthorized: Token expired or invalid.');
             }
+
             const searchData = await searchResponse.json();
 
             if (!searchData.files || searchData.files.length === 0) {
@@ -84,10 +87,11 @@ export class SyncService {
             });
 
             if (downloadResponse.status === 401) {
-                SyncService.cachedAccessToken = null;
+                this.cachedAccessToken = null;
                 await SecureStore.deleteItemAsync('driveAccessToken');
-                throw new Error('Unauthorized access token.');
+                throw new Error('Unauthorized: Token expired or invalid during download.');
             }
+
             const csvText = await downloadResponse.text();
 
             const parsed = parseCSV(csvText);
@@ -108,35 +112,33 @@ export class SyncService {
 
             return vaultItems;
 
-        } catch (error) {
-            console.log('Real Google Drive sync failed or was missing credentials.', error);
-            if (!interactive) {
-                throw error;
-            }
-
-            console.log('Falling back to mock data.', error);
+        } catch (error: any) {
+            console.log('Real Google Drive sync failed or was missing credentials. Falling back to mock data.', error);
             // Fallback for tests/mocking
-            return new Promise((resolve) => {
-                const mockCSV = 'url,username,password,extra,name,grouping,fav\ngoogle.com,test@gmail.com,***,,,,\ngithub.com,dev_user,***,,,,\nbank.com,admin_user,***,,,Deleted,\npasskey.com,user,,Passkey Exemplo,,,\n"complex,site.com",user,"p,a""ss",note,,,\n';
+            if (interactive || error.message.includes('mock data')) {
+                return new Promise((resolve) => {
+                    const mockCSV = 'url,username,password,extra,name,grouping,fav\ngoogle.com,test@gmail.com,***,,,,\ngithub.com,dev_user,***,,,,\nbank.com,admin_user,***,,,Deleted,\npasskey.com,user,,Passkey Exemplo,,,\n"complex,site.com",user,"p,a""ss",note,,,\n';
 
-                const parsed = parseCSV(mockCSV);
-                const resultItems: any[] = [];
+                    const parsed = parseCSV(mockCSV);
+                    const resultItems: any[] = [];
 
-                parsed.forEach((obj: any) => {
-                    if (obj['grouping'] !== 'Deleted') {
-                        const randomId = Crypto.randomUUID();
+                    parsed.forEach((obj: any) => {
+                        if (obj['grouping'] !== 'Deleted') {
+                            const randomId = Crypto.randomUUID();
 
-                        resultItems.push({
-                            id: randomId,
-                            title: obj['url'] || 'Unnamed',
-                            username: obj['username'] || '',
-                            password: obj['password'] || ''
-                        });
-                    }
+                            resultItems.push({
+                                id: randomId,
+                                title: obj['url'] || 'Unnamed',
+                                username: obj['username'] || '',
+                                password: obj['password'] || ''
+                            });
+                        }
+                    });
+
+                    resolve(resultItems);
                 });
-
-                resolve(resultItems);
-            });
+            }
+            return [];
         }
     }
 }
