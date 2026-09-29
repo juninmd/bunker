@@ -21,49 +21,49 @@ export default function App() {
 
   const performSilentSync = async () => {
     try {
+      console.log('Performing silent sync...');
       const data = await SyncService.syncWithGoogleDrive(false);
-      if (data) {
-        setVaultData(data as any[]);
-        if (AutofillModule) {
-          AutofillModule.saveCredentials(JSON.stringify(data));
-        }
-        console.log('Silent sync successful!'); // NOSONAR
+      setVaultData(data as any[]);
+      if (AutofillModule) {
+        AutofillModule.saveCredentials(JSON.stringify(data));
       }
+      console.log('Silent sync completed successfully.');
     } catch (e) {
-      console.log('Silent sync skipped or failed', e);
+      console.log('Silent sync failed (expected if not authenticated).', e);
     }
   };
 
   useEffect(() => {
-    if (!isUnlocked) return;
-
-    // Perform initial silent sync when unlocked
-    performSilentSync();
-
     const subscription = AppState.addEventListener('change', nextAppState => {
       if (
         appState.current.match(/inactive|background/) &&
         nextAppState === 'active'
       ) {
-        // App has come to the foreground!
-        performSilentSync();
+        if (isUnlocked) {
+          performSilentSync();
+        }
       }
       appState.current = nextAppState;
     });
 
-    // Interval based sync (e.g., every 60 seconds)
-    const syncInterval = setInterval(() => {
-      if (appState.current === 'active') {
-        performSilentSync();
-      }
-    }, 60000);
-
     return () => {
       subscription.remove();
-      clearInterval(syncInterval);
     };
   }, [isUnlocked]);
 
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (isUnlocked) {
+      interval = setInterval(() => {
+        performSilentSync();
+      }, 15 * 60 * 1000); // 15 minutes
+    }
+    return () => {
+      if (interval) {
+        clearInterval(interval);
+      }
+    };
+  }, [isUnlocked]);
 
   const checkAutofillStatus = async () => {
     try {
