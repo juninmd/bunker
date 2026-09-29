@@ -15,28 +15,24 @@ export class SyncService {
             let accessToken = this.cachedAccessToken;
 
             if (!accessToken) {
-                accessToken = await SecureStore.getItemAsync('driveAccessToken');
-                if (accessToken) {
-                    this.cachedAccessToken = accessToken;
-                }
-            }
-
-            if (!accessToken && !interactive) {
-                console.log('No access token found and silent mode requested.');
-                return [];
+                 accessToken = await SecureStore.getItemAsync('driveAccessToken');
+                 if (accessToken) {
+                     this.cachedAccessToken = accessToken;
+                 }
             }
 
             if (!accessToken) {
+                if (!interactive) {
+                    // Silent fail for non-interactive syncs when no token is available
+                    return [];
+                }
+
                 // Initiate a real OAuth2 flow with expo-auth-session
                 const redirectUri = AuthSession.makeRedirectUri();
 
-            if (!accessToken) {
-                const storedToken = await SecureStore.getItemAsync('driveAccessToken');
-                if (storedToken) {
-                    accessToken = storedToken;
-                    cachedAccessToken = storedToken;
-                }
-            }
+                // This is a placeholder client ID, it should be replaced with the actual Google Cloud Project client ID
+                // in a real environment.
+                const clientId = 'YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com';
 
                 const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=token&scope=https://www.googleapis.com/auth/drive.file`;
 
@@ -46,8 +42,8 @@ export class SyncService {
 
                 if (result.type === 'success' && result.params.access_token) {
                     accessToken = result.params.access_token;
-                    this.cachedAccessToken = accessToken;
-                    await SecureStore.setItemAsync('driveAccessToken', accessToken!);
+                    this.cachedAccessToken = accessToken as string;
+                    await SecureStore.setItemAsync('driveAccessToken', accessToken as string);
                 } else {
                     throw new Error('OAuth authentication failed or was cancelled.');
                 }
@@ -60,16 +56,15 @@ export class SyncService {
                     Authorization: `Bearer ${accessToken}`
                 }
             });
+
             if (searchResponse.status === 401) {
-                // Token expired or invalid
                 this.cachedAccessToken = null;
                 await SecureStore.deleteItemAsync('driveAccessToken');
                 if (interactive) {
+                    // Try one more time interactively if we failed due to 401
                     return this.syncWithGoogleDrive(true);
-                } else {
-                    console.log('Access token expired and silent mode requested.');
-                    return [];
                 }
+                throw new Error('Unauthorized');
             }
 
             const searchData = await searchResponse.json();

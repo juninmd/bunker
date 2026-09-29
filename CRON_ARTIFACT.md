@@ -1,14 +1,15 @@
-# CRON Cycle Results: Mobile Device Auto Sync Integration
+# CRON Cycle Results: Mobile App Background Device Sync
 
 ## Task Completed
-- Implemented automatic background device synchronization via `AppState` listeners in the React Native mobile app (`apps/mobile/App.tsx`).
-- Refactored `apps/mobile/src/SyncService.ts` to support local caching of the OAuth access token using `expo-secure-store`.
-- Introduced silent synchronization logic that securely utilizes the cached token to fetch the updated `passwords.csv` from Google Drive without prompting the user.
-- Handled token expiration cases, deleting the invalid token and gracefully falling back to interactive authentication flows when required.
-- Updated documentation (`README.md`, `ROADMAP.md`) to reflect the completion of the "Sincronização automática de dispositivos (Device Sync)" feature for the Android application.
+- Atualizado `apps/mobile/src/SyncService.ts` para cachear em memória o token OAuth do Google Drive e persistí-lo de forma segura através de `expo-secure-store`.
+- Atualizado método `syncWithGoogleDrive` para suportar execução silenciosa (`interactive: false`), evitando os pop-ups constantes de permissão do OAuth durante as chamadas em background.
+- Atualizado `apps/mobile/App.tsx` para importar `AppState`, escutando ativamente mudanças para `active` e disparando uma sincronização em segundo plano assim que o aplicativo retorna de inatividade/background (se desbloqueado).
+- Adicionado um intervalo nativo (15 minutos) em `App.tsx` para forçar tentativas de sincronização silenciosa.
+- Tipagem rigorosa implementada no serviço para evitar implicit `any`.
 
 ## Known Bugs
-- Nenhuma regressão detectada. A lógica de AppState foi encapsulada corretamente com limpeza de dependências (cleanup on unmount) para evitar memory leaks.
+- Nenhuma regressão detectada. Testes de typechecking (`npm run test`) passaram sem problemas na compilação.
+- O método fallback de parsing em caso de 401 foi otimizado para apagar as credenciais corrompidas do `SecureStore` e retentar.
 
 ## Next Steps
-- Analisar a viabilidade de desenvolvimento de atalho global para preenchimento em apps nativos (Desktop App) ou explorar extensões de integração com diretórios (ex. Google Workspace via API nativa no Desktop).
+- Completar a integração com o Autofill Framework do Android: preenchimento de senhas e credenciais sendo capturadas através da nova infraestrutura Config Plugin estabelecida anteriormente.
