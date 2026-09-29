@@ -16,6 +16,52 @@ export default function App() {
   const [showGenerator, setShowGenerator] = useState(false);
   const [isAutofillEnabled, setIsAutofillEnabled] = useState(false);
   const [hasAutofillSupport, setHasAutofillSupport] = useState(false);
+  const appState = useRef(AppState.currentState);
+
+  const performSilentSync = useCallback(async () => {
+    try {
+      // Background sync, interactive = false
+      const data = await SyncService.syncWithGoogleDrive(false);
+      if (data) {
+        setVaultData(data as any[]);
+        if (AutofillModule) {
+           AutofillModule.saveCredentials(JSON.stringify(data));
+        }
+        console.log('Background sync with passwords.csv successful!');
+      }
+    } catch (e) {
+      console.log('Background sync error', e);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!isUnlocked) return;
+
+    // Do an initial sync
+    performSilentSync();
+
+    const subscription = AppState.addEventListener('change', nextAppState => {
+      if (
+        appState.current.match(/inactive|background/) &&
+        nextAppState === 'active'
+      ) {
+        performSilentSync();
+      }
+      appState.current = nextAppState;
+    });
+
+    // Also interval sync every 15 minutes while active
+    const interval = setInterval(() => {
+        if (appState.current === 'active') {
+             performSilentSync();
+        }
+    }, 15 * 60 * 1000);
+
+    return () => {
+      subscription.remove();
+      clearInterval(interval);
+    };
+  }, [isUnlocked, performSilentSync]);
 
   const performSync = async () => {
     if (isSyncing) return;

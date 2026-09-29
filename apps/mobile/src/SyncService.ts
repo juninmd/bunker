@@ -1,6 +1,7 @@
 import * as Crypto from 'expo-crypto';
 import { parseCSV } from '../../extension/src/utils/csv-utils.js';
 import * as AuthSession from 'expo-auth-session';
+import * as SecureStore from 'expo-secure-store';
 
 export class SyncService {
     static cachedAccessToken: string | null = null;
@@ -14,6 +15,18 @@ export class SyncService {
             let accessToken = SyncService.cachedAccessToken;
 
             if (!accessToken) {
+                 const storedToken = await SecureStore.getItemAsync('driveAccessToken');
+                 if (storedToken) {
+                     accessToken = storedToken;
+                     SyncService.cachedAccessToken = accessToken;
+                 }
+            }
+
+            if (!accessToken) {
+                if (!interactive) {
+                    return null; // Silently fail, wait for next manual sync
+                }
+
                 // Initiate a real OAuth2 flow with expo-auth-session
                 const redirectUri = AuthSession.makeRedirectUri();
 
@@ -30,6 +43,7 @@ export class SyncService {
                 if (result.type === 'success' && result.params.access_token) {
                     accessToken = result.params.access_token;
                     SyncService.cachedAccessToken = accessToken;
+                    await SecureStore.setItemAsync('driveAccessToken', accessToken as string);
                 } else {
                     throw new Error('OAuth authentication failed or was cancelled.');
                 }
@@ -42,6 +56,16 @@ export class SyncService {
                     Authorization: `Bearer ${accessToken}`
                 }
             });
+
+            if (searchResponse.status === 401) {
+                SyncService.cachedAccessToken = null;
+                await SecureStore.deleteItemAsync('driveAccessToken');
+                if (interactive) {
+                    throw new Error('OAuth token expired. Please try syncing again.');
+                } else {
+                    return null;
+                }
+            }
             const searchData = await searchResponse.json();
 
             if (!searchData.files || searchData.files.length === 0) {
