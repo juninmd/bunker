@@ -1,6 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View, Button, FlatList, TouchableOpacity, TextInput, ActivityIndicator, Alert, AppState } from 'react-native';
-import { useCallback, useState, useEffect } from 'react';
+import { useCallback, useState, useEffect, useRef } from 'react';
 import { SyncService } from './src/SyncService';
 import { PasswordGenerator } from './src/PasswordGenerator';
 import * as LocalAuthentication from 'expo-local-authentication';
@@ -18,49 +18,6 @@ export default function App() {
   const [isAutofillEnabled, setIsAutofillEnabled] = useState(false);
   const [hasAutofillSupport, setHasAutofillSupport] = useState(false);
   const appState = useRef(AppState.currentState);
-
-  const performSilentSync = async () => {
-    try {
-      // Background sync, interactive: false
-      const data = await SyncService.syncWithGoogleDrive(false) as any[];
-      if (data && data.length > 0) {
-          setVaultData(data);
-          if (AutofillModule) {
-             AutofillModule.saveCredentials(JSON.stringify(data));
-          }
-      }
-    } catch (e) {
-      console.log('Silent sync failed:', e);
-    }
-  };
-
-  useEffect(() => {
-    if (!isUnlocked) return;
-
-    // Trigger an initial silent sync when unlocked
-    performSilentSync();
-
-    const subscription = AppState.addEventListener('change', nextAppState => {
-      if (
-        appState.current.match(/inactive|background/) &&
-        nextAppState === 'active'
-      ) {
-        // App has come to the foreground!
-        performSilentSync();
-      }
-      appState.current = nextAppState;
-    });
-
-    // Also sync on an interval while active (e.g. every 15 minutes = 900000ms)
-    const intervalId = setInterval(() => {
-        performSilentSync();
-    }, 900000);
-
-    return () => {
-      subscription.remove();
-      clearInterval(intervalId);
-    };
-  }, [isUnlocked]);
 
   const checkAutofillStatus = async () => {
     try {
@@ -235,6 +192,43 @@ export default function App() {
     }
   };
 
+  useEffect(() => {
+    if (!isUnlocked) return;
+
+    const performSilentSync = async () => {
+      try {
+        const data = await SyncService.syncWithGoogleDrive(false);
+        setVaultData(data as any[]);
+        if (AutofillModule) {
+          AutofillModule.saveCredentials(JSON.stringify(data));
+        }
+        console.log('Background silent sync complete.');
+      } catch (e) {
+        console.log('Silent sync failed or skipped', e);
+      }
+    };
+
+    // Sync when app comes to foreground
+    const subscription = AppState.addEventListener('change', nextAppState => {
+      if (appState.current.match(/inactive|background/) && nextAppState === 'active') {
+        performSilentSync();
+      }
+      appState.current = nextAppState;
+    });
+
+    // Periodic sync while active (15 minutes)
+    const interval = setInterval(() => {
+      if (appState.current === 'active') {
+        performSilentSync();
+      }
+    }, 15 * 60 * 1000);
+
+    return () => {
+      subscription.remove();
+      clearInterval(interval);
+    };
+  }, [isUnlocked]);
+
   if (!isUnlocked) {
     return (
       <View style={styles.container}>
@@ -273,11 +267,17 @@ export default function App() {
              title="Sincronizar com Google Drive (CSV)"
              onPress={async () => {
                setIsSyncing(true);
-               const data = await SyncService.syncWithGoogleDrive(true);
-               setVaultData(data as any[]);
-               if (AutofillModule) {
-                 AutofillModule.saveCredentials(JSON.stringify(data));
+               try {
+                 const data = await SyncService.syncWithGoogleDrive(true);
+                 setVaultData(data as any[]);
+                 if (AutofillModule) {
+                   AutofillModule.saveCredentials(JSON.stringify(data));
+                 }
+                 console.log('Sincronizado com passwords.csv no Drive!'); // NOSONAR
+               } catch (e) {
+                 console.log('Erro na sincronização manual:', e);
                }
+               setIsSyncing(false);
              }}
              color="#1a73e8"
            />
