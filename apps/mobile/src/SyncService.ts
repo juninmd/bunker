@@ -12,21 +12,14 @@ export class SyncService {
      * Download passwords.csv from Google Drive
      * @param interactive If true, prompts the user for login if no valid token exists. If false, fails silently.
      */
-    static async syncWithGoogleDrive(interactive = true) {
+    static async syncWithGoogleDrive(interactive: boolean = true) {
         try {
             let accessToken = cachedAccessToken;
             if (!accessToken) {
                 accessToken = await SecureStore.getItemAsync('driveAccessToken');
-                if (accessToken) {
-                    cachedAccessToken = accessToken;
-                }
             }
 
-            if (!accessToken && !interactive) {
-                throw new Error('Silent sync requested but no token available.');
-            }
-
-            if (!accessToken) {
+            if (!accessToken && interactive) {
                 // Initiate a real OAuth2 flow with expo-auth-session
                 const redirectUri = AuthSession.makeRedirectUri();
 
@@ -42,11 +35,15 @@ export class SyncService {
 
                 if (result.type === 'success' && result.params.access_token) {
                     accessToken = result.params.access_token;
-                    cachedAccessToken = accessToken;
+                    cachedAccessToken = accessToken as string;
                     await SecureStore.setItemAsync('driveAccessToken', accessToken as string);
                 } else {
                     throw new Error('OAuth authentication failed or was cancelled.');
                 }
+            } else if (!accessToken) {
+                throw new Error('No access token available for non-interactive sync.');
+            } else {
+                cachedAccessToken = accessToken;
             }
 
             // Real fetch API call to Google Drive

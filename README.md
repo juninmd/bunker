@@ -60,7 +60,7 @@ This project follows the **Antigravity** code standards:
 ## 🔄 Current Progress & Next Steps (CRON Loop)
 
 **Progress**:
-- Implemented Automatic Background Device Sync for the Mobile App (`apps/mobile`) to synchronize vault items seamlessly via Google Drive without manual user interaction.
+- Implemented background device sync for the Mobile app using `AppState` and interval-based silent Google Drive authentication (`cachedAccessToken`).
 - Updated the Desktop and Mobile apps' rendering logic to parse and display passkeys (`http://pk`) natively in the vault interface. Full WebAuthn implementation is deferred due to complexity.
 - Integrated bi-directional communication between React Native and iOS App Extension via a shared Keychain Group, completing iOS AutoFill functionality.
 - Finalized Phase 4 features (Business Hub, User Management, SaaS Protect).
@@ -92,7 +92,7 @@ This project follows the **Antigravity** code standards:
 - None explicitly identified currently.
 
 **Next Tasks**:
-- Aprimorar UX: Avaliar implementação de Passkeys e/ou outras melhorias de estabilidade geral pendentes no Roadmap.
+- Integrar `expo-background-fetch` e `expo-task-manager` para aprimorar a sincronização em segundo plano no app móvel.
 
 ---
 
