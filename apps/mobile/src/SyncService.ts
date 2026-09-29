@@ -3,8 +3,6 @@ import { parseCSV } from '../../extension/src/utils/csv-utils.js';
 import * as AuthSession from 'expo-auth-session';
 import * as SecureStore from 'expo-secure-store';
 
-let cachedAccessToken: string | null = null;
-
 export class SyncService {
     static cachedAccessToken: string | null = null;
 
@@ -12,19 +10,16 @@ export class SyncService {
      * Download passwords.csv from Google Drive
      * @param interactive If true, forces UI prompt when token is missing/expired. If false, fails silently.
      */
-    static async syncWithGoogleDrive(interactive: boolean = true) {
+    static async syncWithGoogleDrive(interactive: boolean = true): Promise<any[] | null> {
         try {
-            let accessToken = cachedAccessToken;
+            let accessToken = SyncService.cachedAccessToken;
 
             if (!accessToken) {
                 accessToken = await SecureStore.getItemAsync('driveAccessToken');
+                SyncService.cachedAccessToken = accessToken;
             }
 
-            if (!accessToken && !interactive) {
-                throw new Error('Silent sync failed: no cached access token.');
-            }
-
-            if (!accessToken) {
+            if (!accessToken && interactive) {
                 // Initiate a real OAuth2 flow with expo-auth-session
                 const redirectUri = AuthSession.makeRedirectUri();
 
@@ -39,14 +34,20 @@ export class SyncService {
                 const result = await (AuthSession as any).startAsync({ authUrl }) as any;
 
                 if (result.type === 'success' && result.params.access_token) {
-                    accessToken = result.params.access_token as string;
-                    cachedAccessToken = accessToken;
-                    await SecureStore.setItemAsync('driveAccessToken', accessToken);
+                    accessToken = result.params.access_token;
+                    SyncService.cachedAccessToken = accessToken;
+                    if (accessToken) {
+                        await SecureStore.setItemAsync('driveAccessToken', accessToken);
+                    }
+                }
+            }
+
+            if (!accessToken) {
+                if (!interactive) {
+                    return null; // Silent fail
                 } else {
                     throw new Error('OAuth authentication failed or was cancelled.');
                 }
-            } else {
-                cachedAccessToken = accessToken;
             }
 
             // Real fetch API call to Google Drive
@@ -58,9 +59,12 @@ export class SyncService {
             });
 
             if (searchResponse.status === 401) {
-                cachedAccessToken = null;
+                SyncService.cachedAccessToken = null;
                 await SecureStore.deleteItemAsync('driveAccessToken');
-                throw new Error('Unauthorized');
+                if (interactive) {
+                    return this.syncWithGoogleDrive(true); // Retry once
+                }
+                return null; // Silent fail
             }
 
             const searchData = await searchResponse.json();
