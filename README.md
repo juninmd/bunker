@@ -60,7 +60,7 @@ This project follows the **Antigravity** code standards:
 ## 🔄 Current Progress & Next Steps (CRON Loop)
 
 **Progress**:
-- Implemented automatic background device synchronization via Google Drive for the Mobile App (`apps/mobile`), utilizing `AppState` for foreground events and token caching for silent OAuth authentication.
+- Implemented Automatic Background Device Sync for the React Native mobile app (`apps/mobile`), mirroring the extension's functionality. The app now securely caches the Google Drive OAuth token using `expo-secure-store` and silently synchronizes credentials in the background via `AppState` listeners and intervals.
 - Updated the Desktop and Mobile apps' rendering logic to parse and display passkeys (`http://pk`) natively in the vault interface. Full WebAuthn implementation is deferred due to complexity.
 - Integrated bi-directional communication between React Native and iOS App Extension via a shared Keychain Group, completing iOS AutoFill functionality.
 - Finalized Phase 4 features (Business Hub, User Management, SaaS Protect).
@@ -94,7 +94,7 @@ This project follows the **Antigravity** code standards:
 - None explicitly identified currently.
 
 **Next Tasks**:
-- Refinar a interface e estabilidade das extensões de Autopreenchimento em ambas as plataformas nativas (iOS e Android).
+- Next task on the Roadmap.
 
 ---
 
