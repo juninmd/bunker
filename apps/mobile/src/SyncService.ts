@@ -3,8 +3,7 @@ import { parseCSV } from '../../extension/src/utils/csv-utils.js';
 import * as AuthSession from 'expo-auth-session';
 
 export class SyncService {
-    private static cachedAccessToken: string | null = null;
-    private static tokenExpiration: number | null = null;
+    static cachedAccessToken: string | null = null;
 
     /**
      * Download passwords.csv from Google Drive
@@ -12,15 +11,9 @@ export class SyncService {
      */
     static async syncWithGoogleDrive(interactive: boolean = true) {
         try {
-            let accessToken = this.cachedAccessToken;
-            const now = Date.now();
+            let accessToken = SyncService.cachedAccessToken;
 
-            if (!accessToken || !this.tokenExpiration || now >= this.tokenExpiration) {
-                if (!interactive) {
-                    console.log('Skipping background sync because no valid access token is cached.');
-                    return null; // Silent failure for background sync
-                }
-
+            if (!accessToken) {
                 // Initiate a real OAuth2 flow with expo-auth-session
                 const redirectUri = AuthSession.makeRedirectUri();
 
@@ -36,10 +29,7 @@ export class SyncService {
 
                 if (result.type === 'success' && result.params.access_token) {
                     accessToken = result.params.access_token;
-                    this.cachedAccessToken = accessToken;
-                    // Token usually expires in 3600 seconds, setting buffer of 5 mins
-                    const expiresIn = result.params.expires_in ? parseInt(result.params.expires_in, 10) : 3600;
-                    this.tokenExpiration = Date.now() + (expiresIn - 300) * 1000;
+                    SyncService.cachedAccessToken = accessToken;
                 } else {
                     throw new Error('OAuth authentication failed or was cancelled.');
                 }

@@ -1,5 +1,5 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, Button, FlatList, TouchableOpacity, TextInput, ActivityIndicator, Alert, AppState, AppStateStatus } from 'react-native';
+import { StyleSheet, Text, View, Button, FlatList, TouchableOpacity, TextInput, ActivityIndicator, Alert, AppState } from 'react-native';
 import { useCallback, useState, useEffect, useRef } from 'react';
 import { SyncService } from './src/SyncService';
 import { PasswordGenerator } from './src/PasswordGenerator';
@@ -10,69 +10,56 @@ import AutofillModule from './src/native/AutofillModule';
 export default function App() {
   const [isUnlocked, setIsUnlocked] = useState(false);
   const [masterPassword, setMasterPassword] = useState('');
+  const appState = useRef(AppState.currentState);
   const [vaultData, setVaultData] = useState<any[]>([]);
   const [isSyncing, setIsSyncing] = useState(false);
   const [showGenerator, setShowGenerator] = useState(false);
   const [isAutofillEnabled, setIsAutofillEnabled] = useState(false);
   const [hasAutofillSupport, setHasAutofillSupport] = useState(false);
 
-  const appState = useRef(AppState.currentState);
-  const syncInProgress = useRef(false);
-
-  const performSync = useCallback(async (interactive: boolean = true) => {
-    if (syncInProgress.current) return;
-
-    syncInProgress.current = true;
-    if (interactive) setIsSyncing(true);
-
+  const performSync = async () => {
+    if (isSyncing) return;
+    setIsSyncing(true);
     try {
-      const data = await SyncService.syncWithGoogleDrive(interactive);
-      if (data) {
-        setVaultData(data as any[]);
-        if (AutofillModule) {
-          AutofillModule.saveCredentials(JSON.stringify(data));
-        }
-        console.log(`Sincronizado com passwords.csv no Drive (Interactive: ${interactive})!`); // NOSONAR
+      const data = await SyncService.syncWithGoogleDrive();
+      setVaultData(data as any[]);
+      if (AutofillModule) {
+        AutofillModule.saveCredentials(JSON.stringify(data));
       }
+      console.log('Sincronizado com passwords.csv no Drive (Background)!'); // NOSONAR
     } catch (e) {
-      console.log('Error during sync', e);
+      console.warn('Erro na sincronização de background:', e);
     } finally {
-      syncInProgress.current = false;
-      if (interactive) setIsSyncing(false);
+      setIsSyncing(false);
     }
-  }, []);
+  };
 
   useEffect(() => {
     if (!isUnlocked) return;
 
-    // Initial background sync after unlock
-    performSync(false);
-
-    // Setup AppState listener for returning to foreground
-    const subscription = AppState.addEventListener('change', (nextAppState: AppStateStatus) => {
+    const subscription = AppState.addEventListener('change', nextAppState => {
       if (
         appState.current.match(/inactive|background/) &&
         nextAppState === 'active'
       ) {
-        console.log('App has come to the foreground, triggering background sync...');
-        performSync(false);
+        console.log('App has come to the foreground, triggering sync...'); // NOSONAR
+        performSync();
       }
       appState.current = nextAppState;
     });
 
-    // Setup interval for periodic background sync while active (e.g., every 15 mins)
-    const intervalId = setInterval(() => {
-      if (appState.current === 'active') {
-        console.log('Triggering periodic background sync...');
-        performSync(false);
-      }
-    }, 15 * 60 * 1000);
+    // Interval-based sync every 60 seconds while active
+    const syncInterval = setInterval(() => {
+        if (appState.current === 'active') {
+             performSync();
+        }
+    }, 60000);
 
     return () => {
       subscription.remove();
-      clearInterval(intervalId);
+      clearInterval(syncInterval);
     };
-  }, [isUnlocked, performSync]);
+  }, [isUnlocked, isSyncing]);
 
   const checkAutofillStatus = async () => {
     try {
@@ -192,7 +179,7 @@ export default function App() {
         ) : (
            <Button
              title="Sincronizar com Google Drive (CSV)"
-             onPress={() => performSync(true)}
+             onPress={performSync}
              color="#1a73e8"
            />
         )}
