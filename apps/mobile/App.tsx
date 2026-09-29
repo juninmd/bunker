@@ -1,5 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, Button, FlatList, TouchableOpacity, TextInput, ActivityIndicator, Alert, AppState, AppStateStatus } from 'react-native';
+import { StyleSheet, Text, View, Button, FlatList, TouchableOpacity, TextInput, ActivityIndicator, Alert, AppState, AppStateStatus, Platform } from 'react-native';
+import * as Crypto from 'expo-crypto';
 import { useCallback, useState, useEffect, useRef } from 'react';
 import { SyncService } from './src/SyncService';
 import { PasswordGenerator } from './src/PasswordGenerator';
@@ -13,12 +14,48 @@ export default function App() {
   const appState = useRef(AppState.currentState);
   const [vaultData, setVaultData] = useState<any[]>([]);
   const [isSyncing, setIsSyncing] = useState(false);
-  const appState = useRef(AppState.currentState);
-  const [showGenerator, setShowGenerator] = useState(false);
+
+  const processPendingSaves = async (currentData: any[]) => {
+    if (!AutofillModule || Platform.OS !== 'android') return;
+    try {
+      if (AutofillModule.getPendingSaves) {
+          const pendingSavesStr = await AutofillModule.getPendingSaves();
+          if (pendingSavesStr && pendingSavesStr !== '[]') {
+            const pendingSaves = JSON.parse(pendingSavesStr);
+            let updatedData = [...currentData];
+            let hasNewData = false;
+
+            for (const save of pendingSaves) {
+              updatedData.push({
+                id: Crypto.randomUUID(),
+                title: save.domain,
+                username: save.username,
+                password: save.password
+              });
+              hasNewData = true;
+            }
+
+            if (hasNewData) {
+              setVaultData(updatedData);
+              if ((SyncService as any).uploadToGoogleDrive) {
+                  await (SyncService as any).uploadToGoogleDrive(updatedData);
+              }
+              AutofillModule.saveCredentials(JSON.stringify(updatedData));
+              if (AutofillModule.clearPendingSaves) {
+                  await AutofillModule.clearPendingSaves();
+              }
+              console.log('Pending saves processed and uploaded to Drive.');
+            }
+          }
+      }
+    } catch (e) {
+      console.log('Error processing pending saves', e);
+    }
+  };
+    const [showGenerator, setShowGenerator] = useState(false);
   const [isAutofillEnabled, setIsAutofillEnabled] = useState(false);
   const [hasAutofillSupport, setHasAutofillSupport] = useState(false);
-  const appState = useRef(AppState.currentState);
-  const syncInProgress = useRef(false);
+    const syncInProgress = useRef(false);
 
   const performSync = useCallback(async (interactive: boolean = true) => {
     if (syncInProgress.current) return;
@@ -140,7 +177,7 @@ export default function App() {
     };
   }, [isUnlocked, performSilentSync]);
 
-  const performSilentSync = useCallback(async () => {
+  const performSilentSync2 = useCallback(async () => {
     if (!isUnlocked) return;
     try {
       const data = await SyncService.syncWithGoogleDrive(false);
@@ -186,7 +223,7 @@ export default function App() {
     }
   };
 
-  const performSilentSync = async () => {
+  const performSilentSync3 = async () => {
     if (!isUnlocked || isSyncing) return;
     setIsSyncing(true);
     try {
@@ -197,6 +234,7 @@ export default function App() {
               AutofillModule.saveCredentials(JSON.stringify(data));
             }
             console.log('Silent background sync completed.'); // NOSONAR
+            await processPendingSaves(data as any[]);
         }
     } catch (e) {
         console.log('Silent sync error', e);
@@ -300,7 +338,7 @@ export default function App() {
   useEffect(() => {
     if (!isUnlocked) return;
 
-    const performSilentSync = async () => {
+    const performSilentSync4 = async () => {
       try {
         const data = await SyncService.syncWithGoogleDrive(false);
         setVaultData(data as any[]);
@@ -308,6 +346,7 @@ export default function App() {
           AutofillModule.saveCredentials(JSON.stringify(data));
         }
         console.log('Background silent sync complete.');
+        await processPendingSaves(data as any[]);
       } catch (e) {
         console.log('Silent sync failed or skipped', e);
       }
@@ -379,6 +418,7 @@ export default function App() {
                      AutofillModule.saveCredentials(JSON.stringify(data));
                    }
                    console.log('Sincronizado com passwords.csv no Drive!'); // NOSONAR
+                   await processPendingSaves(data as any[]);
                }
                setIsSyncing(false);
              }}
