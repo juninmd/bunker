@@ -3,8 +3,6 @@ import { parseCSV } from '../../extension/src/utils/csv-utils.js';
 import * as AuthSession from 'expo-auth-session';
 import * as SecureStore from 'expo-secure-store';
 
-let cachedAccessToken: string | null = null;
-
 export class SyncService {
     static cachedAccessToken: string | null = null;
 
@@ -14,7 +12,23 @@ export class SyncService {
      */
     static async syncWithGoogleDrive(interactive: boolean = true): Promise<any[]> {
         try {
-            let accessToken = cachedAccessToken;
+            let accessToken = this.cachedAccessToken;
+
+            if (!accessToken) {
+                accessToken = await SecureStore.getItemAsync('driveAccessToken');
+                if (accessToken) {
+                    this.cachedAccessToken = accessToken;
+                }
+            }
+
+            if (!accessToken && !interactive) {
+                console.log('No access token found and silent mode requested.');
+                return [];
+            }
+
+            if (!accessToken) {
+                // Initiate a real OAuth2 flow with expo-auth-session
+                const redirectUri = AuthSession.makeRedirectUri();
 
             if (!accessToken) {
                 const storedToken = await SecureStore.getItemAsync('driveAccessToken');
@@ -24,19 +38,6 @@ export class SyncService {
                 }
             }
 
-            if (!accessToken && !interactive) {
-                console.log('Silent sync failed: no access token available.');
-                return [];
-            }
-
-            if (!accessToken) {
-                // Initiate a real OAuth2 flow with expo-auth-session
-                const redirectUri = AuthSession.makeRedirectUri();
-
-                // This is a placeholder client ID, it should be replaced with the actual Google Cloud Project client ID
-                // in a real environment.
-                const clientId = 'YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com';
-
                 const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=token&scope=https://www.googleapis.com/auth/drive.file`;
 
                 // startAsync might be missing in type definitions or deprecated in favor of hooks,
@@ -44,9 +45,9 @@ export class SyncService {
                 const result = await (AuthSession as any).startAsync({ authUrl }) as any;
 
                 if (result.type === 'success' && result.params.access_token) {
-                    accessToken = result.params.access_token as string;
-                    cachedAccessToken = accessToken;
-                    await SecureStore.setItemAsync('driveAccessToken', accessToken);
+                    accessToken = result.params.access_token;
+                    this.cachedAccessToken = accessToken;
+                    await SecureStore.setItemAsync('driveAccessToken', accessToken!);
                 } else {
                     throw new Error('OAuth authentication failed or was cancelled.');
                 }
@@ -59,15 +60,16 @@ export class SyncService {
                     Authorization: `Bearer ${accessToken}`
                 }
             });
-
             if (searchResponse.status === 401) {
-                cachedAccessToken = null;
+                // Token expired or invalid
+                this.cachedAccessToken = null;
                 await SecureStore.deleteItemAsync('driveAccessToken');
                 if (interactive) {
-                    // Retry once interactively if token expired
                     return this.syncWithGoogleDrive(true);
+                } else {
+                    console.log('Access token expired and silent mode requested.');
+                    return [];
                 }
-                throw new Error('Access token expired or invalid');
             }
 
             const searchData = await searchResponse.json();
