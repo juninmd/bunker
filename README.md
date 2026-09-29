@@ -78,6 +78,7 @@ This project follows the **Antigravity** code standards:
 - Migrated Extension UI scripts (`popup.ts`, `content.ts`) to TypeScript and reconstructed `vault-service.ts`, completing Phase 1 TypeScript migration. Emitted `.js` files are now properly ignored in version control.
 - Migrated Extension core (`background.ts`) and all services (`auth-service.ts`, `credential-service.ts`, `google-drive.ts`, `sync-service.ts`) to TypeScript.
 - Migrated Extension utilities (`csv-utils`, `crypto`, `password-generator`, `username-generator`) to TypeScript and established in-place build pipeline.
+- Implemented Automatic Background Device Sync for the Mobile App utilizing React Native `AppState` and silent Google Drive OAuth refreshes.
 - Analyzed Passkeys (WebAuthn) requirements; determined it requires a complex background proxy architecture. Feature deferred in favor of core structural migrations.
 - Implemented secure Biometric Unlock (Fingerprint/FaceID) for Android App using `expo-local-authentication` and `expo-secure-store`.
 - Migrated Desktop Application (`apps/desktop`) to TypeScript, renaming files to `.ts`, configuring `tsconfig.json` for ES2022+ module compatibility, and updating Electron build process.
@@ -93,7 +94,7 @@ This project follows the **Antigravity** code standards:
 - None explicitly identified currently.
 
 **Next Tasks**:
-- Aprimorar preenchimento automático: Finalizar a estrutura nativa iniciada para Salvar e preencher automaticamente credenciais no Android.
+- Refinar a interface e estabilidade das extensões de Autopreenchimento em ambas as plataformas nativas (iOS e Android).
 
 ---
 

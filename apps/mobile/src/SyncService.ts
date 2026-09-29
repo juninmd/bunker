@@ -3,23 +3,31 @@ import { parseCSV } from '../../extension/src/utils/csv-utils.js';
 import * as AuthSession from 'expo-auth-session';
 import * as SecureStore from 'expo-secure-store';
 
+let cachedAccessToken: string | null = null;
+
 export class SyncService {
     static cachedAccessToken: string | null = null;
 
     /**
      * Download passwords.csv from Google Drive
-     * @param interactive If true, forces UI prompt when token is missing/expired. If false, fails silently.
+     * @param interactive Whether to prompt the user for authentication if the token is missing.
      */
-    static async syncWithGoogleDrive(interactive: boolean = true): Promise<any[] | null> {
+    static async syncWithGoogleDrive(interactive = true) {
         try {
-            let accessToken = SyncService.cachedAccessToken;
+            let accessToken = cachedAccessToken;
 
             if (!accessToken) {
                 accessToken = await SecureStore.getItemAsync('driveAccessToken');
-                SyncService.cachedAccessToken = accessToken;
+                if (accessToken) {
+                    cachedAccessToken = accessToken;
+                }
             }
 
-            if (!accessToken && interactive) {
+            if (!accessToken) {
+                if (!interactive) {
+                    throw new Error('Silent authentication failed. No cached token available.');
+                }
+
                 // Initiate a real OAuth2 flow with expo-auth-session
                 const redirectUri = AuthSession.makeRedirectUri();
 
@@ -35,16 +43,8 @@ export class SyncService {
 
                 if (result.type === 'success' && result.params.access_token) {
                     accessToken = result.params.access_token;
-                    SyncService.cachedAccessToken = accessToken;
-                    if (accessToken) {
-                        await SecureStore.setItemAsync('driveAccessToken', accessToken);
-                    }
-                }
-            }
-
-            if (!accessToken) {
-                if (!interactive) {
-                    return null; // Silent fail
+                    cachedAccessToken = accessToken;
+                    await SecureStore.setItemAsync('driveAccessToken', accessToken!);
                 } else {
                     throw new Error('OAuth authentication failed or was cancelled.');
                 }
@@ -59,12 +59,9 @@ export class SyncService {
             });
 
             if (searchResponse.status === 401) {
-                SyncService.cachedAccessToken = null;
+                cachedAccessToken = null;
                 await SecureStore.deleteItemAsync('driveAccessToken');
-                if (interactive) {
-                    return this.syncWithGoogleDrive(true); // Retry once
-                }
-                return null; // Silent fail
+                throw new Error('Google Drive API returned 401 Unauthorized. Cleared cached token.');
             }
 
             const searchData = await searchResponse.json();
