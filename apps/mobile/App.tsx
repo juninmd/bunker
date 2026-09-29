@@ -1,6 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View, Button, FlatList, TouchableOpacity, TextInput, ActivityIndicator, Alert, AppState, AppStateStatus } from 'react-native';
-import { useCallback, useState, useEffect } from 'react';
+import { useCallback, useState, useEffect, useRef } from 'react';
 import { SyncService } from './src/SyncService';
 import { PasswordGenerator } from './src/PasswordGenerator';
 import * as LocalAuthentication from 'expo-local-authentication';
@@ -18,94 +18,45 @@ export default function App() {
   const [isAutofillEnabled, setIsAutofillEnabled] = useState(false);
   const [hasAutofillSupport, setHasAutofillSupport] = useState(false);
   const appState = useRef(AppState.currentState);
-  const isSyncingRef = useRef(false);
 
-  const performSilentSync = async () => {
-      if (isSyncingRef.current) return;
-      isSyncingRef.current = true;
-      setIsSyncing(true);
-      try {
-          const data = await SyncService.syncWithGoogleDrive(false);
-          if (data && data.length > 0) {
-              setVaultData(data as any[]);
-              if (AutofillModule) {
-                  AutofillModule.saveCredentials(JSON.stringify(data));
-              }
-              console.log('Silent sync completed'); // NOSONAR
-          }
-      } catch (e) {
-          console.log('Silent sync skipped or failed', e);
-      } finally {
-          isSyncingRef.current = false;
-          setIsSyncing(false);
-      }
-  };
-
-  useEffect(() => {
-      if (!isUnlocked) return;
-
-      // Perform initial silent sync upon unlock
-      performSilentSync();
-
-      // Set up interval for automatic syncing (every 15 minutes)
-      const syncInterval = setInterval(() => {
-          performSilentSync();
-      }, 15 * 60 * 1000);
-
-      // Listen for app state changes to sync when returning to foreground
-      const subscription = AppState.addEventListener('change', nextAppState => {
-          if (
-              appState.current.match(/inactive|background/) &&
-              nextAppState === 'active'
-          ) {
-              console.log('App has come to the foreground!');
-              performSilentSync();
-          }
-          appState.current = nextAppState;
-      });
-
-      return () => {
-          clearInterval(syncInterval);
-          subscription.remove();
-      };
-  }, [isUnlocked]);
-
-  useEffect(() => {
-    let interval: NodeJS.Timeout;
-
-    const performSilentSync = async () => {
-      if (!isUnlocked) return;
-      console.log('Background/Interval sync triggered...'); // NOSONAR
+  const performSilentSync = useCallback(async () => {
+    if (isSyncing) return;
+    try {
       const data = await SyncService.syncWithGoogleDrive(false);
-      if (data) {
-        setVaultData(data as any[]);
-        if (AutofillModule) {
-           AutofillModule.saveCredentials(JSON.stringify(data));
-        }
-        console.log('Silent sync completed successfully.'); // NOSONAR
+      setVaultData(data as any[]);
+      if (AutofillModule) {
+        AutofillModule.saveCredentials(JSON.stringify(data));
       }
-    };
+      console.log('Background silent sync complete.'); // NOSONAR
+    } catch (e) {
+      console.log('Silent sync skipped or failed.', e);
+    }
+  }, [isSyncing]);
 
-    const handleAppStateChange = (nextAppState: AppStateStatus) => {
-      if (nextAppState === 'active') {
+  useEffect(() => {
+    if (!isUnlocked) return;
+
+    // Initial silent sync on unlock
+    performSilentSync();
+
+    const subscription = AppState.addEventListener('change', nextAppState => {
+      if (appState.current.match(/inactive|background/) && nextAppState === 'active') {
         performSilentSync();
       }
-    };
+      appState.current = nextAppState;
+    });
 
-    const subscription = AppState.addEventListener('change', handleAppStateChange);
-
-    if (isUnlocked) {
-      // Periodic sync every 60 seconds while active
-      interval = setInterval(performSilentSync, 60000);
-      // Trigger one immediately upon unlock
-      performSilentSync();
-    }
+    const syncInterval = setInterval(() => {
+      if (appState.current === 'active') {
+        performSilentSync();
+      }
+    }, 15 * 60 * 1000); // Sync every 15 mins while active
 
     return () => {
       subscription.remove();
-      if (interval) clearInterval(interval);
+      clearInterval(syncInterval);
     };
-  }, [isUnlocked]);
+  }, [isUnlocked, performSilentSync]);
 
   const checkAutofillStatus = async () => {
     try {

@@ -12,7 +12,7 @@ export class SyncService {
      * Download passwords.csv from Google Drive
      * @param interactive If true, forces UI prompt when token is missing/expired. If false, fails silently.
      */
-    static async syncWithGoogleDrive(interactive: boolean = true) {
+    static async syncWithGoogleDrive(interactive = true) {
         try {
             let accessToken = cachedAccessToken;
 
@@ -24,12 +24,11 @@ export class SyncService {
                 }
             }
 
-            if (!accessToken && !interactive) {
-                console.log('Silent sync aborted: No cached access token found.');
-                return null;
-            }
-
             if (!accessToken || interactive) {
+                if (!interactive) {
+                    throw new Error('Interactive login required but interactive=false.');
+                }
+
                 // Initiate a real OAuth2 flow with expo-auth-session
                 const redirectUri = AuthSession.makeRedirectUri();
 
@@ -45,9 +44,9 @@ export class SyncService {
 
                 if (result.type === 'success' && result.params.access_token) {
                     accessToken = result.params.access_token;
-                    cachedAccessToken = result.params.access_token;
-                    if (cachedAccessToken) {
-                        await SecureStore.setItemAsync('driveAccessToken', cachedAccessToken);
+                    cachedAccessToken = accessToken;
+                    if (accessToken) {
+                        await SecureStore.setItemAsync('driveAccessToken', accessToken);
                     }
                 } else {
                     throw new Error('OAuth authentication failed or was cancelled.');
@@ -61,13 +60,11 @@ export class SyncService {
                     Authorization: `Bearer ${accessToken}`
                 }
             });
-
             if (searchResponse.status === 401) {
                 cachedAccessToken = null;
                 await SecureStore.deleteItemAsync('driveAccessToken');
-                throw new Error('OAuth access token expired or invalid.');
+                throw new Error('OAuth token expired. Cleared from cache.');
             }
-
             const searchData = await searchResponse.json();
 
             if (!searchData.files || searchData.files.length === 0) {
