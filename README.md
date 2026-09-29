@@ -40,7 +40,7 @@ O DrivePass é um gerenciador de senhas multiplataforma, que sincroniza um cofre
 `cd apps/extension && npm test && npm run e2e` roda a extensão real no Chromium (criar cofre, importar CSV, 2FA, busca, gerador, saúde do cofre, autofill, salvar login, PIN, bloqueio automático, tema claro) e grava os prints em [docs/screenshots](docs/screenshots). `npm run e2e:security` ataca a extensão como uma página hostil e um ladrão de disco; o relatório está em [docs/SECURITY.md](docs/SECURITY.md).
 - Extensão (Firefox/Chrome)
 - App Desktop (Electron - offline)
-- Android APK (React Native / Expo)
+- Android APK (React Native / Expo, Android Autofill Framework, Sincronização Automática com Google Drive)
 - Features de Paridade com o LastPass mapeadas no ROADMAP: Painel de Segurança, Passkeys, Login sem senha e SaaS Protect.
 
 ## 🛠️ Tech Stack

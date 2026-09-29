@@ -1,5 +1,5 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, Button, FlatList, TouchableOpacity, TextInput, ActivityIndicator, Alert, AppState } from 'react-native';
+import { StyleSheet, Text, View, Button, FlatList, TouchableOpacity, TextInput, ActivityIndicator, Alert, AppState, AppStateStatus } from 'react-native';
 import { useCallback, useState, useEffect, useRef } from 'react';
 import { SyncService } from './src/SyncService';
 import { PasswordGenerator } from './src/PasswordGenerator';
@@ -17,6 +17,8 @@ export default function App() {
   const [showGenerator, setShowGenerator] = useState(false);
   const [isAutofillEnabled, setIsAutofillEnabled] = useState(false);
   const [hasAutofillSupport, setHasAutofillSupport] = useState(false);
+  const appState = useRef(AppState.currentState);
+
   const appState = useRef(AppState.currentState);
 
   const checkAutofillStatus = async () => {
@@ -80,23 +82,24 @@ export default function App() {
     }
   };
 
-  const performSilentSync = useCallback(async () => {
+  const performSilentSync = async () => {
     if (!isUnlocked || isSyncing) return;
+    setIsSyncing(true);
     try {
-      setIsSyncing(true);
-      const data = await SyncService.syncWithGoogleDrive(false); // interactive = false
-      if (data && data.length > 0) {
-        setVaultData(data as any[]);
-        if (AutofillModule) {
-          AutofillModule.saveCredentials(JSON.stringify(data));
+        const data = await SyncService.syncWithGoogleDrive(false);
+        if (data) {
+            setVaultData(data as any[]);
+            if (AutofillModule) {
+              AutofillModule.saveCredentials(JSON.stringify(data));
+            }
+            console.log('Silent background sync completed.'); // NOSONAR
         }
-      }
     } catch (e) {
-      console.log('Silent background sync failed', e);
+        console.log('Silent sync error', e);
     } finally {
-      setIsSyncing(false);
+        setIsSyncing(false);
     }
-  }, [isUnlocked, isSyncing]);
+  };
 
   useEffect(() => {
     const subscription = AppState.addEventListener('change', nextAppState => {
@@ -104,31 +107,28 @@ export default function App() {
         appState.current.match(/inactive|background/) &&
         nextAppState === 'active'
       ) {
-        // App has come to the foreground
         if (isUnlocked) {
-          performSilentSync();
+            performSilentSync();
         }
       }
       appState.current = nextAppState;
     });
 
+    let syncInterval: NodeJS.Timeout;
+    if (isUnlocked) {
+        // Sync every 5 minutes while active
+        syncInterval = setInterval(() => {
+            if (AppState.currentState === 'active') {
+                performSilentSync();
+            }
+        }, 300000);
+    }
+
     return () => {
       subscription.remove();
+      if (syncInterval) clearInterval(syncInterval);
     };
-  }, [isUnlocked, performSilentSync]);
-
-  useEffect(() => {
-    let intervalId: NodeJS.Timeout;
-    if (isUnlocked) {
-      // Sync every 15 minutes while app is unlocked and in foreground
-      intervalId = setInterval(() => {
-        performSilentSync();
-      }, 15 * 60 * 1000);
-    }
-    return () => {
-      if (intervalId) clearInterval(intervalId);
-    };
-  }, [isUnlocked, performSilentSync]);
+  }, [isUnlocked, isSyncing]);
 
   const renderItem = useCallback(({ item }: { item: any }) => {
     let titlePrefix = '';
@@ -267,15 +267,13 @@ export default function App() {
              title="Sincronizar com Google Drive (CSV)"
              onPress={async () => {
                setIsSyncing(true);
-               try {
-                 const data = await SyncService.syncWithGoogleDrive(true);
-                 setVaultData(data as any[]);
-                 if (AutofillModule) {
-                   AutofillModule.saveCredentials(JSON.stringify(data));
-                 }
-                 console.log('Sincronizado com passwords.csv no Drive!'); // NOSONAR
-               } catch (e) {
-                 console.log('Erro na sincronização manual:', e);
+               const data = await SyncService.syncWithGoogleDrive(true);
+               if (data) {
+                   setVaultData(data as any[]);
+                   if (AutofillModule) {
+                     AutofillModule.saveCredentials(JSON.stringify(data));
+                   }
+                   console.log('Sincronizado com passwords.csv no Drive!'); // NOSONAR
                }
                setIsSyncing(false);
              }}

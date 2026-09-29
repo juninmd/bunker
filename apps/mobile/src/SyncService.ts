@@ -12,20 +12,17 @@ export class SyncService {
      */
     static async syncWithGoogleDrive(interactive: boolean = true) {
         try {
-            let accessToken = this.cachedAccessToken;
+            let accessToken = SyncService.cachedAccessToken;
 
             if (!accessToken) {
-                accessToken = await SecureStore.getItemAsync('driveAccessToken');
-                if (accessToken) {
-                    this.cachedAccessToken = accessToken;
+                const storedToken = await SecureStore.getItemAsync('driveAccessToken');
+                if (storedToken) {
+                    accessToken = storedToken;
+                    SyncService.cachedAccessToken = storedToken;
                 }
             }
 
-            if (!accessToken) {
-                if (!interactive) {
-                    throw new Error('Silent authentication failed. No token available.');
-                }
-
+            if (!accessToken && interactive) {
                 // Initiate a real OAuth2 flow with expo-auth-session
                 const redirectUri = AuthSession.makeRedirectUri();
 
@@ -41,13 +38,21 @@ export class SyncService {
 
                 if (result.type === 'success' && result.params.access_token) {
                     accessToken = result.params.access_token;
-                    this.cachedAccessToken = accessToken;
+                    SyncService.cachedAccessToken = accessToken;
                     if (accessToken) {
                         await SecureStore.setItemAsync('driveAccessToken', accessToken);
                     }
-                } else {
+                } else if (interactive) {
                     throw new Error('OAuth authentication failed or was cancelled.');
                 }
+            }
+
+            if (!accessToken) {
+                if (!interactive) {
+                    console.log('Silent sync skipped: no access token available.');
+                    return null;
+                }
+                throw new Error('No access token available.');
             }
 
             // Real fetch API call to Google Drive
@@ -59,9 +64,9 @@ export class SyncService {
             });
 
             if (searchResponse.status === 401) {
-                this.cachedAccessToken = null;
+                SyncService.cachedAccessToken = null;
                 await SecureStore.deleteItemAsync('driveAccessToken');
-                throw new Error('OAuth token expired or invalid.');
+                throw new Error('Unauthorized access token.');
             }
             const searchData = await searchResponse.json();
 
@@ -79,9 +84,9 @@ export class SyncService {
             });
 
             if (downloadResponse.status === 401) {
-                this.cachedAccessToken = null;
+                SyncService.cachedAccessToken = null;
                 await SecureStore.deleteItemAsync('driveAccessToken');
-                throw new Error('OAuth token expired or invalid.');
+                throw new Error('Unauthorized access token.');
             }
             const csvText = await downloadResponse.text();
 
