@@ -94,7 +94,7 @@ This project follows the **Antigravity** code standards:
 - None explicitly identified currently.
 
 **Next Tasks**:
-- Completar estrutura nativa de Autofill no Android (Salvar e preencher automaticamente credenciais).
+- Completada estrutura nativa de Autofill no Android (Salvar e preencher automaticamente credenciais via onSaveRequest e pending_saves).
 
 ---
 
