@@ -71,6 +71,7 @@ import android.service.autofill.FillContext;
 import android.service.autofill.FillRequest;
 import android.service.autofill.FillResponse;
 import android.service.autofill.SaveCallback;
+import android.service.autofill.SaveInfo;
 import android.service.autofill.SaveRequest;
 import android.util.Log;
 import android.view.autofill.AutofillId;
@@ -177,7 +178,23 @@ public class DrivePassAutofillService extends AutofillService {
             if (matchedCount > 0) {
                 callback.onSuccess(responseBuilder.build());
             } else {
-                callback.onSuccess(null);
+                // If no credentials matched, we want to prompt to save a new one
+                if (!usernameNodes.isEmpty() || !passwordNodes.isEmpty()) {
+                    List<AutofillId> requiredIds = new ArrayList<>();
+                    if (!usernameNodes.isEmpty()) requiredIds.add(usernameNodes.get(0).getAutofillId());
+                    if (!passwordNodes.isEmpty()) requiredIds.add(passwordNodes.get(0).getAutofillId());
+
+                    AutofillId[] autofillIds = new AutofillId[requiredIds.size()];
+                    autofillIds = requiredIds.toArray(autofillIds);
+
+                    int saveDataType = SaveInfo.SAVE_DATA_TYPE_PASSWORD | SaveInfo.SAVE_DATA_TYPE_USERNAME;
+                    SaveInfo.Builder saveInfoBuilder = new SaveInfo.Builder(saveDataType, autofillIds);
+
+                    responseBuilder.setSaveInfo(saveInfoBuilder.build());
+                    callback.onSuccess(responseBuilder.build());
+                } else {
+                    callback.onSuccess(null);
+                }
             }
         } catch (Exception e) {
             Log.e(TAG, "Error in onFillRequest", e);
@@ -222,7 +239,67 @@ public class DrivePassAutofillService extends AutofillService {
     @Override
     public void onSaveRequest(SaveRequest request, SaveCallback callback) {
         Log.d(TAG, "onSaveRequest called");
-        callback.onSuccess();
+        try {
+            List<FillContext> contexts = request.getFillContexts();
+            AssistStructure structure = contexts.get(contexts.size() - 1).getStructure();
+
+            List<ViewNode> usernameNodes = new ArrayList<>();
+            List<ViewNode> passwordNodes = new ArrayList<>();
+            final String[] extractedWebDomain = new String[1];
+
+            traverseStructure(structure.getWindowNodeAt(0).getRootViewNode(), usernameNodes, passwordNodes, extractedWebDomain);
+
+            String currentPackage = "";
+            if (structure.getActivityComponent() != null) {
+                currentPackage = structure.getActivityComponent().getPackageName();
+            }
+            String currentWebDomain = extractedWebDomain[0] != null ? extractedWebDomain[0] : "";
+
+            String username = "";
+            String password = "";
+
+            for (ViewNode node : usernameNodes) {
+                if (node.getText() != null) {
+                    username = node.getText().toString();
+                    break;
+                }
+            }
+            for (ViewNode node : passwordNodes) {
+                if (node.getText() != null) {
+                    password = node.getText().toString();
+                    break;
+                }
+            }
+
+            if (!username.isEmpty() || !password.isEmpty()) {
+                String domain = currentWebDomain.isEmpty() ? currentPackage : currentWebDomain;
+
+                JSONObject newCred = new JSONObject();
+                newCred.put("domain", domain);
+                newCred.put("username", username);
+                newCred.put("password", password);
+
+                SharedPreferences prefs = EncryptedSharedPreferences.create(
+                        "DrivePassAutofill",
+                        MasterKeys.getOrCreate(MasterKeys.AES256_GCM_SPEC),
+                        this,
+                        EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+                        EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+                );
+
+                String pendingJson = prefs.getString("pending_saves", "[]");
+                JSONArray pendingSaves = new JSONArray(pendingJson);
+                pendingSaves.put(newCred);
+
+                prefs.edit().putString("pending_saves", pendingSaves.toString()).apply();
+                Log.d(TAG, "Saved new credential for domain: " + domain);
+            }
+
+            callback.onSuccess();
+        } catch (Exception e) {
+            Log.e(TAG, "Error in onSaveRequest", e);
+            callback.onFailure(e.getMessage());
+        }
     }
 }
 `;
@@ -312,6 +389,42 @@ public class AutofillModule extends ReactContextBaseJavaModule {
             prefs.edit().putString("credentials", json).apply();
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    @ReactMethod
+    public void getPendingSaves(Promise promise) {
+        try {
+            String masterKeyAlias = MasterKeys.getOrCreate(MasterKeys.AES256_GCM_SPEC);
+            SharedPreferences prefs = EncryptedSharedPreferences.create(
+                    "DrivePassAutofill",
+                    masterKeyAlias,
+                    reactContext,
+                    EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+                    EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+            );
+            String pending = prefs.getString("pending_saves", "[]");
+            promise.resolve(pending);
+        } catch (Exception e) {
+            promise.reject(e);
+        }
+    }
+
+    @ReactMethod
+    public void clearPendingSaves(Promise promise) {
+        try {
+            String masterKeyAlias = MasterKeys.getOrCreate(MasterKeys.AES256_GCM_SPEC);
+            SharedPreferences prefs = EncryptedSharedPreferences.create(
+                    "DrivePassAutofill",
+                    masterKeyAlias,
+                    reactContext,
+                    EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+                    EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+            );
+            prefs.edit().remove("pending_saves").apply();
+            promise.resolve(true);
+        } catch (Exception e) {
+            promise.reject(e);
         }
     }
 }

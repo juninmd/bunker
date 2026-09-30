@@ -1,15 +1,15 @@
-# CRON Cycle Results: Mobile Background Sync via Google Drive
+# CRON Cycle Results: Android Autofill Save Request
 
 ## Task Completed
-- Updated `apps/mobile/src/SyncService.ts` to add an optional `interactive` parameter to `syncWithGoogleDrive`.
-- Implemented `cachedAccessToken` and `expo-secure-store` ('driveAccessToken') for silent token reuse.
-- Updated `apps/mobile/App.tsx` to handle `AppState` changes, triggering silent sync when app returns to foreground and unlocked.
-- Implemented an interval-based background sync (every 5 minutes) while the mobile app is active and unlocked.
-- Verified successful credential syncing capabilities between platforms.
+- Implemented `onSaveRequest` inside the Android Autofill custom Expo config plugin (`withAndroidAutofill.js`).
+- Handled prompting users to save new credentials by properly constructing and setting `SaveInfo` during `onFillRequest` when a valid login form is detected but no matching credentials exist.
+- Implemented capturing new credentials during `onSaveRequest` and storing them securely in `EncryptedSharedPreferences` under a `pending_saves` key.
+- Exposed `@ReactMethod getPendingSaves` and `clearPendingSaves` in `AutofillModule.java` so that the main React Native application can ingest and sync newly saved Android credentials with Google Drive.
+- Updated `ROADMAP.md` and `README.md` to reflect the completion of the native Android Autofill credential saving framework.
 
 ## Known Bugs
 - Token refresh isn't natively using Google's refresh tokens for infinite background sync since it relies on implicit token grants; a full backend structure with refresh tokens may be needed later. Currently, 401 Unauthorized clears the token to prompt interactive re-auth on next user request.
 
 ## Next Steps
-- Integrate WebAuthn (Passkeys) for real cryptographic usage on platforms to finish the Passkeys feature.
-- Test Autofill Android Plugin edge cases with other apps.
+- Implement logic in desktop app wrapper for global shortcut autofill.
+- Implement WebAuthn/Passkeys native APIs and integration across platforms.
