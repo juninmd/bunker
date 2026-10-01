@@ -60,6 +60,7 @@ This project follows the **Antigravity** code standards:
 ## 🔄 Current Progress & Next Steps (CRON Loop)
 
 **Progress**:
+- Implemented global shortcut in the Desktop App to bring the vault interface to the foreground for quick autofill.
 - Implemented automatic background device synchronization (Device Sync) in the React Native Mobile App via `AppState` events and `expo-secure-store`, ensuring the encrypted vault stays up-to-date with Google Drive without manual user intervention.
 - Updated the Desktop and Mobile apps' rendering logic to parse and display passkeys (`http://pk`) natively in the vault interface. Full WebAuthn implementation is deferred due to complexity.
 - Integrated bi-directional communication between React Native and iOS App Extension via a shared Keychain Group, completing iOS AutoFill functionality.
@@ -94,7 +95,7 @@ This project follows the **Antigravity** code standards:
 - None explicitly identified currently.
 
 **Next Tasks**:
-- Completada estrutura nativa de Autofill no Android (Salvar e preencher automaticamente credenciais via onSaveRequest e pending_saves).
+- Implement native WebAuthn (Passkeys) architecture and UI integration across platforms.
 
 ---
 
