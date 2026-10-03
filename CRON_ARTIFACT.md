@@ -1,13 +1,14 @@
-# CRON Cycle Results: Desktop Global Shortcut
+# CRON Cycle Results: Passkeys Native UI
 
 ## Task Completed
-- Edited `apps/desktop/src/main.ts` to implement a global shortcut wrapper in Electron using `globalShortcut`.
-- Registered `CommandOrControl+Shift+L` to bring the desktop window to focus or re-instantiate it if closed.
-- Ensured `globalShortcut.unregisterAll()` runs on `will-quit` to prevent OS-level shortcut leaks.
-- Updated `ROADMAP.md` and `README.md` to reflect the completion of the global shortcut autofill logic.
+- Extended `ItemType` to include `passkey` (`http://pk`) natively.
+- Updated CSV mapping logic to handle import and export of passkey items securely.
+- Enhanced the Editor UI to display appropriate labels and conceal unrelated fields (like passwords and TOTP) when managing Passkeys.
+- Implemented rendering of Passkey items with proper badging within the vault list view.
+- Marked Passkeys functionality as fully integrated within the ROADMAP and README.
 
 ## Known Bugs
 - None explicitly identified.
 
 ## Next Steps
-- Implement native WebAuthn (Passkeys) architecture and UI integration across platforms.
+- Complete Phase 2: Parity features such as enhanced Autofill matching algorithms and Cross-Platform Desktop improvements.

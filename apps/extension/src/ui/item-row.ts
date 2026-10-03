@@ -4,7 +4,7 @@ import { icon, iconButton, type IconName } from './icons.js';
 import { copySecret, flashDone, CLIPBOARD_SECONDS } from './clipboard.js';
 import { totpChip } from './totp-chip.js';
 
-const TYPE_ICON: Record<string, IconName> = { note: 'note', card: 'card', address: 'pin' };
+const TYPE_ICON: Record<string, IconName> = { note: 'note', card: 'card', address: 'pin', passkey: 'key' };
 
 function avatar(item: any, title: string): HTMLElement {
   const node = el('span', 'avatar');
@@ -22,6 +22,7 @@ function subtitle(item: any): string {
   if (item.type === 'note') return 'Nota segura';
   if (item.type === 'card') return data.number ? `Cartão final ${String(data.number).slice(-4)}` : 'Cartão';
   if (item.type === 'address') return data.fullName || 'Endereço';
+  if (item.type === 'passkey') return 'Passkey: ' + (item.username || 'Sem usuário');
   return item.username || 'Sem usuário';
 }
 
@@ -51,15 +52,17 @@ export function itemRow(item: any, ctx: AppContext): HTMLLIElement {
 
   const actions = el('div', 'item-actions');
   const type = item.type || 'password';
-  if (type === 'password') {
-    const chip = item.totp ? totpChip(item.totp, async (code, node) => {
-      await copySecret(code);
-      node.classList.add('done');
-      ctx.notify(`Código 2FA copiado. Some da área de transferência em ${CLIPBOARD_SECONDS} s.`);
-    }) : null;
-    if (chip) actions.append(chip);
+  if (type === 'password' || type === 'passkey') {
+    if (type === 'password') {
+      const chip = item.totp ? totpChip(item.totp, async (code, node) => {
+        await copySecret(code);
+        node.classList.add('done');
+        ctx.notify(`Código 2FA copiado. Some da área de transferência em ${CLIPBOARD_SECONDS} s.`);
+      }) : null;
+      if (chip) actions.append(chip);
+    }
     if (item.username) actions.append(copyAction(ctx, 'user', `Copiar usuário de ${title}`, item.username, 'Usuário copiado.'));
-    if (item.password) actions.append(copyAction(ctx, 'key', `Copiar senha de ${title}`, item.password, 'Senha copiada.'));
+    if (type === 'password' && item.password) actions.append(copyAction(ctx, 'key', `Copiar senha de ${title}`, item.password, 'Senha copiada.'));
   } else if (type === 'note') {
     const content = item.notes || '';
     if (content) actions.append(copyAction(ctx, 'copy', `Copiar nota ${title}`, content, 'Nota copiada.'));

@@ -1,4 +1,4 @@
-export type ItemType = 'password' | 'note' | 'card' | 'address';
+export type ItemType = 'password' | 'note' | 'card' | 'address' | 'passkey';
 
 export interface ItemDraft {
   id?: string;

@@ -2,7 +2,7 @@ import type { ItemType } from '../utils/item-model.js';
 import { byId, button, el, field, input } from './dom.js';
 import { icon, iconButton } from './icons.js';
 
-export const TYPE_LABELS: Record<ItemType, string> = { password: 'Login', note: 'Nota', card: 'Cartão', address: 'Endereço' };
+export const TYPE_LABELS: Record<ItemType, string> = { password: 'Login', note: 'Nota', card: 'Cartão', address: 'Endereço', passkey: 'Passkey' };
 export const CARD_FIELDS = [['name', 'Nome no cartão'], ['number', 'Número'], ['exp', 'Validade (MM/AA)'], ['cvv', 'CVV']] as const;
 export const ADDRESS_FIELDS = [['fullName', 'Nome completo'], ['email', 'E-mail'], ['phone', 'Telefone'], ['street', 'Endereço'], ['city', 'Cidade'], ['state', 'Estado'], ['zip', 'CEP'], ['country', 'País']] as const;
 
@@ -54,11 +54,14 @@ export function buildEditorFields() {
   historyToggle.prepend(icon('clock'));
   const historyList = el('ul', 'history');
   historyList.hidden = true;
+  const passwordField = field('Senha', withTools(password, reveal, genPass));
+  const meterGroup = group(meter, meterText);
+  const totpField = field('Autenticação em duas etapas (TOTP)', totp);
   const passwordGroup = group(
     field('Usuário ou e-mail', withTools(username, genUser)),
-    field('Senha', withTools(password, reveal, genPass)),
-    group(meter, meterText),
-    field('Autenticação em duas etapas (TOTP)', totp),
+    passwordField,
+    meterGroup,
+    totpField,
     totpPreview,
     historyToggle,
     historyList
@@ -83,7 +86,7 @@ export function buildEditorFields() {
     passwordGroup, cardGroup, addressGroup, field('Notas', notes), actions);
 
   return { form, typeBar, typeButtons, site, siteLabel, title, folder, datalist, username, genUser, password, reveal, genPass,
-    meterFill, meterText, totp, totpPreview, historyToggle, historyList, passwordGroup, card, cardGroup, address, addressGroup,
+    meterFill, meterText, totp, totpPreview, historyToggle, historyList, passwordGroup, passwordField, meterGroup, totpField, card, cardGroup, address, addressGroup,
     notes, save, share, remove };
 }
 
