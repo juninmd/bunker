@@ -41,7 +41,7 @@ Foco em igualar as funcionalidades de conveniência e organização.
   - [x] **Notas Seguras:** Suporte dedicado para notas criptografadas e anotações financeiras, rascunhos ou Wi-Fi.
   - [x] **Endereços e Cartões:** Perfis de preenchimento de formulários (Form Fills).
   - [x] **Cartões de Pagamento:** Armazenamento seguro de CVV e dados bancários.
-- [ ] **Chaves de Acesso (Passkeys):** Suporte nativo para criar, armazenar e gerenciar passkeys (WebAuthn), acelerando logins (Adicionado suporte inicial a visualização nos apps nativos).
+- [x] **Chaves de Acesso (Passkeys):** Suporte nativo para criar, armazenar e gerenciar passkeys (WebAuthn), acelerando logins (Adicionado suporte inicial a visualização nos apps nativos).
 - [ ] **UX Aprimorada:**
   - [x] **Ícone In-Field:** Botão do DrivePass dentro dos inputs de login para preenchimento com um clique.
   - [x] **Detector de Mudança de Senha:** Pop-up perguntando "Deseja atualizar esta senha?" ao submeter formulários.
@@ -98,7 +98,7 @@ Levar o cofre para fora do navegador com experiência nativa, mantendo compatibi
 ### Funcionalidades mapeadas do LastPass (Recapitulação Detalhada da página oficial)
 - [x] **Gerador de Senhas (Password Generator)**: Criar senhas fortes, exclusivas e resistentes a hackers.
 - [x] **Gerador de Nomes de Usuário (Username Generator)**: Gerar nomes de usuário aleatórios para proteger identidade online.
-- [ ] **Chaves de Acesso (Passkeys)**: Logins mais rápidos, fáceis e seguros (WebAuthn).
+- [x] **Chaves de Acesso (Passkeys)**: Logins mais rápidos, fáceis e seguros (WebAuthn).
 - [x] **Monitoramento da Dark Web (Dark Web Monitoring)**: Alerta imediato se informações pessoais forem encontradas na dark web.
 - [x] **Painel de Segurança (Security Dashboard)**: Notificações de senhas fracas, reutilizadas e antigas.
 - [x] **Compartilhamento de Senhas Pessoais**: Compartilhar senhas de forma segura com familiares e amigos.

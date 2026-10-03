@@ -12,7 +12,7 @@ import { isValidTotp } from '../utils/totp.js';
 import { generateUsername } from '../utils/username-generator.js';
 import { restoreFromHistory, softDelete, upsertItem, validateDraft, type ItemDraft, type ItemType } from '../utils/item-model.js';
 
-const SITE_LABELS: Record<ItemType, string> = { password: 'Site', note: 'Título', card: 'Apelido do cartão', address: 'Apelido do endereço' };
+const SITE_LABELS: Record<ItemType, string> = { password: 'Site', note: 'Título', card: 'Apelido do cartão', address: 'Apelido do endereço', passkey: 'Site' };
 const METER_COLORS = ['var(--danger)', 'var(--danger)', 'var(--warn)', 'var(--ok)', 'var(--ok)'];
 
 export function initEditor(ctx: AppContext) {
@@ -24,10 +24,15 @@ export function initEditor(ctx: AppContext) {
     currentType = type;
     f.typeButtons.forEach((b, t) => b.setAttribute('aria-pressed', String(t === type)));
     (f.siteLabel.firstChild as Text).textContent = SITE_LABELS[type];
-    f.passwordGroup.hidden = type !== 'password';
+    f.passwordGroup.hidden = type !== 'password' && type !== 'passkey';
     f.cardGroup.hidden = type !== 'card';
     f.addressGroup.hidden = type !== 'address';
     f.site.placeholder = type === 'password' ? 'github.com' : '';
+
+    if (f.passwordField) f.passwordField.hidden = type === 'passkey';
+    if (f.meterGroup) f.meterGroup.hidden = type === 'passkey';
+    if (f.totpField) f.totpField.hidden = type === 'passkey';
+    f.totpPreview.hidden = type === 'passkey';
   };
 
   const updateMeter = () => {

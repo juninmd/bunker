@@ -60,6 +60,7 @@ This project follows the **Antigravity** code standards:
 ## 🔄 Current Progress & Next Steps (CRON Loop)
 
 **Progress**:
+- Implemented native Passkeys data structure and UI management in the browser extension.
 - Implemented global shortcut in the Desktop App to bring the vault interface to the foreground for quick autofill.
 - Implemented automatic background device synchronization (Device Sync) in the React Native Mobile App via `AppState` events and `expo-secure-store`, ensuring the encrypted vault stays up-to-date with Google Drive without manual user intervention.
 - Updated the Desktop and Mobile apps' rendering logic to parse and display passkeys (`http://pk`) natively in the vault interface. Full WebAuthn implementation is deferred due to complexity.
@@ -95,7 +96,7 @@ This project follows the **Antigravity** code standards:
 - None explicitly identified currently.
 
 **Next Tasks**:
-- Implement native WebAuthn (Passkeys) architecture and UI integration across platforms.
+- Complete Phase 2: Parity features such as enhanced Autofill matching algorithms and Cross-Platform Desktop improvements.
 
 ---
 
