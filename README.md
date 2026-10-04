@@ -61,6 +61,7 @@ This project follows the **Antigravity** code standards:
 
 **Progress**:
 - Implemented native Passkeys data structure and UI management in the browser extension.
+- Enhanced Autofill matching algorithm in the browser extension to prioritize explicit `autocomplete` attributes, falling back to positional heuristics.
 - Implemented global shortcut in the Desktop App to bring the vault interface to the foreground for quick autofill.
 - Implemented automatic background device synchronization (Device Sync) in the React Native Mobile App via `AppState` events and `expo-secure-store`, ensuring the encrypted vault stays up-to-date with Google Drive without manual user intervention.
 - Updated the Desktop and Mobile apps' rendering logic to parse and display passkeys (`http://pk`) natively in the vault interface. Full WebAuthn implementation is deferred due to complexity.
@@ -96,7 +97,7 @@ This project follows the **Antigravity** code standards:
 - None explicitly identified currently.
 
 **Next Tasks**:
-- Complete Phase 2: Parity features such as enhanced Autofill matching algorithms and Cross-Platform Desktop improvements.
+- Complete Phase 2: Parity features such as Cross-Platform Desktop improvements (Extension logic wrapper).
 
 ---
 

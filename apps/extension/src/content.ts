@@ -58,7 +58,21 @@ async function fillAccount(passInput, ref) {
 }
 
 function findUsernameInput(passwordInput) {
-  // 1. Check previous element
+  // 1. Check for explicit autocomplete attributes first (highest priority)
+  if (passwordInput.form) {
+    const usernameByAuto = passwordInput.form.querySelector('input[autocomplete="username"], input[autocomplete="email"]');
+    if (usernameByAuto && (usernameByAuto.type === 'text' || usernameByAuto.type === 'email')) {
+      return usernameByAuto;
+    }
+  } else {
+    // If not in a form, check the whole document for an autocomplete field just in case
+    const usernameByAuto = document.querySelector<HTMLInputElement>('input[autocomplete="username"], input[autocomplete="email"]');
+    if (usernameByAuto && (usernameByAuto.type === 'text' || usernameByAuto.type === 'email')) {
+      return usernameByAuto;
+    }
+  }
+
+  // 2. Check previous element
   let sibling = passwordInput.previousElementSibling;
   while (sibling) {
     if (sibling.tagName === 'INPUT' && (sibling.type === 'text' || sibling.type === 'email')) {
@@ -67,7 +81,7 @@ function findUsernameInput(passwordInput) {
     sibling = sibling.previousElementSibling;
   }
 
-  // 2. Check inputs in the same form before the password field
+  // 3. Check inputs in the same form before the password field
   if (passwordInput.form) {
     const inputs = Array.from(passwordInput.form.querySelectorAll('input')) as HTMLInputElement[];
     const index = inputs.indexOf(passwordInput);

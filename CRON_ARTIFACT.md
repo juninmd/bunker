@@ -1,14 +1,13 @@
-# CRON Cycle Results: Passkeys Native UI
+# CRON Cycle Results: Autofill Matching Algorithms
 
 ## Task Completed
-- Extended `ItemType` to include `passkey` (`http://pk`) natively.
-- Updated CSV mapping logic to handle import and export of passkey items securely.
-- Enhanced the Editor UI to display appropriate labels and conceal unrelated fields (like passwords and TOTP) when managing Passkeys.
-- Implemented rendering of Passkey items with proper badging within the vault list view.
-- Marked Passkeys functionality as fully integrated within the ROADMAP and README.
+- Enhanced the Autofill matching algorithm in `apps/extension/src/content.ts`.
+- Prioritized inputs with explicit `autocomplete="username"` or `autocomplete="email"` attributes.
+- Ensured legacy heuristic-based username resolution (looking backwards through sibling inputs or the DOM) is kept as a fallback mechanism.
+- Checked off relevant sections in ROADMAP.md (UX Aprimorada).
 
 ## Known Bugs
 - None explicitly identified.
 
 ## Next Steps
-- Complete Phase 2: Parity features such as enhanced Autofill matching algorithms and Cross-Platform Desktop improvements.
+- Complete Phase 2: Parity features, focusing next on Cross-Platform Desktop improvements (e.g. wrapper da lógica da extensão).
