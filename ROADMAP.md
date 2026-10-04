@@ -42,7 +42,7 @@ Foco em igualar as funcionalidades de conveniência e organização.
   - [x] **Endereços e Cartões:** Perfis de preenchimento de formulários (Form Fills).
   - [x] **Cartões de Pagamento:** Armazenamento seguro de CVV e dados bancários.
 - [x] **Chaves de Acesso (Passkeys):** Suporte nativo para criar, armazenar e gerenciar passkeys (WebAuthn), acelerando logins (Adicionado suporte inicial a visualização nos apps nativos).
-- [ ] **UX Aprimorada:**
+- [x] **UX Aprimorada:**
   - [x] **Ícone In-Field:** Botão do DrivePass dentro dos inputs de login para preenchimento com um clique.
   - [x] **Detector de Mudança de Senha:** Pop-up perguntando "Deseja atualizar esta senha?" ao submeter formulários.
   - [x] **Sincronização automática de dispositivos (Device Sync):** Salvar uma senha em um dispositivo e tê-la disponível em todos via Google Drive (`passwords.csv`).
