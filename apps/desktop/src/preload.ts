@@ -2,6 +2,7 @@ const { contextBridge, ipcRenderer } = require('electron');
 
 // Expose secure APIs to the renderer process
 contextBridge.exposeInMainWorld('electronAPI', {
-  // Example IPC communication
-  // invokeSync: () => ipcRenderer.invoke('sync-google-drive')
+  storageGet: (key: string) => ipcRenderer.invoke('storage-get', key),
+  storageSet: (values: Record<string, any>) => ipcRenderer.invoke('storage-set', values),
+  storageRemove: (keys: string[]) => ipcRenderer.invoke('storage-remove', keys)
 });

@@ -26,7 +26,7 @@ O App Desktop visa replicar a funcionalidade da extensão do navegador, mas oper
 ## Roadmap Desktop
 
 - [x] Estrutura Inicial (Electron Boilerplate).
-- [ ] Portar lógica de Criptografia (`crypto.js`) para Node.js (WebCrypto é suportado no Node 20+).
-- [ ] Implementar Camada de Armazenamento Local (substituindo `chrome.storage.local` por `electron-store` ou SQLite).
+- [x] Portar lógica de Criptografia (`crypto.js`) para Node.js (WebCrypto é suportado no Node 20+).
+- [x] Implementar Camada de Armazenamento Local (substituindo `chrome.storage.local` usando custom filesystem JSON via IPC).
 - [ ] Implementar Autenticação Google Drive (substituindo `chrome.identity` por fluxo OAuth2 Node.js).
 - [ ] Reutilizar componentes de UI da extensão (React/HTML).

@@ -77,7 +77,7 @@ Foco em funcionalidades colaborativas usando a infraestrutura do Google Drive.
 Levar o cofre para fora do navegador com experiência nativa, mantendo compatibilidade com as funcionalidades do LastPass. O grande diferencial é a sincronização com o Google Drive, salvando as senhas off-line em uma planilha `.csv`.
 - [x] **App Desktop (Electron/Tauri):**
   - [x] Estrutura inicial (Electron) e build automatizado.
-  - [ ] Wrapper da lógica da extensão.
+  - [x] Wrapper da lógica da extensão.
   - [x] Atalho global para preenchimento em apps nativos.
   - [x] Funcionamento offline robusto com leitura de `passwords.csv`.
 - [~] **App Android (React Native/Expo):**
