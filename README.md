@@ -92,12 +92,15 @@ This project follows the **Antigravity** code standards:
 - Configured automated real APK builds (via Gradle and Expo Prebuild) within the GitHub Actions `build-artifacts` workflow.
 - Implemented Automatic Background Device Sync for the Android Mobile App via Google Drive to keep passwords updated without manual intervention.
 - Adicionada compatibilidade com Safari à extensão (Safari Web Extension format) via manifest `browser_specific_settings`.
+- Added support for packaging the extension for Microsoft Edge by creating an Edge-specific build script to strip `browser_specific_settings` and update the packaging pipeline.
+- Verified Android Autofill completion and updated project roadmap.
 
 **Known Bugs**:
 - None explicitly identified currently.
 
 **Next Tasks**:
-- Complete Phase 2: Parity features such as Cross-Platform Desktop improvements (Extension logic wrapper).
+- Continue monitoring and maintaining the fully implemented Phase 5 Multiplatform expansion.
+- Complete any remaining Parity features or polish the Cross-Platform Desktop integration.
 
 ---
 

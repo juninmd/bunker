@@ -87,11 +87,11 @@ Levar o cofre para fora do navegador com experiência nativa, mantendo compatibi
   - [x] **APK:** Geração automatizada de APK via GitHub Actions.
 - [x] **App iOS:**
   - [x] Salvar e preencher automaticamente no iPhone e iPad (Integração Autofill App Extension via App Group concluída).
-- [~] **Salvar e preencher automaticamente em outros Navegadores e Dispositivos:**
+- [x] **Salvar e preencher automaticamente em outros Navegadores e Dispositivos:**
   - [x] Google Chrome
   - [x] Mozilla Firefox
   - [x] Apple Safari
-  - [ ] Microsoft Edge
+  - [x] Microsoft Edge
   - [x] Android (Autofill framework nativo implementado via Expo Config Plugin)
   - [x] iPhone e iPad (iOS Autofill - Integração App Extension via Keychain Group concluída)
 
@@ -114,7 +114,7 @@ Levar o cofre para fora do navegador com experiência nativa, mantendo compatibi
 - [x] **Login Federado (Federated Login)**: Login com credenciais de identidade federada (Via Google Workspace).
 - [x] **Workstation MFA**: Autenticação multifator no nível do sistema operacional (Declinado).
 - [x] **Autofill no Google Chrome**: Substitua o gerenciador de senhas do Chrome.
-- [ ] **Autofill no Android**: Crie, salve e preencha senhas no Android.
+- [x] **Autofill no Android**: Crie, salve e preencha senhas no Android.
 - [x] **Autofill no iPhone e iPad**: Aproveite o LastPass no iOS.
 - [x] **Autofill no Safari**: Acesse o cofre enquanto navega no Safari.
 - [x] **Autofill no Mozilla Firefox**: Salve e preencha senhas no Firefox.
