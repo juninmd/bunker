@@ -46,7 +46,7 @@ Foco em igualar as funcionalidades de conveniência e organização.
   - [x] **Ícone In-Field:** Botão do DrivePass dentro dos inputs de login para preenchimento com um clique.
   - [x] **Detector de Mudança de Senha:** Pop-up perguntando "Deseja atualizar esta senha?" ao submeter formulários.
   - [x] **Sincronização automática de dispositivos (Device Sync):** Salvar uma senha em um dispositivo e tê-la disponível em todos via Google Drive (`passwords.csv`).
-- [~] **Segurança Avançada:**
+- [x] **Segurança Avançada:**
   - [x] **Logout Automático:** Configuração de timeout por inatividade.
   - [x] **Desbloqueio com PIN/Biometria:** Opção de PIN curto para acesso rápido.
   - [x] **Login sem senha no cofre (Passwordless):** Acessar facilmente seu cofre de senhas sem precisar digitar a senha mestre via WebAuthn PRF.
@@ -80,7 +80,7 @@ Levar o cofre para fora do navegador com experiência nativa, mantendo compatibi
   - [x] Wrapper da lógica da extensão.
   - [x] Atalho global para preenchimento em apps nativos.
   - [x] Funcionamento offline robusto com leitura de `passwords.csv`.
-- [~] **App Android (React Native/Expo):**
+- [x] **App Android (React Native/Expo):**
   - [x] Salvar e preencher automaticamente credenciais (Integração com Autofill Framework do Android concluída via plugin).
   - [x] Acesso biométrico (Fingerprint/FaceID) para desbloqueio.
   - [x] Sincronização automática de dispositivos via Google Drive.

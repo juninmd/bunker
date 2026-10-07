@@ -81,9 +81,12 @@
     <p>Cofre offline desbloqueado com sucesso.</p>
     <p>Esta interface servirá como alternativa ao LastPass, provendo um cofre robusto para acesso rápido, sincronizado com seu <strong>Google Drive</strong> via CSV.</p>
 
-    <label for="csvFileInput" style="display:none;">Arquivo CSV</label>
-    <input type="file" id="csvFileInput" accept=".csv" style="margin-top: 15px;" />
-    <button id="importCsvBtn" style="background-color: #34a853;">Importar passwords.csv Offline</button>
+    <div style="margin-top: 15px; display: flex; gap: 10px; align-items: center; justify-content: center; flex-wrap: wrap;">
+      <label for="csvFileInput" style="display:none;">Arquivo CSV</label>
+      <input type="file" id="csvFileInput" accept=".csv" style="font-size: 14px; max-width: 200px;" />
+      <button id="importCsvBtn" style="background-color: #34a853;">Importar passwords.csv Offline</button>
+      <button id="syncDriveBtn" style="background-color: #1a73e8; color: white;">Sincronizar Google Drive</button>
+    </div>
 
     <div style="text-align: left; margin-top: 20px; background: #fafafa; padding: 15px; border-radius: 4px; border: 1px solid #eee;">
       <label for="searchInput" id="cofre-label" style="font-weight: bold; display: block;">Cofre (Sincronizado do CSV):</label>
@@ -313,6 +316,35 @@
       // NOSONAR
       reader.readAsText(file);
     });
+
+    document.getElementById('syncDriveBtn').addEventListener('click', async () => {
+      try {
+        const syncBtn = document.getElementById('syncDriveBtn');
+        syncBtn.textContent = 'Sincronizando...';
+        syncBtn.disabled = true;
+
+        if (window.electronAPI && window.electronAPI.syncGoogleDrive) {
+          const csvContent = await window.electronAPI.syncGoogleDrive();
+
+          vaultData = parseFullCSV(csvContent);
+          document.getElementById('searchInput').classList.remove('hidden');
+          renderVault(vaultData);
+
+          console.log('Sincronizado com Google Drive com sucesso!');
+        } else {
+          alert('API do Electron não encontrada.');
+        }
+      } catch (error) {
+        console.error('Erro ao sincronizar com Google Drive:', error);
+        alert('Erro ao sincronizar com Google Drive: ' + error);
+      } finally {
+        const syncBtn = document.getElementById('syncDriveBtn');
+        syncBtn.textContent = 'Sincronizar Google Drive';
+        syncBtn.disabled = false;
+      }
+    });
+
+
 
 
   </script>
