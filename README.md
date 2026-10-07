@@ -60,6 +60,8 @@ This project follows the **Antigravity** code standards:
 ## 🔄 Current Progress & Next Steps (CRON Loop)
 
 **Progress**:
+- Configured Google Drive OAuth flow in Desktop App `apps/desktop` via Electron `BrowserWindow` and IPC, completing the Desktop sync integration.
+- Updated `ROADMAP.md` to mark all Phase 2 and Phase 5 Multiplatform features as 100% completed.
 - Implemented native Passkeys data structure and UI management in the browser extension.
 - Enhanced Autofill matching algorithm in the browser extension to prioritize explicit `autocomplete` attributes, falling back to positional heuristics.
 - Implemented global shortcut in the Desktop App to bring the vault interface to the foreground for quick autofill.
