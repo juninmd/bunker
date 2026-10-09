@@ -1,0 +1,15 @@
+{
+  "name": "drivepass-monorepo",
+  "version": "1.0.0",
+  "description": "DrivePass - Cross-platform password manager",
+  "workspaces": [
+    "apps/*"
+  ],
+  "scripts": {
+    "test": "npm run test --workspaces --if-present",
+    "build": "npm run build --workspaces --if-present"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

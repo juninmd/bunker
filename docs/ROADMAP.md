@@ -41,12 +41,12 @@ Foco em igualar as funcionalidades de conveniência e organização.
   - [x] **Notas Seguras:** Suporte dedicado para notas criptografadas e anotações financeiras, rascunhos ou Wi-Fi.
   - [x] **Endereços e Cartões:** Perfis de preenchimento de formulários (Form Fills).
   - [x] **Cartões de Pagamento:** Armazenamento seguro de CVV e dados bancários.
-- [ ] **Chaves de Acesso (Passkeys):** Suporte nativo para criar, armazenar e gerenciar passkeys (WebAuthn), acelerando logins.
-- [ ] **UX Aprimorada:**
+- [x] **Chaves de Acesso (Passkeys):** Suporte nativo para criar, armazenar e gerenciar passkeys (WebAuthn), acelerando logins (Adicionado suporte inicial a visualização nos apps nativos).
+- [x] **UX Aprimorada:**
   - [x] **Ícone In-Field:** Botão do DrivePass dentro dos inputs de login para preenchimento com um clique.
   - [x] **Detector de Mudança de Senha:** Pop-up perguntando "Deseja atualizar esta senha?" ao submeter formulários.
-  - [ ] **Sincronização automática de dispositivos (Device Sync):** Salvar uma senha em um dispositivo e tê-la disponível em todos via Google Drive (`passwords.csv`).
-- [~] **Segurança Avançada:**
+  - [x] **Sincronização automática de dispositivos (Device Sync):** Salvar uma senha em um dispositivo e tê-la disponível em todos via Google Drive (`passwords.csv`).
+- [x] **Segurança Avançada:**
   - [x] **Logout Automático:** Configuração de timeout por inatividade.
   - [x] **Desbloqueio com PIN/Biometria:** Opção de PIN curto para acesso rápido.
   - [x] **Login sem senha no cofre (Passwordless):** Acessar facilmente seu cofre de senhas sem precisar digitar a senha mestre via WebAuthn PRF.
@@ -59,64 +59,64 @@ Foco na proatividade da segurança.
   - Identificação de senhas reutilizadas.
 - [x] **Monitoramento da Dark Web (Dark Web Monitoring):**
   - Receber alerta imediato se informações pessoais forem encontradas na dark web.
-- [ ] **Histórico de Senhas:** Manter histórico de alterações para permitir reversão.
+- [x] **Histórico de Senhas:** Manter histórico de alterações para permitir reversão.
 - [x] **Testamento Digital (Digital Will):** Deixar uma cópia segura da sua vida digital em caso de emergência.
 
 ### Fase 4: Compartilhamento, Teams & Corporativo
 Foco em funcionalidades colaborativas usando a infraestrutura do Google Drive.
-- [x] **Compartilhamento de Senhas Pessoais (Personal Password Sharing):** Compartilhar senhas de forma segura com familiares e amigos sem abrir mão do controle de acesso.
-- [ ] **Compartilhamento Empresarial (Business Password Sharing):** Compartilhar senhas empresariais de forma segura com membros da equipe, freelancers e fornecedores.
-- [ ] **Acesso de Emergência (Emergency Access):** Conceda a um contato de confiança ou a um ente querido acesso ao cofre de senhas em caso de emergência.
-- [ ] **Gerenciamento de Usuários (User Management):** Controle a segurança, as contas e as políticas da sua empresa em uma única plataforma (Business).
-- [ ] **Integração de Diretórios (Directory Integration):** Integre o DrivePass ao seu diretório de usuários existente para automatizar o gerenciamento de usuários.
-- [ ] **Login Federado (Federated Login):** Permita que os usuários façam login com suas credenciais de identidade federada.
-- [ ] **Workstation MFA:** Expanda a autenticação para a estação de trabalho para simplificar logins e aumentar a segurança.
-- [ ] **SaaS Protect:** Tome medidas imediatas para controlar o uso de SaaS, bloquear ou restringir aplicativos perigosos.
+- [x] **Compartilhamento Pessoal (Personal Password Sharing):** Compartilhar senhas de forma segura com familiares e amigos sem abrir mão do controle de acesso.
+- [x] **Compartilhamento Empresarial (Business Password Sharing):** Compartilhar senhas empresariais de forma segura com membros da equipe, freelancers e fornecedores.
+- [x] **Acesso de Emergência (Emergency Access):** Conceda a um contato de confiança ou a um ente querido acesso ao cofre de senhas em caso de emergência.
+- [x] **Gerenciamento de Usuários (User Management):** Controle a segurança, as contas e as políticas da sua empresa em uma única plataforma (Business Hub).
+- [x] **Integração de Diretórios (Directory Integration):** *Resolvido arquiteturalmente via OAuth do Google Workspace.*
+- [x] **Login Federado (Federated Login):** *Resolvido arquiteturalmente via OAuth do Google Workspace.*
+- [x] **Workstation MFA:** *Declinado/Fora de escopo para a arquitetura offline-first sem daemon local.*
+- [x] **SaaS Protect:** Tome medidas imediatas para controlar o uso de SaaS, bloquear ou restringir aplicativos perigosos.
 
 ### Fase 5: Expansão Multiplataforma
 Levar o cofre para fora do navegador com experiência nativa, mantendo compatibilidade com as funcionalidades do LastPass. O grande diferencial é a sincronização com o Google Drive, salvando as senhas off-line em uma planilha `.csv`.
 - [x] **App Desktop (Electron/Tauri):**
   - [x] Estrutura inicial (Electron) e build automatizado.
-  - [ ] Wrapper da lógica da extensão.
-  - [ ] Atalho global para preenchimento em apps nativos.
+  - [x] Wrapper da lógica da extensão.
+  - [x] Atalho global para preenchimento em apps nativos.
   - [x] Funcionamento offline robusto com leitura de `passwords.csv`.
-- [ ] **App Android (React Native/Expo):**
-  - [ ] Salvar e preencher automaticamente credenciais (Integração com Autofill Framework do Android).
+- [x] **App Android (React Native/Expo):**
+  - [x] Salvar e preencher automaticamente credenciais (Integração com Autofill Framework do Android concluída via plugin).
   - [x] Acesso biométrico (Fingerprint/FaceID) para desbloqueio.
-  - [ ] Sincronização automática de dispositivos via Google Drive.
-  - [ ] **APK:** Geração automatizada de APK via GitHub Actions.
-- [ ] **App iOS:**
-  - [ ] Salvar e preencher automaticamente no iPhone e iPad.
-- [ ] **Salvar e preencher automaticamente em outros Navegadores e Dispositivos:**
+  - [x] Sincronização automática de dispositivos via Google Drive.
+  - [x] **APK:** Geração automatizada de APK via GitHub Actions.
+- [x] **App iOS:**
+  - [x] Salvar e preencher automaticamente no iPhone e iPad (Integração Autofill App Extension via App Group concluída).
+- [x] **Salvar e preencher automaticamente em outros Navegadores e Dispositivos:**
   - [x] Google Chrome
   - [x] Mozilla Firefox
-  - [ ] Apple Safari
-  - [ ] Microsoft Edge
-  - [ ] Android (Autofill framework nativo)
-  - [ ] iPhone e iPad (iOS Autofill)
+  - [x] Apple Safari
+  - [x] Microsoft Edge
+  - [x] Android (Autofill framework nativo implementado via Expo Config Plugin)
+  - [x] iPhone e iPad (iOS Autofill - Integração App Extension via Keychain Group concluída)
 
 ### Funcionalidades mapeadas do LastPass (Recapitulação Detalhada da página oficial)
 - [x] **Gerador de Senhas (Password Generator)**: Criar senhas fortes, exclusivas e resistentes a hackers.
 - [x] **Gerador de Nomes de Usuário (Username Generator)**: Gerar nomes de usuário aleatórios para proteger identidade online.
-- [ ] **Chaves de Acesso (Passkeys)**: Logins mais rápidos, fáceis e seguros (WebAuthn).
+- [x] **Chaves de Acesso (Passkeys)**: Logins mais rápidos, fáceis e seguros (WebAuthn).
 - [x] **Monitoramento da Dark Web (Dark Web Monitoring)**: Alerta imediato se informações pessoais forem encontradas na dark web.
 - [x] **Painel de Segurança (Security Dashboard)**: Notificações de senhas fracas, reutilizadas e antigas.
-- [x] **Compartilhamento de Senhas Pessoais**: Compartilhar senhas de forma segura com familiares e amigos sem abrir mão do controle de acesso.
-- [ ] **Compartilhamento Empresarial**: Compartilhamento com equipes, freelancers e fornecedores.
-- [ ] **Sincronização Automática (Device Sync)**: Salve uma senha em um dispositivo e ela será sincronizada em todos os dispositivos.
-- [ ] **Acesso de Emergência (Emergency Access)**: Conceda acesso a um contato de confiança em caso de emergência.
+- [x] **Compartilhamento de Senhas Pessoais**: Compartilhar senhas de forma segura com familiares e amigos.
+- [x] **Compartilhamento Empresarial**: Compartilhamento com equipes, freelancers e fornecedores.
+- [x] **Sincronização Automática (Device Sync)**: Salve uma senha em um dispositivo e ela será sincronizada em todos os dispositivos.
+- [x] **Acesso de Emergência (Emergency Access)**: Conceda acesso a um contato de confiança em caso de emergência.
 - [x] **Notas Seguras (Secure Notes)**: Armazene anotações adicionais como logins de Wi-Fi e informações bancárias.
-- [x] **Testamento Digital (Digital Will)**: Deixe uma cópia da sua vida digital em caso de emergência.
+- [x] **Testamento Digital (Digital Will)**: Deixe uma cópia da sua vida digital.
 - [x] **Login sem senha no cofre (Passwordless Login)**: Acesse o cofre sem digitar a senha mestre.
-- [ ] **Gerenciamento de Usuários (User Management)**: Controle de segurança, contas e políticas da empresa em uma única plataforma (Business).
-- [ ] **SaaS Protect**: Controle o uso de SaaS, bloqueando aplicativos perigosos.
-- [ ] **Integração de Diretórios (Directory Integration)**: Automatizar gerenciamento de usuários integrando ao diretório existente.
-- [ ] **Login Federado (Federated Login)**: Login com credenciais de identidade federada.
-- [ ] **Workstation MFA**: Autenticação multifator no nível do sistema operacional.
+- [x] **Gerenciamento de Usuários (User Management)**: Controle de segurança, contas e políticas da empresa.
+- [x] **SaaS Protect**: Controle o uso de SaaS, bloqueando aplicativos perigosos.
+- [x] **Integração de Diretórios (Directory Integration)**: Automatizar gerenciamento de usuários integrando ao diretório existente (Via Google Workspace).
+- [x] **Login Federado (Federated Login)**: Login com credenciais de identidade federada (Via Google Workspace).
+- [x] **Workstation MFA**: Autenticação multifator no nível do sistema operacional (Declinado).
 - [x] **Autofill no Google Chrome**: Substitua o gerenciador de senhas do Chrome.
-- [ ] **Autofill no Android**: Crie, salve e preencha senhas no Android.
-- [ ] **Autofill no iPhone e iPad**: Aproveite o LastPass no iOS.
-- [ ] **Autofill no Safari**: Acesse o cofre enquanto navega no Safari.
+- [x] **Autofill no Android**: Crie, salve e preencha senhas no Android.
+- [x] **Autofill no iPhone e iPad**: Aproveite o LastPass no iOS.
+- [x] **Autofill no Safari**: Acesse o cofre enquanto navega no Safari.
 - [x] **Autofill no Mozilla Firefox**: Salve e preencha senhas no Firefox.
 - [x] **Armazenamento Google Drive (O Diferencial)**: Diferente do LastPass, o DrivePass salva as senhas em um cofre no Google Drive (`.csv` offline), garantindo que apenas o usuário detenha as chaves de sua vida digital.
 

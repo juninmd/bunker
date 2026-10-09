@@ -1,5 +1,5 @@
 {
-  "name": "bunkerpass-desktop",
+  "name": "drivepass-desktop",
   "version": "0.1.0",
   "description": "DrivePass Desktop App",
   "main": "dist/main.js",
