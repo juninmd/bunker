@@ -83,10 +83,11 @@ const styles = StyleSheet.create({
     borderColor: colors.line,
     backgroundColor: fills.field,
   },
-  focused: { borderColor: colors.accent, boxShadow: shadows.focus },
+  focused: { borderColor: colors.accent, backgroundColor: fills.fieldFocus, boxShadow: shadows.focus },
   lead: { marginRight: spacing.md },
   input: {
     flex: 1,
+    minWidth: 0,
     paddingVertical: 14,
     color: colors.text,
     fontSize: fontSize.title,

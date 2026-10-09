@@ -1,7 +1,7 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { alpha, fontWeight, typeColors } from '../theme';
-import { avatarColors, initialOf } from './avatarColor';
+import { fontWeight, radius } from '../theme';
+import { avatarColors, avatarGlow, initialOf } from './avatarColor';
 import { Icon, type IconName } from './Icon';
 import type { VaultItemKind } from './vaultItem';
 
@@ -19,37 +19,43 @@ type Props = {
 };
 
 /**
- * Squircle tile. Passwords get the first letter of the site over a hue gradient derived from the title;
- * notes, cards, addresses and passkeys get their type icon in the type colour (docs/DESIGN.md "selo de tipo").
+ * Squircle tile in the extension's recipe: a hue gradient taken from the title, white content, a 1 px inner
+ * ring and a soft coloured shadow. Passwords show the site's first letter; notes, cards, addresses and
+ * passkeys show their type icon. Decorative: the row already names the item.
  */
-export function Avatar({ title, kind, size = 44 }: Props) {
-  const box = { width: size, height: size, borderRadius: Math.round(size * 0.32) };
-  if (kind !== 'password') {
-    const tone = typeColors[kind];
-    return (
-      <View
-        style={[styles.base, box, { backgroundColor: alpha(tone, 0.14), borderColor: alpha(tone, 0.3) }]}
-      >
-        <Icon name={KIND_ICON[kind]} size={Math.round(size * 0.5)} color={tone} />
-      </View>
-    );
-  }
+export function Avatar({ title, kind, size = 40 }: Props) {
   return (
     <LinearGradient
       colors={avatarColors(title)}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 1, y: 1 }}
-      style={[styles.base, box, styles.gradientEdge]}
+      start={{ x: 0.1, y: 0 }}
+      end={{ x: 0.9, y: 1 }}
+      style={[styles.tile, { width: size, height: size, boxShadow: avatarGlow(title) }]}
     >
-      <Text style={[styles.letter, { fontSize: Math.round(size * 0.42) }]} allowFontScaling={false}>
-        {initialOf(title)}
-      </Text>
+      {kind === 'password' ? (
+        <Text style={[styles.letter, { fontSize: Math.round(size * 0.4) }]} allowFontScaling={false}>
+          {initialOf(title)}
+        </Text>
+      ) : (
+        <Icon name={KIND_ICON[kind]} size={Math.round(size * 0.47)} color="#ffffff" />
+      )}
     </LinearGradient>
   );
 }
 
 const styles = StyleSheet.create({
-  base: { alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderCurve: 'continuous' },
-  gradientEdge: { borderColor: 'rgba(255, 255, 255, 0.16)' },
-  letter: { color: '#ffffff', fontWeight: fontWeight.bold },
+  tile: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
+    borderCurve: 'continuous',
+  },
+  letter: {
+    color: '#ffffff',
+    fontWeight: fontWeight.bold,
+    textShadowColor: 'rgba(0, 0, 0, 0.35)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
+  },
 });

@@ -1,5 +1,32 @@
-These icon masks (white on transparent, tinted at runtime with `tintColor`) are rasterized
-from Ionicons (https://ionic.io/ionicons), as bundled in @expo/vector-icons.
+Bunker mobile icons
+===================
+
+Source: Ionicons (https://ionic.io/ionicons), taken from the Ionicons.ttf font that ships inside
+@expo/vector-icons 15.1.1 (font build "Ionicons : FontForge 2.0 : 15-12-2023").
+
+Each PNG is a single glyph of that font, rasterized at 128x128 px (white on transparent, 4x supersampled)
+so the app can tint it at runtime with the Image `tintColor` style. No glyph was redrawn or edited.
+
+  card.png            card-outline
+  check-circle.png    checkmark-circle
+  chevron-left.png    chevron-back
+  chevron-right.png   chevron-forward
+  cloud-done.png      cloud-done-outline
+  cloud-download.png  cloud-download-outline
+  dice.png            dice-outline
+  eye.png             eye-outline
+  eye-off.png         eye-off-outline
+  fingerprint.png     finger-print
+  key.png             key-outline
+  lock.png            lock-closed-outline
+  minus.png           remove
+  note.png            document-text-outline
+  pin.png             location-outline
+  plus.png            add
+  sync.png            sync
+  warning.png         warning
+
+Ionicons is distributed under the MIT License:
 
 The MIT License (MIT)
 

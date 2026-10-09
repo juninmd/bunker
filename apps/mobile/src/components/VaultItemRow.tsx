@@ -46,7 +46,7 @@ export function VaultItemRow({ item, onPress }: Props) {
 const styles = StyleSheet.create({
   pressed: { transform: [{ scale: 0.985 }] },
   row: {
-    minHeight: 68,
+    minHeight: 64,
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.md,

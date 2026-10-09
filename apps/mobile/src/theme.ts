@@ -42,10 +42,12 @@ export const gradients = {
 export const fills = {
   /** Text field background. */
   field: 'rgba(255, 255, 255, 0.04)',
+  /** Text field background while focused (a breath of gold). */
+  fieldFocus: 'rgba(243, 188, 78, 0.05)',
   /** Overlay while a card or ghost button is pressed. */
-  pressed: 'rgba(255, 255, 255, 0.06)',
+  pressed: 'rgba(255, 255, 255, 0.07)',
   /** 1 px specular edge along the top of gold surfaces. */
-  highlight: 'rgba(255, 255, 255, 0.35)',
+  highlight: 'rgba(255, 255, 255, 0.38)',
   /** Light edge on the top of a card (the "inset 0 1px" of the card shadow). */
   cardEdge: 'rgba(255, 255, 255, 0.10)',
 } as const;
@@ -53,15 +55,7 @@ export const fills = {
 /** CSS-syntax `boxShadow` strings (React Native parses them natively; react-native-web passes them through). */
 export const shadows = {
   glow: '0 10px 28px -10px rgba(243, 188, 78, 0.55)',
-  focus: '0 0 0 3px rgba(243, 188, 78, 0.28)',
-} as const;
-
-/** "Selo de tipo" colours of docs/DESIGN.md, reused for the type avatars. */
-export const typeColors = {
-  note: colors.accent,
-  card: '#a78bfa',
-  address: '#5eead4',
-  passkey: '#f472b6',
+  focus: '0 0 0 3px rgba(243, 188, 78, 0.22)',
 } as const;
 
 export const radius = { sm: 8, md: 12, lg: 16, xl: 22, pill: 999 } as const;

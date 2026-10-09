@@ -19,7 +19,7 @@ export function ScreenBackground({ children }: Props) {
     <View style={[styles.root, { paddingTop: insets.top }]}>
       <View pointerEvents="none" style={styles.glow}>
         <LinearGradient
-          colors={[alpha(colors.accent, 0.14), alpha(colors.accent, 0.05), alpha(colors.accent, 0)]}
+          colors={[alpha(colors.accent, 0.09), alpha(colors.accent, 0.03), alpha(colors.accent, 0)]}
           locations={[0, 0.5, 1]}
           style={StyleSheet.absoluteFill}
         />
