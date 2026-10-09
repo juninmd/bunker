@@ -1,0 +1,53 @@
+/* Estados vazios: cofre vazio e nenhum resultado. */
+.state {
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  min-height: 100%;
+  padding: 24px 16px 56px;
+  text-align: center;
+}
+
+.disc {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 112px;
+  height: 112px;
+  margin-bottom: 28px;
+  border: 1px solid rgba(243, 188, 78, 0.22);
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 30%, rgba(243, 188, 78, 0.22), rgba(243, 188, 78, 0.05) 62%);
+  box-shadow: 0 0 0 12px rgba(243, 188, 78, 0.035), 0 0 70px rgba(243, 188, 78, 0.16);
+  color: var(--accent);
+}
+
+.disc::before {
+  content: "";
+  position: absolute;
+  inset: -26px;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+}
+
+.disc .ico { width: 48px; height: 48px; stroke-width: 1.5; }
+.disc.small { width: 80px; height: 80px; margin-bottom: 24px; }
+.disc.small::before { inset: -18px; }
+.disc.small .ico { width: 32px; height: 32px; }
+
+.state h2 { margin-bottom: 8px; font: 600 var(--fs-5) / 1.25 var(--font); letter-spacing: -0.01em; }
+
+.state p {
+  max-width: 400px;
+  margin-bottom: 28px;
+  color: var(--muted);
+  overflow-wrap: anywhere;
+}
+
+.state .actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; }
+
+@media (max-height: 700px) {
+  .disc { width: 88px; height: 88px; margin-bottom: 22px; }
+  .disc .ico { width: 38px; height: 38px; }
+  .state { padding-bottom: 32px; }
+}
