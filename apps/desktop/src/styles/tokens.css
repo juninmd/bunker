@@ -1,0 +1,63 @@
+/* Bunker Midnight: cópia local dos tokens de docs/DESIGN.md (cada app guarda a sua; os nomes são os mesmos). */
+:root {
+  color-scheme: dark;
+
+  --bg: #07080c;
+  --bg-2: #0b0d13;
+  --surface: #10131a;
+  --surface-2: #161a23;
+  --surface-3: #1d222d;
+  --line: rgba(255, 255, 255, 0.07);
+  --line-2: rgba(255, 255, 255, 0.13);
+  --text: #edeff5;
+  --muted: #8d95a6;
+  --faint: #5d6475;
+  --accent: #f3bc4e;
+  --accent-hi: #ffe3a0;
+  --accent-lo: #cf8e20;
+  --accent-ink: #1b1304;
+  --ok: #4ade9e;
+  --warn: #ffa04d;
+  --danger: #ff6b7a;
+  --info: #7aa7ff;
+
+  /* Selos de tipo (docs/DESIGN.md > Chip) */
+  --kind-password: var(--info);
+  --kind-note: var(--accent);
+  --kind-card: #a78bfa;
+  --kind-address: #5eead4;
+  --kind-passkey: #f472b6;
+
+  --font: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, "SF Mono", "Cascadia Mono", Consolas, monospace;
+  --fs-1: 12px;
+  --fs-2: 13px;
+  --fs-3: 14.5px;
+  --fs-4: 17px;
+  --fs-5: 22px;
+  --fs-6: 32px;
+
+  --r-1: 8px;
+  --r-2: 12px;
+  --r-3: 16px;
+  --r-4: 22px;
+  --r-pill: 999px;
+
+  --glow: radial-gradient(120% 60% at 50% -12%, rgba(243, 188, 78, 0.1), transparent 58%);
+  --shadow-card: inset 0 1px 0 rgba(255, 255, 255, 0.04), 0 8px 24px -10px rgba(0, 0, 0, 0.65);
+  --card-fill: linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.025));
+  --field-fill: rgba(255, 255, 255, 0.04);
+  --btn-fill: linear-gradient(180deg, #fbd57f, #f0b543);
+  --btn-fill-hi: linear-gradient(180deg, #ffe0a0, #f6c25a);
+  --btn-glow: 0 10px 28px -10px rgba(243, 188, 78, 0.55);
+  --ring: 0 0 0 3px rgba(243, 188, 78, 0.28);
+
+  --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --t-fast: 150ms;
+  --t-base: 220ms;
+  --t-slow: 300ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root { --t-fast: 0ms; --t-base: 0ms; --t-slow: 0ms; }
+}

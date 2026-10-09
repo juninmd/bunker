@@ -1,0 +1,78 @@
+/* Estrutura do app: telas, grade barra lateral + conteúdo, barra superior e área de rolagem. */
+.screen { height: 100%; }
+
+@keyframes rise { from { opacity: 0; translate: 0 10px; } }
+
+@media (prefers-reduced-motion: no-preference) {
+  .enter { animation: rise var(--t-slow) var(--ease) both; }
+}
+
+.app {
+  display: grid;
+  grid-template-columns: 240px minmax(0, 1fr);
+}
+
+.main {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  background: var(--glow), var(--bg);
+}
+
+.main:focus-visible { outline: none; }
+
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 20px 28px 8px;
+}
+
+.search {
+  flex: 1 1 260px;
+  max-width: 520px;
+  margin-right: auto;
+}
+
+.search .keys { margin-right: 8px; }
+
+.content-head {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  padding: 16px 28px 14px;
+}
+
+.content-head h1 {
+  overflow: hidden;
+  font: 600 var(--fs-5) / 1.2 var(--font);
+  letter-spacing: -0.01em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.meta {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--muted);
+  font-size: var(--fs-2);
+  font-variant-numeric: tabular-nums;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.scroller {
+  flex: 1;
+  min-height: 0;
+  padding: 4px 28px 40px;
+  overflow-y: auto;
+  scroll-padding: 16px;
+}
+
+.vault-list {
+  width: 100%;
+  max-width: 920px;
+  margin: 0 auto;
+}

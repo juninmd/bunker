@@ -1,0 +1,110 @@
+/* Base: reset com especificidade zero, tipografia, foco, rolagem e utilitários. */
+:where(*, *::before, *::after) { box-sizing: border-box; }
+:where(h1, h2, h3, p, ul, ol, figure) { margin: 0; }
+:where(ul, ol) { padding: 0; list-style: none; }
+:where(button, input) { margin: 0; font: inherit; color: inherit; letter-spacing: inherit; }
+:where(button) {
+  padding: 0;
+  border: 0;
+  background: none;
+  text-align: inherit;
+  cursor: pointer;
+  -webkit-user-select: none;
+  user-select: none;
+}
+:where(img, svg) { display: block; }
+[hidden] { display: none !important; }
+
+html { height: 100%; background: var(--bg); }
+
+body {
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+  background: var(--bg);
+  color: var(--text);
+  font: 400 var(--fs-3) / 1.45 var(--font);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+::selection { background: rgba(243, 188, 78, 0.32); color: var(--text); }
+
+:where(a, button, [tabindex]):focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.ico {
+  flex: none;
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.75;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+kbd {
+  display: inline-grid;
+  place-items: center;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 6px;
+  border: 1px solid var(--line-2);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.05);
+  box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.35);
+  color: var(--muted);
+  font: 500 var(--fs-1) / 1 var(--font);
+}
+
+.keys { display: inline-flex; gap: 4px; }
+
+.visually-hidden:where(:not(:focus-within, :active)) {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  margin: -1px !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  clip-path: inset(50%) !important;
+  white-space: nowrap !important;
+}
+
+.skip-link {
+  position: absolute;
+  z-index: 20;
+  top: -56px;
+  left: 16px;
+  padding: 10px 16px;
+  border-radius: var(--r-2);
+  background: var(--surface-3);
+  box-shadow: var(--shadow-card);
+  color: var(--text);
+  font-weight: 600;
+  text-decoration: none;
+  transition: top var(--t-base) var(--ease);
+}
+
+.skip-link:focus-visible { top: 12px; }
+
+@supports (scrollbar-color: auto) {
+  html { scrollbar-width: thin; scrollbar-color: rgba(255, 255, 255, 0.12) transparent; }
+}
+
+@supports not (scrollbar-color: auto) {
+  ::-webkit-scrollbar { width: 12px; height: 12px; }
+  ::-webkit-scrollbar-track, ::-webkit-scrollbar-corner { background: transparent; }
+  ::-webkit-scrollbar-thumb {
+    border: 4px solid transparent;
+    border-radius: var(--r-pill);
+    background: rgba(255, 255, 255, 0.12) padding-box;
+  }
+  ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.22) padding-box; }
+}
+
+@media (forced-colors: active) {
+  :where(a, button, [tabindex]):focus-visible { outline-color: Highlight; }
+}
