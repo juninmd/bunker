@@ -1,0 +1,39 @@
+/* Lock screen: the one expressive moment — a vault dial whose ring turns open while the keyhole stays put. */
+.view-lock { display: flex; flex-direction: column; gap: 12px; padding: 26px 28px 16px; }
+.dial { width: 112px; height: 112px; align-self: center; overflow: visible; }
+.dial-halo { fill: url(#dialHalo); transition: opacity .6s; }
+.dial-ring { fill: #0a0c12; stroke: url(#dialGold); stroke-width: 3.2; }
+.dial-tick { stroke: var(--accent); stroke-opacity: .5; stroke-width: 1.2; stroke-linecap: round; }
+.dial-tick.major { stroke-opacity: 1; stroke-width: 2.4; }
+.dial-marker { fill: url(#dialGold); stroke: url(#dialGold); stroke-width: 1.6; stroke-linejoin: round; }
+.dial-knob { fill: url(#dialKnob); }
+.dial-knob-ring { fill: none; stroke: #7a4d08; stroke-opacity: .35; stroke-width: 1; }
+.dial-key { fill: #0a0c12; }
+.dial-face { transform-origin: 60px 62px; transition: transform .7s cubic-bezier(.3, .7, .2, 1); }
+.view-lock.opening .dial-face { transform: rotate(210deg); }
+.view-lock.opening .dial-halo { opacity: 1; filter: brightness(1.7); }
+.view-lock.shake .dial-face { animation: dial-deny .36s; }
+@keyframes dial-deny { 25% { transform: rotate(-9deg); } 75% { transform: rotate(9deg); } }
+
+.wordmark { margin-top: 2px; text-align: center; font: 700 var(--step-4)/1 var(--font); letter-spacing: -.025em; background: var(--wordmark); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.lock-hint { align-self: center; max-width: 31ch; margin-bottom: 4px; text-align: center; color: var(--muted); }
+
+.view-lock form { display: flex; flex-direction: column; gap: 8px; }
+.view-lock .input-row { position: relative; }
+.view-lock .input-row > input { padding-right: 46px; }
+.view-lock .input-row > .icon-btn { position: absolute; right: 4px; top: 50%; width: 36px; height: 36px; border: 0; background: none; transform: translateY(-50%); }
+.view-lock .input-row > .icon-btn:hover { background: var(--glass-2); }
+.view-lock #unlockButton { margin-top: 4px; }
+
+.recovery { margin-top: auto; color: var(--muted); }
+.recovery summary { display: flex; align-items: center; gap: 4px; width: fit-content; margin-inline: auto; padding: 6px 8px; border-radius: var(--radius-s); list-style: none; font-size: var(--step--1); cursor: pointer; transition: color .15s; }
+.recovery summary::-webkit-details-marker { display: none; }
+.recovery summary::before { content: ""; width: 12px; height: 12px; background: currentColor; transition: transform .2s var(--ease);
+  -webkit-mask: var(--chevron) center / contain no-repeat; mask: var(--chevron) center / contain no-repeat;
+  --chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M9 6l6 6-6 6'/%3E%3C/svg%3E"); }
+.recovery[open] summary::before { transform: rotate(90deg); }
+.recovery summary:hover { color: var(--text); }
+.recovery[open] summary { margin-bottom: 8px; }
+.recovery[hidden] + .lock-foot { margin-top: auto; }
+.lock-foot { display: flex; align-items: center; justify-content: center; gap: 6px; padding-top: 6px; color: var(--muted); font-size: 11.5px; }
+.lock-foot .icon { width: 13px; height: 13px; color: var(--accent); }

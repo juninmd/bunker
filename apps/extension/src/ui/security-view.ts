@@ -3,17 +3,17 @@ import { byId, button, el } from './dom.js';
 import { icon, type IconName } from './icons.js';
 import { buildSecurityReport, findLeaked } from '../utils/security-report.js';
 
-const RADIUS = 30;
+const RADIUS = 37;
 const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
 
 function gauge(score: number): SVGSVGElement {
   const ns = 'http://www.w3.org/2000/svg';
   const svg = document.createElementNS(ns, 'svg');
-  svg.setAttribute('viewBox', '0 0 76 76');
+  svg.setAttribute('viewBox', '0 0 88 88');
   svg.setAttribute('aria-hidden', 'true');
   ['ring-track', 'ring'].forEach(cls => {
     const c = document.createElementNS(ns, 'circle');
-    Object.entries({ cx: '38', cy: '38', r: String(RADIUS), class: cls }).forEach(([k, v]) => c.setAttribute(k, v));
+    Object.entries({ cx: '44', cy: '44', r: String(RADIUS), class: cls }).forEach(([k, v]) => c.setAttribute(k, v));
     if (cls === 'ring') {
       c.style.strokeDasharray = String(CIRCUMFERENCE);
       c.style.strokeDashoffset = String(CIRCUMFERENCE * (1 - score / 100));
@@ -47,11 +47,15 @@ export function initSecurityView(ctx: AppContext) {
     const items = visibleItems(ctx.vault.getVault());
     const report = buildSecurityReport(items);
     const score = el('div', 'score');
-    const text = el('div', 'stack');
-    text.append(el('span', 'score-num', String(report.score)), el('span', 'muted', report.total
+    const level = report.score >= 80 ? 'good' : report.score >= 50 ? '' : 'bad';
+    const title = !report.total ? 'Sem dados ainda' : report.score >= 80 ? 'Cofre saudável' : report.score >= 50 ? 'Pode melhorar' : 'Atenção necessária';
+    const ring = el('div', report.total ? `score-ring ${level}`.trim() : 'score-ring');
+    ring.append(gauge(report.total ? report.score : 0), el('span', 'score-num', report.total ? String(report.score) : '—'));
+    const text = el('div', 'score-text');
+    text.append(el('span', 'score-title', title), el('span', 'muted', report.total
       ? `${report.total} logins analisados. ${report.withoutTotp} ainda sem 2FA no cofre.`
       : 'Adicione logins para ver a saúde do cofre.'));
-    score.append(gauge(report.score), text);
+    score.append(ring, text);
 
     const issues = el('div', 'issues');
     issues.append(

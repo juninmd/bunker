@@ -55,7 +55,7 @@ export function icon(name: IconName, label?: string): SVGSVGElement {
 export function iconButton(name: IconName, label: string, onClick: (event: MouseEvent) => void, className = 'icon-btn'): HTMLButtonElement {
   const node = document.createElement('button');
   node.type = 'button';
-  node.className = className;
+  node.className = `${className} icon-only`;
   node.setAttribute('aria-label', label);
   node.title = label;
   node.append(icon(name));

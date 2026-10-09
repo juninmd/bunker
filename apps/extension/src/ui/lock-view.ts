@@ -10,15 +10,15 @@ let creating = false;
 function drawDial() {
   const ticks = byId('dialTicks');
   const ns = 'http://www.w3.org/2000/svg';
-  for (let i = 0; i < 40; i++) {
-    const major = i % 5 === 0;
+  for (let i = 0; i < 36; i++) {
+    const major = i % 9 === 0;
     const line = document.createElementNS(ns, 'line');
     line.setAttribute('x1', '60');
     line.setAttribute('x2', '60');
-    line.setAttribute('y1', '17');
-    line.setAttribute('y2', major ? '25' : '21');
+    line.setAttribute('y1', '22.5');
+    line.setAttribute('y2', major ? '32.5' : '27.5');
     line.setAttribute('class', major ? 'dial-tick major' : 'dial-tick');
-    line.setAttribute('transform', `rotate(${i * 9} 60 60)`);
+    line.setAttribute('transform', `rotate(${i * 10} 60 62)`);
     ticks.append(line);
   }
 }

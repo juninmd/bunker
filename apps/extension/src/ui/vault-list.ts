@@ -1,6 +1,6 @@
 import { itemTitle, visibleItems, type AppContext } from './context.js';
 import { byId, button, el } from './dom.js';
-import { icon } from './icons.js';
+import { icon, type IconName } from './icons.js';
 import { itemRow } from './item-row.js';
 
 const ALL = '';
@@ -26,13 +26,20 @@ function renderChips(items: any[], ctx: AppContext) {
   }));
 }
 
+function emptyArt(name: IconName): HTMLElement {
+  const art = el('div', 'empty-art');
+  art.append(icon(name));
+  return art;
+}
+
 function emptyState(ctx: AppContext, searching: boolean): HTMLLIElement {
   const li = el('li', 'empty');
   if (searching) {
-    li.append(el('p', '', 'Nada encontrado. Tente o nome do site ou do usuário.'));
+    li.append(emptyArt('search'), el('p', '', 'Nada encontrado. Tente o nome do site ou do usuário.'));
     return li;
   }
   li.append(
+    emptyArt('vault'),
     el('h2', '', 'Seu cofre está vazio'),
     el('p', '', 'Adicione um login ou traga tudo do LastPass com o arquivo CSV exportado.'),
     button('Adicionar item', 'btn primary', () => ctx.openEditor()),

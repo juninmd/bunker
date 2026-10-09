@@ -19,17 +19,21 @@ interface Row {
 function row(r: Row): HTMLButtonElement {
   const node = el('button', `settings-row${r.danger ? ' danger' : ''}`);
   node.type = 'button';
+  const tile = el('span', 'settings-ico');
+  tile.append(icon(r.icon));
   const text = el('span', 'settings-text');
   text.append(el('span', 'settings-label', r.label));
   if (r.hint) text.append(el('span', 'settings-hint', r.hint));
-  node.append(icon(r.icon), text, icon('chevron'));
+  node.append(tile, text, icon('chevron'));
   node.addEventListener('click', r.run);
   return node;
 }
 
 function section(title: string, rows: Row[]): HTMLElement {
   const box = el('section', 'settings-group');
-  box.append(el('h3', '', title), ...rows.map(row));
+  const card = el('div', 'settings-card');
+  card.append(...rows.map(row));
+  box.append(el('h3', '', title), card);
   return box;
 }
 

@@ -5,7 +5,8 @@ import { fileURLToPath } from 'node:url';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 export const EDGE_DIR = join(root, 'dist', 'edge');
-const SHIPPED = new Set(['.js', '.html', '.css', '.png', '.svg']);
+// .woff2 and .txt carry the bundled fonts and their OFL license texts.
+const SHIPPED = new Set(['.js', '.html', '.css', '.png', '.svg', '.woff2', '.txt']);
 
 export function edgeManifest(chrome) {
   const { browser_specific_settings, ...manifest } = chrome;
