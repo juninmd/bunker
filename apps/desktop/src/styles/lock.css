@@ -63,12 +63,21 @@
   background: linear-gradient(90deg, transparent, rgba(243, 188, 78, 0.6), transparent);
 }
 
-.lock-logo {
-  width: 84px;
-  height: 84px;
-  margin: 0 auto 20px;
-  filter: drop-shadow(0 14px 26px rgba(243, 188, 78, 0.22));
+.lock-mark {
+  position: relative;
+  width: 96px;
+  height: 96px;
+  margin: -6px auto 4px;
 }
+
+.lock-mark::before {
+  content: "";
+  position: absolute;
+  inset: -36px;
+  background: radial-gradient(closest-side, rgba(243, 188, 78, 0.26), rgba(243, 188, 78, 0.08) 58%, transparent);
+}
+
+.lock-mark img { position: relative; width: 100%; height: 100%; }
 
 .wordmark {
   margin-bottom: 8px;
