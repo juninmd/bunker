@@ -17,6 +17,15 @@
 - **Sincronização com Google Drive**: apenas o cofre cifrado (`vault.enc`, AES-256-GCM) é enviado ao Drive; nenhuma senha sai do dispositivo em texto puro.
 - **GitHub Actions Integration**: Automated generation of releases and tags, keeping the README.md updated via scripts.
 
+## 🎨 Design
+
+Interface escura e moderna, a "Bunker Midnight": fundo quase preto, acento dourado e um mostrador de cofre como marca. A mesma linguagem vale para a extensão, o desktop e o mobile (guia completo em [docs/DESIGN.md](docs/DESIGN.md)).
+
+| Extensão | Desktop | Mobile |
+| --- | --- | --- |
+| <img src="docs/screenshots/06-lista.png" alt="Extensão: lista do cofre" width="230"> | <img src="docs/screenshots/desktop-cofre.png" alt="Desktop: cofre" width="440"> | <img src="docs/screenshots/mobile-cofre.png" alt="Mobile: cofre" width="210"> |
+| <img src="docs/screenshots/13-desbloqueio-pin.png" alt="Extensão: bloqueio" width="230"> | <img src="docs/screenshots/desktop-bloqueio.png" alt="Desktop: bloqueio" width="440"> | <img src="docs/screenshots/mobile-bloqueio.png" alt="Mobile: bloqueio" width="210"> |
+
 ## 🛠️ DrivePass (Substituto do LastPass)
 
 O DrivePass é um gerenciador de senhas multiplataforma, que sincroniza um cofre cifrado (`vault.enc`) no Google Drive. O `.csv` é só para importar/exportar manualmente (compatível com LastPass).
