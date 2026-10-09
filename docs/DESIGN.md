@@ -46,7 +46,7 @@ Escala: 12 · 13 · 14,5 · 17 · 22 · 32. Títulos com `letter-spacing: -0.01e
 - **Botão primário**: degradê ouro, texto `accent-ink` peso 600, raio 12, brilho; hover clareia; pressionado desce 1 px e perde o brilho. Secundário: `surface-2` + borda `line`. Fantasma: transparente. Perigo: contorno `danger`.
 - **Campo**: altura 44, fundo `rgba(255,255,255,.04)`, borda `line`, raio 12; foco com ouro.
 - **Cartão**: degradê `rgba(255,255,255,.05)→.025`, borda `line`, raio 16, sombra de cartão.
-- **Linha de item**: avatar 36–40 px (squircle) com degradê por matiz do título — `linear-gradient(145deg, hsl(H 72% 64%), hsl(H+28 66% 46%))`, letra branca; título peso 600; subtítulo `muted`.
+- **Linha de item**: avatar 36–40 px (squircle) com degradê por matiz do título — `linear-gradient(145deg, hsl(H 72% 62%), hsl(H+28 66% 44%))`, letra branca; título peso 600; subtítulo `muted`.
 - **Chip**: pílula; selecionado = ouro (degradê + texto `accent-ink`). **Selo de tipo**: Senha `info`, Nota `accent`, Cartão `#a78bfa`, Endereço `#5eead4`, Passkey `#f472b6` (fundo a 14 %, texto cheio, borda a 30 %).
 - **Toast**: pílula de vidro (`rgba(22,26,35,.82)` + blur), ícone de estado à esquerda; erro com borda `danger`.
 - **Estado vazio**: ícone grande num disco com brilho dourado, título, texto `muted`, botões.
@@ -55,6 +55,7 @@ Escala: 12 · 13 · 14,5 · 17 · 22 · 32. Títulos com `letter-spacing: -0.01e
 ## Ativos
 - Marca (mostrador de cofre): `apps/extension/src/icons/icon.svg` (fonte) e PNGs 16/32/48/128; desktop em `apps/desktop/src/assets`; mobile em `apps/mobile/assets` (ícone iOS sem cantos, adaptativo Android, monocromático e splash).
 - Fontes embutidas (SIL OFL, licenças ao lado dos arquivos): Inter e JetBrains Mono, subconjunto latino, em `fonts/` de cada app web.
+- Mobile: fontes do sistema; ícones como PNGs tingíveis (máscaras brancas) rasterizados do Ionicons, MIT (`apps/mobile/assets/icons/LICENSE`).
 
 ## Não fazer
 Superfícies claras, sombras pretas duras, neon, mais de um acento por tela, texto `faint` para informação, ícones coloridos sem função.
