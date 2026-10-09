@@ -12,6 +12,7 @@
   --text: #edeff5;
   --muted: #8d95a6;
   --faint: #5d6475;
+  --text-2: color-mix(in srgb, var(--text) 62%, var(--muted)); /* local: texto de navegação ativável */
   --accent: #f3bc4e;
   --accent-hi: #ffe3a0;
   --accent-lo: #cf8e20;

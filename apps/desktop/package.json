@@ -6,7 +6,7 @@
   "scripts": {
     "prestart": "npm run build",
     "start": "electron .",
-    "build": "tsc && cp src/index.html dist/index.html"
+    "build": "tsc && node scripts/copy-assets.js"
   },
   "devDependencies": {
     "@types/node": "^26.2.0",

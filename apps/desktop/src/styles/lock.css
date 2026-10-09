@@ -17,7 +17,7 @@
 
 .lock::before {
   inset: 0;
-  background: repeating-radial-gradient(circle at 50% 42%, transparent 0 78px, rgba(255, 255, 255, 0.035) 78px 79px);
+  background: repeating-radial-gradient(circle at 50% 42%, transparent 0 78px, rgba(255, 255, 255, 0.05) 78px 79px);
   -webkit-mask-image: radial-gradient(circle at 50% 42%, #000, transparent 60%);
   mask-image: radial-gradient(circle at 50% 42%, #000, transparent 60%);
 }
@@ -77,9 +77,9 @@
 }
 
 .lock-sub {
-  max-width: 28ch;
   margin: 0 auto 28px;
   color: var(--muted);
+  text-wrap: balance;
 }
 
 .lock-hint {

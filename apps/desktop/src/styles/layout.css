@@ -1,5 +1,5 @@
 /* Estrutura do app: telas, grade barra lateral + conteúdo, barra superior e área de rolagem. */
-.screen { height: 100%; }
+.screen { height: 100%; overflow: clip; }
 
 @keyframes rise { from { opacity: 0; translate: 0 10px; } }
 
@@ -13,6 +13,7 @@
 }
 
 .main {
+  --pad-x: 28px;
   position: relative;
   display: flex;
   flex-direction: column;
@@ -27,11 +28,12 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 20px 28px 8px;
+  padding: 20px var(--pad-x) 8px;
 }
 
 .search {
-  flex: 1 1 260px;
+  flex: 1 1 200px;
+  min-width: 0;
   max-width: 520px;
   margin-right: auto;
 }
@@ -42,7 +44,7 @@
   display: flex;
   align-items: baseline;
   gap: 12px;
-  padding: 16px 28px 14px;
+  padding: 16px var(--pad-x) 14px;
 }
 
 .content-head h1 {
@@ -66,10 +68,29 @@
 .scroller {
   flex: 1;
   min-height: 0;
-  padding: 4px 28px 40px;
+  padding: 4px var(--pad-x) 40px;
   overflow-y: auto;
   scroll-padding: 16px;
 }
+
+/* Véu sob o cabeçalho: surge só quando a lista rola (sem suporte, o corte fica seco). */
+.scroller::before {
+  content: "";
+  position: sticky;
+  z-index: 2;
+  top: 0;
+  display: block;
+  height: 20px;
+  margin: -4px calc(var(--pad-x) * -1) -16px;
+  background: linear-gradient(var(--bg), transparent);
+  opacity: 0;
+  pointer-events: none;
+  animation: veil linear both;
+  animation-timeline: scroll(self);
+  animation-range: 0 28px;
+}
+
+@keyframes veil { to { opacity: 1; } }
 
 .vault-list {
   width: 100%;

@@ -16,6 +16,7 @@
 
 .btn .ico { width: 16px; height: 16px; }
 .btn.block { width: 100%; }
+.btn[data-action="sync"] { min-width: 184px; }
 
 .btn.primary {
   background: var(--btn-fill);

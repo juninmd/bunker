@@ -1,4 +1,4 @@
-const { app, BrowserWindow, globalShortcut, ipcMain } = require('electron');
+const { app, BrowserWindow, globalShortcut, ipcMain, nativeTheme } = require('electron');
 const path = require('path');
 const fs = require('fs');
 
@@ -124,8 +124,14 @@ ipcMain.handle('sync-google-drive', async () => {
 
 function createWindow() {
   const win = new BrowserWindow({
-    width: 800,
-    height: 600,
+    width: 1120,
+    height: 720,
+    minWidth: 880,
+    minHeight: 560,
+    backgroundColor: '#07080c', // evita o flash branco antes da primeira pintura
+    show: false,
+    autoHideMenuBar: true,
+    icon: path.join(__dirname, 'assets', 'icon.png'),
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       nodeIntegration: false,
@@ -135,10 +141,12 @@ function createWindow() {
     }
   });
 
+  win.once('ready-to-show', () => win.show());
   win.loadFile(path.join(__dirname, 'index.html'));
 }
 
 app.whenReady().then(() => {
+  nativeTheme.themeSource = 'dark';
   createWindow();
 
   globalShortcut.register('CommandOrControl+Shift+L', () => {
