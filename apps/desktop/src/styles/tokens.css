@@ -51,7 +51,9 @@
   --btn-fill: linear-gradient(180deg, #fbd57f, #f0b543);
   --btn-fill-hi: linear-gradient(180deg, #ffe0a0, #f6c25a);
   --btn-glow: 0 10px 28px -10px rgba(243, 188, 78, 0.55);
-  --ring: 0 0 0 3px rgba(243, 188, 78, 0.28);
+  --ring: 0 0 0 3px rgba(243, 188, 78, 0.22);
+  --focus-fill: rgba(243, 188, 78, 0.05);
+  --wordmark: linear-gradient(180deg, #ffffff, #bcc3d4);
 
   --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
   --t-fast: 150ms;

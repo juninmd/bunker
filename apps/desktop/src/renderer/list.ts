@@ -3,7 +3,6 @@ namespace Bunker {
     const hue = hueOf(item.title);
     const avatar = el('span', 'avatar', initialOf(item.title));
     avatar.style.setProperty('--h', String(hue));
-    avatar.classList.toggle('ink', hue >= 15 && hue <= 190); // matizes claros: letra escura mantém o contraste
     avatar.setAttribute('aria-hidden', 'true');
 
     const badge = el('span', 'badge', KIND_LABEL[item.kind]);

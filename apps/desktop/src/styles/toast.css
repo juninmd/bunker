@@ -43,7 +43,7 @@
   color: var(--c);
 }
 
-.toast[data-kind="ok"] { --c: var(--ok); }
+.toast[data-kind="ok"] { --c: var(--accent); }
 .toast[data-kind="error"] { --c: var(--danger); }
 .toast-ico .ico { width: 14px; height: 14px; stroke-width: 2.25; }
 

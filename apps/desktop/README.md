@@ -7,9 +7,15 @@ Este é o aplicativo Desktop do DrivePass, construído com Electron para suporta
 O App Desktop visa replicar a funcionalidade da extensão do navegador, mas operando de forma independente no sistema operacional.
 
 ### Estrutura
-- `src/main.js`: Processo principal do Electron (Janela, Menus).
-- `src/index.html`: Interface do usuário (Renderer).
-- `src/`: Lógica compartilhada (planejado).
+- `src/main.ts` e `src/preload.ts`: processo principal do Electron (janela, IPC, Google Drive) e ponte segura com o renderer.
+- `src/index.html`: só marcação, com CSP estrita (sem estilos, scripts ou eventos inline).
+- `src/styles/`: CSS do tema escuro "Bunker Midnight" (`tokens.css` é a cópia local dos tokens de `docs/DESIGN.md`; o restante se divide em `fonts`, `base`, `components`, `fields`, `layout`, `lock`, `sidebar`, `list`, `detail`, `states`, `toast` e `responsive`).
+- `src/renderer/`: lógica da interface em TypeScript, uma responsabilidade por arquivo (CSV, modelo e busca, lista e detalhes, sincronização, cópia com limpeza em 30 s, toasts). São scripts clássicos (sem `import`/`export`) que compartilham o `namespace Bunker`, porque o sandbox do Electron não carrega módulos via `file://`.
+- `src/assets/`: ícone do app, logo e fontes Inter e JetBrains Mono embutidas (licenças OFL ao lado).
+- `scripts/copy-assets.js`: copia `index.html`, `styles/` e `assets/` para `dist/` (multiplataforma, no lugar do `cp`).
+- `dist/`: saída do `npm run build` (`tsc` + cópia dos estáticos); não é versionada.
+
+Regras do monorepo: no máximo 150 linhas por arquivo, sem `any` no renderer e nenhuma dependência de `apps/extension` ou `apps/mobile`.
 
 
 ## Autenticação com Google Drive

@@ -47,7 +47,7 @@
   border: 1px solid var(--line);
   border-radius: var(--r-4);
   background: var(--card-fill), rgba(11, 13, 19, 0.72);
-  box-shadow: var(--shadow-card), 0 40px 90px -36px rgba(0, 0, 0, 0.9);
+  box-shadow: var(--shadow-card);
   -webkit-backdrop-filter: blur(20px);
   backdrop-filter: blur(20px);
   text-align: center;
@@ -73,7 +73,11 @@
 .wordmark {
   margin-bottom: 8px;
   font: 700 var(--fs-6) / 1.1 var(--font);
-  letter-spacing: -0.02em;
+  letter-spacing: -0.025em;
+  background: var(--wordmark);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 
 .lock-sub {
@@ -103,4 +107,5 @@
 
 @media (forced-colors: active) {
   .lock-card { border-color: CanvasText; }
+  .wordmark { background: none; color: CanvasText; }
 }
