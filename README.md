@@ -106,6 +106,7 @@ This project follows the **Antigravity** code standards:
 - Adicionada compatibilidade com Safari à extensão (Safari Web Extension format) via manifest `browser_specific_settings`.
 - Added support for packaging the extension for Microsoft Edge by creating an Edge-specific build script to strip `browser_specific_settings` and update the packaging pipeline.
 - Verified Android Autofill completion and updated project roadmap.
+- Fixed TypeScript compilation issues in the extension and configured root TypeScript workspace dependencies.
 
 **Known Bugs**:
 - None explicitly identified currently.

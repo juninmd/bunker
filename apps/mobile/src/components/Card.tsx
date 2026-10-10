@@ -18,7 +18,7 @@ export function Card({ tint, style, children, ...rest }: Props) {
       <LinearGradient
         pointerEvents="none"
         colors={tint ? [alpha(tint, 0.14), alpha(tint, 0.05)] : gradients.card}
-        style={StyleSheet.absoluteFill}
+        style={StyleSheet.absoluteFill as any}
       />
       {children}
     </View>

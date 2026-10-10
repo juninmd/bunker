@@ -13,11 +13,9 @@
     "e2e:firefox": "tsc -p tsconfig.json && node tests/e2e/firefox-probe.mjs",
     "build:edge": "tsc -p tsconfig.json && node scripts/build-edge.mjs"
   },
-  "dependencies": {
-    "typescript": "^7.0.2"
-  },
   "devDependencies": {
     "@types/chrome": "^0.2.6",
-    "playwright": "1.62.1"
+    "playwright": "1.62.1",
+    "typescript": "^5.9.3"
   }
 }

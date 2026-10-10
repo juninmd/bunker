@@ -32,7 +32,7 @@ function blockPage() {
 }
 
 function passwordFields(): HTMLInputElement[] {
-  return [...document.querySelectorAll<HTMLInputElement>('input[type="password"]')];
+  return Array.from(document.querySelectorAll<HTMLInputElement>('input[type="password"]'));
 }
 
 function injectIcons(accounts) {
