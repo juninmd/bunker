@@ -23,6 +23,8 @@ export async function autofill({ step, shot }, context, siteUrl) {
     await page.locator('.bunkerpass-dropdown').waitFor();
     await shot(page, '12-autofill-menu.png');
     await page.locator('.bunkerpass-dropdown button').first().click();
+    // The fill is an async round trip to the service worker; wait for it instead of racing the click.
+    await page.waitForFunction(() => document.querySelector('#user')?.value && document.querySelector('#pass')?.value, null, { timeout: 8000 }).catch(() => undefined);
     expect(await page.inputValue('#user') === 'ana@acme.test', 'username not filled');
     expect(await page.inputValue('#pass') === 'Acme-Pa55!phrase', 'password not filled');
     await shot(page, '12-autofill-preenchido.png');
@@ -77,6 +79,11 @@ export async function autoLock({ step }, page, worker) {
 export async function lightTheme({ step, shot }, context, popupUrl) {
   await step('light theme renders', async () => {
     const page = await openPopup(context, popupUrl, 'light');
+    const background = () => page.evaluate(() => getComputedStyle(document.body).backgroundColor);
+    // Dark is the identity: an OS that prefers light must not change the popup; light is opt-in via data-theme.
+    expect(await background() === 'rgb(7, 8, 12)', 'popup followed the OS light preference');
+    await page.evaluate(() => { document.documentElement.dataset.theme = 'light'; });
+    expect(await background() === 'rgb(243, 244, 248)', 'light tokens not applied');
     await shot(page, '15-tema-claro-bloqueio.png');
     await page.fill('#masterPassword', MASTER);
     await page.press('#masterPassword', 'Enter');

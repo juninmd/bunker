@@ -15,6 +15,7 @@
     "expo-auth-session": "^55.0.15",
     "expo-crypto": "^55.0.14",
     "expo-intent-launcher": "^57.0.1",
+    "expo-linear-gradient": "~55.0.18",
     "expo-local-authentication": "^57.0.2",
     "expo-secure-store": "^57.0.1",
     "expo-status-bar": "~55.0.4",

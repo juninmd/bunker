@@ -7,7 +7,8 @@ import { fileURLToPath } from 'node:url';
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 export const FIREFOX_DIR = join(root, 'dist', 'firefox');
 export const DEFAULT_GECKO_ID = 'bunkerpass@bunker.local';
-const SHIPPED = new Set(['.js', '.html', '.css', '.png', '.svg']);
+// .woff2 and .txt carry the bundled fonts and their OFL license texts.
+const SHIPPED = new Set(['.js', '.html', '.css', '.png', '.svg', '.woff2', '.txt']);
 const CHROME_ONLY_PERMISSIONS = new Set(['offscreen']);
 
 export function firefoxManifest(chrome, env = process.env) {

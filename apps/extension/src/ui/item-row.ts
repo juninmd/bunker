@@ -10,7 +10,7 @@ function avatar(item: any, title: string): HTMLElement {
   const node = el('span', 'avatar');
   let hash = 0;
   for (const ch of title) hash = (hash * 31 + ch.charCodeAt(0)) >>> 0;
-  node.style.background = `hsl(${hash % 360} 38% 66%)`;
+  node.style.setProperty('--h', String(hash % 360));
   const typeIcon = TYPE_ICON[item.type];
   if (typeIcon) node.append(icon(typeIcon));
   else node.textContent = (title[0] || '?').toUpperCase();

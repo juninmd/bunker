@@ -1,0 +1,6 @@
+/* Ajustes para janelas estreitas (a janela do app tem mínimo de 880 x 560). */
+@media (max-width: 1000px) {
+  .app { grid-template-columns: 224px minmax(0, 1fr); }
+  .main { --pad-x: 20px; }
+  .fields { padding-left: 18px; }
+}

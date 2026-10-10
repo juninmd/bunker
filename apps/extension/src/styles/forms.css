@@ -1,0 +1,26 @@
+/* Editor and generator. */
+.editor { padding: 14px var(--gutter) 24px; }
+.editor-actions { display: flex; gap: 8px; margin-top: 8px; }
+.editor-actions .primary { flex: 1; }
+.history { list-style: none; margin: 0; padding: 0; border: 1px solid var(--line); border-radius: var(--radius-m); background: var(--glass); overflow: hidden; }
+.history li { display: flex; align-items: center; gap: 8px; padding: 9px 10px; border-top: 1px solid var(--line); }
+.history li:first-child { border-top: 0; }
+.history .mono { flex: 1; overflow-wrap: anywhere; }
+.history .btn { min-height: 32px; padding: 0 10px; font-size: var(--step--1); }
+
+.gen-output {
+  display: grid; align-items: center; min-height: 96px; padding: 18px 16px;
+  border: 1px solid var(--line-2); border-radius: var(--radius-l);
+  background: var(--card);
+  box-shadow: var(--shadow-card), inset 0 0 44px -20px rgb(243 188 78 / .3);
+  font: 500 var(--step-3)/1.55 var(--font-code); letter-spacing: .02em;
+  overflow-wrap: anywhere; word-break: break-all;
+}
+.gen-output .c-digit { color: var(--accent); }
+.gen-output .c-symbol { color: var(--info); }
+.gen-meter { display: flex; align-items: center; gap: 10px; }
+.gen-meter .meter { flex: 1; }
+.gen-options { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.gen-options label { display: flex; gap: 10px; align-items: center; padding: 11px 12px; border: 1px solid var(--line); border-radius: var(--radius-m); background: var(--glass); cursor: pointer; transition: border-color .15s, background .15s; }
+.gen-options label:hover { border-color: var(--line-2); }
+.gen-options label:has(input:checked) { border-color: rgb(243 188 78 / .4); background: var(--tint); }

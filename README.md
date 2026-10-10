@@ -17,6 +17,15 @@
 - **Sincronização com Google Drive**: apenas o cofre cifrado (`vault.enc`, AES-256-GCM) é enviado ao Drive; nenhuma senha sai do dispositivo em texto puro.
 - **GitHub Actions Integration**: Automated generation of releases and tags, keeping the README.md updated via scripts.
 
+## 🎨 Design
+
+Interface escura e moderna, a "Bunker Midnight": fundo quase preto, acento dourado e um mostrador de cofre como marca. A mesma linguagem vale para a extensão, o desktop e o mobile (guia completo em [docs/DESIGN.md](docs/DESIGN.md)).
+
+| Extensão | Desktop | Mobile |
+| --- | --- | --- |
+| <img src="docs/screenshots/06-lista.png" alt="Extensão: lista do cofre" width="230"> | <img src="docs/screenshots/desktop-cofre.png" alt="Desktop: cofre" width="440"> | <img src="docs/screenshots/mobile-cofre.png" alt="Mobile: cofre" width="210"> |
+| <img src="docs/screenshots/13-desbloqueio-pin.png" alt="Extensão: bloqueio" width="230"> | <img src="docs/screenshots/desktop-bloqueio.png" alt="Desktop: bloqueio" width="440"> | <img src="docs/screenshots/mobile-bloqueio.png" alt="Mobile: bloqueio" width="210"> |
+
 ## 🛠️ DrivePass (Substituto do LastPass)
 
 O DrivePass é um gerenciador de senhas multiplataforma, que sincroniza um cofre cifrado (`vault.enc`) no Google Drive. O `.csv` é só para importar/exportar manualmente (compatível com LastPass).
@@ -37,7 +46,7 @@ O DrivePass é um gerenciador de senhas multiplataforma, que sincroniza um cofre
 3. Sincronização entre computadores: `node scripts/setup-drive-oauth.mjs` e [docs/SETUP.md](docs/SETUP.md).
 
 ### ✅ Homologação
-`cd apps/extension && npm test && npm run e2e` roda a extensão real no Chromium (criar cofre, importar CSV, 2FA, busca, gerador, saúde do cofre, autofill, salvar login, PIN, bloqueio automático, tema claro) e grava os prints em [docs/screenshots](docs/screenshots). `npm run e2e:security` ataca a extensão como uma página hostil e um ladrão de disco; o relatório está em [docs/SECURITY.md](docs/SECURITY.md).
+`cd apps/extension && npm test && npm run e2e` roda a extensão real no Chromium (criar cofre, importar CSV, 2FA, busca, gerador, saúde do cofre, autofill, salvar login, PIN, bloqueio automático, tema escuro por padrão e tema claro opcional) e grava os prints em [docs/screenshots](docs/screenshots). `npm run e2e:security` ataca a extensão como uma página hostil e um ladrão de disco; o relatório está em [docs/SECURITY.md](docs/SECURITY.md).
 - Extensão (Firefox/Chrome)
 - App Desktop (Electron - offline)
 - Android APK (React Native / Expo, Android Autofill Framework, Sincronização Automática com Google Drive)

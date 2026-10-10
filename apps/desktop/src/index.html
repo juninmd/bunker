@@ -1,352 +1,119 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <title>DrivePass Desktop</title>
-  <style>
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      margin: 0;
-      padding: 0;
-      background-color: #f5f5f5;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-      color: #333;
-    }
-    .container {
-      background: white;
-      padding: 40px;
-      border-radius: 8px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      text-align: center;
-      max-width: 500px;
-      width: 100%;
-    }
-    h1 {
-      margin-top: 0;
-      color: #1a73e8;
-    }
-    p {
-      line-height: 1.6;
-    }
-    .badge {
-      display: inline-block;
-      background: #1a73e8;
-      color: white;
-      padding: 6px 12px;
-      border-radius: 16px;
-      font-size: 14px;
-      margin-top: 20px;
-    }
-    input[type="password"] {
-      width: calc(100% - 20px);
-      padding: 10px;
-      margin: 10px 0;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-    }
-    button {
-      background-color: #1a73e8;
-      color: white;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 16px;
-      margin-top: 10px;
-    }
-    button:hover {
-      background-color: #1557b0;
-    }
-    .hidden {
-      display: none;
-    }
-  </style>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; base-uri 'none'; form-action 'none'">
+  <meta name="color-scheme" content="dark">
+  <title>Bunker</title>
+  <link rel="stylesheet" href="styles/fonts.css">
+  <link rel="stylesheet" href="styles/tokens.css">
+  <link rel="stylesheet" href="styles/base.css">
+  <link rel="stylesheet" href="styles/components.css">
+  <link rel="stylesheet" href="styles/fields.css">
+  <link rel="stylesheet" href="styles/layout.css">
+  <link rel="stylesheet" href="styles/lock.css">
+  <link rel="stylesheet" href="styles/sidebar.css">
+  <link rel="stylesheet" href="styles/list.css">
+  <link rel="stylesheet" href="styles/detail.css">
+  <link rel="stylesheet" href="styles/states.css">
+  <link rel="stylesheet" href="styles/toast.css">
+  <link rel="stylesheet" href="styles/responsive.css">
 </head>
 <body>
-  <div class="container" id="login-section">
-    <h1>DrivePass Desktop</h1>
-    <p>Bem-vindo ao DrivePass (App Nativo). Suas senhas serão sincronizadas offline com seu Google Drive através do arquivo <strong>passwords.csv</strong>.</p>
-    <label for="masterPassword" style="display:none;">Senha mestra</label>
-    <input type="password" id="masterPassword" placeholder="Senha mestra" />
-    <br/>
-    <button id="unlockBtn">Desbloquear</button>
-  </div>
-
-  <div class="container hidden" id="vault-section">
-    <h1>DrivePass Desktop</h1>
-    <p>Cofre offline desbloqueado com sucesso.</p>
-    <p>Esta interface servirá como alternativa ao LastPass, provendo um cofre robusto para acesso rápido, sincronizado com seu <strong>Google Drive</strong> via CSV.</p>
-
-    <div style="margin-top: 15px; display: flex; gap: 10px; align-items: center; justify-content: center; flex-wrap: wrap;">
-      <label for="csvFileInput" style="display:none;">Arquivo CSV</label>
-      <input type="file" id="csvFileInput" accept=".csv" style="font-size: 14px; max-width: 200px;" />
-      <button id="importCsvBtn" style="background-color: #34a853;">Importar passwords.csv Offline</button>
-      <button id="syncDriveBtn" style="background-color: #1a73e8; color: white;">Sincronizar Google Drive</button>
+  <main class="screen lock" id="lockScreen">
+    <div class="lock-stage enter">
+      <section class="lock-card" id="lockCard" aria-labelledby="lockTitle">
+        <div class="lock-mark"><img src="assets/mark.svg" width="96" height="96" alt=""></div>
+        <h1 class="wordmark" id="lockTitle">Bunker</h1>
+        <p class="lock-sub">Digite a senha mestra para abrir o cofre.</p>
+        <form id="lockForm" novalidate>
+          <label class="label" for="masterPassword">Senha mestra</label>
+          <div class="field" id="lockField">
+            <span data-icon="lock"></span>
+            <input id="masterPassword" type="password" autocomplete="current-password" spellcheck="false" aria-describedby="lockError" autofocus>
+            <button class="icon-btn" id="revealLock" type="button" aria-label="Mostrar senha" aria-pressed="false"><span data-icon="eye"></span></button>
+          </div>
+          <p class="field-error" id="lockError" aria-live="polite"></p>
+          <button class="btn primary block" type="submit">Desbloquear</button>
+        </form>
+      </section>
+      <p class="lock-hint"><span>Atalho global</span><span class="keys" id="lockKeys"></span></p>
     </div>
+  </main>
 
-    <div style="text-align: left; margin-top: 20px; background: #fafafa; padding: 15px; border-radius: 4px; border: 1px solid #eee;">
-      <label for="searchInput" id="cofre-label" style="font-weight: bold; display: block;">Cofre (Sincronizado do CSV):</label>
-      <input type="text" id="searchInput" aria-label="Pesquisar" class="hidden" placeholder="Pesquisar..." style="width: calc(100% - 20px); padding: 8px; margin: 10px 0; border: 1px solid #ccc; border-radius: 4px;" />
-
-      <div id="vaultContainer" style="margin-top: 10px; max-height: 400px; overflow-y: auto;">
-        <!-- Lista inicial (Mock) -->
-        <div class="vault-item" style="border-bottom: 1px solid #eee; padding: 10px 0;">
-          <div style="font-weight: bold; color: #1a73e8;">google.com</div>
-          <div style="font-size: 14px; color: #666;">test@gmail.com</div>
+  <div class="screen app" id="vaultScreen" hidden>
+    <a class="skip-link" href="#content">Ir para o conteúdo</a>
+    <aside class="sidebar">
+      <div class="brand"><img src="assets/mark.svg" width="36" height="36" alt=""><span class="brand-name">Bunker</span></div>
+      <div class="side-scroll">
+        <nav id="nav" aria-label="Categorias"></nav>
+        <div class="soon" id="soonGroup" role="group" aria-labelledby="soonTitle">
+          <h2 class="pill" id="soonTitle">Em breve</h2>
         </div>
       </div>
-    </div>
+      <div class="sync-chip" id="syncChip" data-state="idle"><span class="dot" aria-hidden="true"></span><span id="syncText">Aguardando sincronização</span></div>
+    </aside>
 
-    <div style="display: flex; gap: 10px; justify-content: center; margin-top: 15px;">
-        <button id="securityPanelBtn" style="font-size: 14px; padding: 5px 10px; background-color: #34a853;">Painel de Segurança</button>
-        <button style="font-size: 14px; padding: 5px 10px; background-color: #34a853;">Notas Seguras</button>
-        <button style="font-size: 14px; padding: 5px 10px; background-color: #34a853;">Cartões e Endereços</button>
-        <button style="font-size: 14px; padding: 5px 10px; background-color: #fbbc05; color: #333;">Gerador de Senhas</button>
-        <button style="font-size: 14px; padding: 5px 10px; background-color: #ea4335;">Compartilhamento</button>
-    </div>
+    <main class="main" id="content" tabindex="-1">
+      <header class="topbar">
+        <div class="field search" role="search">
+          <span data-icon="search"></span>
+          <label class="visually-hidden" for="searchInput">Buscar no cofre</label>
+          <input id="searchInput" type="search" placeholder="Buscar no cofre" autocomplete="off" autocapitalize="off" spellcheck="false">
+          <span class="keys" id="searchHint" aria-hidden="true"></span>
+          <button class="icon-btn" id="searchClear" type="button" aria-label="Limpar busca" hidden><span data-icon="x"></span></button>
+        </div>
+        <button class="btn secondary" type="button" data-action="import"><span data-icon="upload"></span>Importar CSV</button>
+        <button class="btn primary" type="button" data-action="sync"><span data-icon="refresh"></span><span class="spinner" aria-hidden="true"></span><span class="btn-label">Sincronizar Drive</span></button>
+        <input id="csvFileInput" type="file" accept=".csv,text/csv" tabindex="-1" hidden>
+      </header>
 
-    <div style="display: flex; gap: 10px; justify-content: center; margin-top: 10px; flex-wrap: wrap;">
-        <button style="font-size: 14px; padding: 5px 10px; background-color: #666;">Dark Web</button>
-        <button style="font-size: 14px; padding: 5px 10px; background-color: #666;">SaaS Protect</button>
-        <button style="font-size: 14px; padding: 5px 10px; background-color: #666;">Testamento Digital</button>
-        <button style="font-size: 14px; padding: 5px 10px; background-color: #9c27b0; color: #fff;">Passkeys</button>
-    </div>
+      <div class="content-head">
+        <h1 id="viewTitle">Todos os itens</h1>
+        <p class="meta" id="viewMeta" aria-live="polite">0 itens</p>
+      </div>
 
-    <span class="badge">Sincronização Ativa (Google Drive)</span>
+      <div class="scroller" id="scroller">
+        <div class="vault-list" id="vaultList"></div>
+
+        <div class="state" id="emptyState">
+          <div class="disc"><span data-icon="vault"></span></div>
+          <h2>Seu cofre está vazio</h2>
+          <p>Importe o arquivo passwords.csv ou sincronize com o Google Drive para trazer seus itens.</p>
+          <div class="actions">
+            <button class="btn secondary" type="button" data-action="import"><span data-icon="upload"></span>Importar CSV</button>
+            <button class="btn primary" type="button" data-action="sync"><span data-icon="refresh"></span><span class="spinner" aria-hidden="true"></span><span class="btn-label">Sincronizar Drive</span></button>
+          </div>
+        </div>
+
+        <div class="state" id="noResults" hidden>
+          <div class="disc small"><span data-icon="search"></span></div>
+          <h2>Nenhum resultado</h2>
+          <p id="noText"></p>
+          <button class="btn secondary" type="button" id="noReset" data-action="reset"></button>
+        </div>
+      </div>
+    </main>
   </div>
 
-  <script>
-    document.getElementById('unlockBtn').addEventListener('click', () => {
-      const pwd = document.getElementById('masterPassword').value;
-      if (pwd.length > 0) {
-        document.getElementById('login-section').classList.add('hidden');
-        document.getElementById('vault-section').classList.remove('hidden');
-      }
-    });
+  <div class="toasts" id="toasts" role="status" aria-live="polite" aria-atomic="false"></div>
 
-    // Parse the Google Drive CSV for offline access mapping the features
-    function parseFullCSV(text) {
-      const result = [];
-      let row = [];
-      let field = '';
-      let inQuotes = false;
-      let i = 0;
-
-      while (i < text.length) {
-        const char = text[i];
-        if (inQuotes) {
-          if (char === '"') {
-            if (i + 1 < text.length && text[i + 1] === '"') {
-              field += '"';
-              i++;
-            } else {
-              inQuotes = false;
-            }
-          } else {
-            field += char;
-          }
-        } else {
-          if (char === '"') {
-            inQuotes = true;
-          } else if (char === ',') {
-            row.push(field);
-            field = '';
-          } else if (char === '\n' || char === '\r') {
-            row.push(field);
-            result.push(row);
-            row = [];
-            field = '';
-            if (char === '\r' && i + 1 < text.length && text[i + 1] === '\n') {
-              i++;
-            }
-          } else {
-            field += char;
-          }
-        }
-        i++;
-      }
-      if (field || text[i - 1] === ',') {
-        row.push(field);
-      }
-      if (row.length > 0) {
-        result.push(row);
-      }
-
-      if (result.length === 0) return [];
-
-      const headers = result[0].map(h => h.trim());
-      const objects = [];
-      for (let j = 1; j < result.length; j++) {
-        const line = result[j];
-        if (line.length === 1 && line[0].trim() === '') continue;
-        const obj = {};
-        for (let k = 0; k < headers.length; k++) {
-          obj[headers[k]] = line[k] ? line[k].trim() : '';
-        }
-        objects.push(obj);
-      }
-      return objects;
-    }
-
-    let vaultData = [];
-
-    function renderVault(data, searchTerm = '') {
-      const container = document.getElementById('vaultContainer');
-      container.textContent = ''; // Clear existing
-
-      const filtered = data.filter(item => {
-        if (!item.url || item.grouping === 'Deleted') return false;
-        const searchLower = searchTerm.toLowerCase();
-        return (item.url || '').toLowerCase().includes(searchLower) ||
-               (item.username || '').toLowerCase().includes(searchLower) ||
-               (item.name || '').toLowerCase().includes(searchLower) ||
-               (item.grouping || '').toLowerCase().includes(searchLower);
-      });
-
-      // Agrupar por grouping
-      const grouped = {};
-      filtered.forEach(item => {
-        const group = item.grouping || 'Outros';
-        if (!grouped[group]) grouped[group] = [];
-        grouped[group].push(item);
-      });
-
-      for (const [group, items] of Object.entries(grouped)) {
-        const groupTitle = document.createElement('div');
-        groupTitle.style.cssText = 'font-weight: bold; margin-top: 15px; padding-bottom: 5px; border-bottom: 2px solid #ccc; font-size: 14px; color: #333;';
-        groupTitle.textContent = group;
-        container.appendChild(groupTitle);
-
-        items.forEach((item, idx) => {
-           const itemDiv = document.createElement('div');
-           itemDiv.style.cssText = 'border-bottom: 1px solid #eee; padding: 10px 0; display: flex; flex-direction: column; gap: 4px;';
-
-           const headerDiv = document.createElement('div');
-           headerDiv.style.cssText = 'display: flex; justify-content: space-between; align-items: center;';
-
-           const titleDiv = document.createElement('div');
-           titleDiv.style.cssText = 'font-weight: bold; color: #1a73e8; word-break: break-all;';
-           titleDiv.textContent = item.name || item.url;
-
-           const typeBadge = document.createElement('span');
-           typeBadge.style.cssText = 'font-size: 11px; background: #eee; padding: 2px 6px; border-radius: 4px; color: #666; margin-left: 10px;';
-           if (item.url === 'http' + '://sn') typeBadge.textContent = 'Nota Segura';
-           else if (item.url === 'http' + '://cc') typeBadge.textContent = 'Cartão';
-           else if (item.url === 'http' + '://id') typeBadge.textContent = 'Endereço';
-           else if (item.url === 'http' + '://pk') typeBadge.textContent = 'Passkey';
-           else typeBadge.textContent = 'Senha';
-
-           titleDiv.appendChild(typeBadge);
-           headerDiv.appendChild(titleDiv);
-           itemDiv.appendChild(headerDiv);
-
-           if (item.username && item.url !== 'http' + '://sn' && item.url !== 'http' + '://cc' && item.url !== 'http' + '://id' && item.url !== 'http' + '://pk') {
-             const userDiv = document.createElement('div');
-             userDiv.style.cssText = 'font-size: 14px; color: #666; word-break: break-all;';
-             userDiv.textContent = item.username;
-             itemDiv.appendChild(userDiv);
-           }
-
-           // Password / Extra Field
-           if (item.password || item.extra) {
-             const passContainer = document.createElement('div');
-             passContainer.style.cssText = 'display: flex; gap: 10px; align-items: center; margin-top: 4px;';
-
-             const passInput = document.createElement('input');
-             passInput.type = 'password';
-             passInput.value = item.password || item.extra; // Mostra password ou notas
-             passInput.readOnly = true;
-             passInput.style.cssText = 'flex: 1; padding: 6px; border: 1px solid #ddd; border-radius: 4px; margin: 0; background: #fff; font-size: 14px;';
-
-             const toggleBtn = document.createElement('button');
-             toggleBtn.textContent = 'Mostrar';
-             toggleBtn.style.cssText = 'padding: 6px 12px; font-size: 12px; margin: 0; background-color: #666; min-width: 75px;';
-             toggleBtn.addEventListener('click', () => {
-               if (passInput.type === 'password') {
-                 passInput.type = 'text';
-                 toggleBtn.textContent = 'Ocultar';
-               } else {
-                 passInput.type = 'password';
-                 toggleBtn.textContent = 'Mostrar';
-               }
-             });
-
-             passContainer.appendChild(passInput);
-             passContainer.appendChild(toggleBtn);
-             itemDiv.appendChild(passContainer);
-           }
-
-           container.appendChild(itemDiv);
-        });
-      }
-
-      if (filtered.length === 0) {
-        const noItems = document.createElement('div');
-        noItems.textContent = 'Nenhum item encontrado.';
-        noItems.style.cssText = 'padding: 10px; color: #999; font-style: italic;';
-        container.appendChild(noItems);
-      }
-    }
-
-    document.getElementById('searchInput').addEventListener('input', (e) => {
-      renderVault(vaultData, e.target.value);
-    });
-
-    document.getElementById('importCsvBtn').addEventListener('click', () => {
-      const fileInput = document.getElementById('csvFileInput');
-      if (fileInput.files.length === 0) {
-        console.log('Selecione o arquivo passwords.csv baixado do Google Drive.'); // NOSONAR
-        return;
-      }
-      const file = fileInput.files[0];
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        const contents = e.target.result;
-        vaultData = parseFullCSV(contents);
-
-        document.getElementById('searchInput').classList.remove('hidden');
-        renderVault(vaultData);
-
-        console.log('Cofre sincronizado via CSV com sucesso!'); // NOSONAR
-      };
-      // NOSONAR
-      reader.readAsText(file);
-    });
-
-    document.getElementById('syncDriveBtn').addEventListener('click', async () => {
-      try {
-        const syncBtn = document.getElementById('syncDriveBtn');
-        syncBtn.textContent = 'Sincronizando...';
-        syncBtn.disabled = true;
-
-        if (window.electronAPI && window.electronAPI.syncGoogleDrive) {
-          const csvContent = await window.electronAPI.syncGoogleDrive();
-
-          vaultData = parseFullCSV(csvContent);
-          document.getElementById('searchInput').classList.remove('hidden');
-          renderVault(vaultData);
-
-          console.log('Sincronizado com Google Drive com sucesso!');
-        } else {
-          alert('API do Electron não encontrada.');
-        }
-      } catch (error) {
-        console.error('Erro ao sincronizar com Google Drive:', error);
-        alert('Erro ao sincronizar com Google Drive: ' + error);
-      } finally {
-        const syncBtn = document.getElementById('syncDriveBtn');
-        syncBtn.textContent = 'Sincronizar Google Drive';
-        syncBtn.disabled = false;
-      }
-    });
-
-
-
-
-  </script>
+  <script src="renderer/dom.js"></script>
+  <script src="renderer/icons.js"></script>
+  <script src="renderer/text.js"></script>
+  <script src="renderer/csv.js"></script>
+  <script src="renderer/model.js"></script>
+  <script src="renderer/state.js"></script>
+  <script src="renderer/toast.js"></script>
+  <script src="renderer/clipboard.js"></script>
+  <script src="renderer/detail.js"></script>
+  <script src="renderer/list.js"></script>
+  <script src="renderer/sidebar.js"></script>
+  <script src="renderer/view.js"></script>
+  <script src="renderer/search.js"></script>
+  <script src="renderer/sync.js"></script>
+  <script src="renderer/actions.js"></script>
+  <script src="renderer/lock.js"></script>
+  <script src="renderer/app.js"></script>
 </body>
 </html>

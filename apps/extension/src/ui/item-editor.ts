@@ -7,13 +7,13 @@ import { totpChip } from './totp-chip.js';
 import { copySecret } from './clipboard.js';
 import { exportShare } from './share-actions.js';
 import { generateWith, loadGeneratorSettings } from './generator-settings.js';
+import { paintMeter } from './meter.js';
 import { passwordStrength } from '../utils/password-strength.js';
 import { isValidTotp } from '../utils/totp.js';
 import { generateUsername } from '../utils/username-generator.js';
 import { restoreFromHistory, softDelete, upsertItem, validateDraft, type ItemDraft, type ItemType } from '../utils/item-model.js';
 
 const SITE_LABELS: Record<ItemType, string> = { password: 'Site', note: 'Título', card: 'Apelido do cartão', address: 'Apelido do endereço', passkey: 'Site' };
-const METER_COLORS = ['var(--danger)', 'var(--danger)', 'var(--warn)', 'var(--ok)', 'var(--ok)'];
 
 export function initEditor(ctx: AppContext) {
   const f: EditorRefs = buildEditorFields();
@@ -37,8 +37,7 @@ export function initEditor(ctx: AppContext) {
 
   const updateMeter = () => {
     const { score, label } = passwordStrength(f.password.value);
-    f.meterFill.style.width = f.password.value ? `${(score + 1) * 20}%` : '0';
-    f.meterFill.style.background = METER_COLORS[score] as string;
+    paintMeter(f.meterFill, score, !!f.password.value);
     f.meterText.textContent = f.password.value ? `Força: ${label}` : '';
   };
 

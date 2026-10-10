@@ -2,11 +2,31 @@ import type { AppContext } from './context.js';
 import { byId, button, el } from './dom.js';
 import { icon } from './icons.js';
 import { copySecret, CLIPBOARD_SECONDS } from './clipboard.js';
+import { paintMeter } from './meter.js';
 import { generateWith, loadGeneratorSettings, saveGeneratorSettings, type GeneratorSettings } from './generator-settings.js';
 import { passwordStrength } from '../utils/password-strength.js';
 import { generateUsername } from '../utils/username-generator.js';
 
 const OPTIONS: [keyof GeneratorSettings, string][] = [['uppercase', 'Maiúsculas'], ['lowercase', 'Minúsculas'], ['numbers', 'Números'], ['symbols', 'Símbolos']];
+
+// Digits and symbols get their own colors so a long password is easier to read and compare; textContent stays the raw value.
+function colorize(value: string): HTMLSpanElement {
+  const fragment = el('span', 'gen-text');
+  let run = '';
+  let kind = '';
+  const flush = () => {
+    if (run) fragment.append(kind ? el('span', kind, run) : document.createTextNode(run));
+    run = '';
+  };
+  for (const char of value) {
+    const next = /\p{Nd}/u.test(char) ? 'c-digit' : /\p{L}/u.test(char) ? '' : 'c-symbol';
+    if (next !== kind) flush();
+    kind = next;
+    run += char;
+  }
+  flush();
+  return fragment;
+}
 
 export function initGeneratorView(ctx: AppContext) {
   const body = byId('generatorBody');
@@ -15,6 +35,9 @@ export function initGeneratorView(ctx: AppContext) {
   modeBar.append(modes.password, modes.username);
   const output = el('output', 'gen-output');
   output.setAttribute('aria-live', 'polite');
+  const meter = el('div', 'meter');
+  const meterFill = el('span');
+  meter.append(meterFill);
   const strength = el('span', 'meter-text');
   const copy = button('Copiar', 'btn primary');
   copy.prepend(icon('copy'));
@@ -39,7 +62,7 @@ export function initGeneratorView(ctx: AppContext) {
   });
   const passwordOptions = el('div', 'stack');
   passwordOptions.append(lengthLabel, options);
-  body.append(modeBar, output, strength, actions, passwordOptions);
+  body.append(modeBar, output, meter, strength, actions, passwordOptions);
 
   let mode: 'password' | 'username' = 'password';
   let settings: GeneratorSettings;
@@ -53,15 +76,22 @@ export function initGeneratorView(ctx: AppContext) {
 
   const generate = () => {
     const value = mode === 'password' ? generateWith(settings) : generateUsername({ useWords: true, length: 10 });
-    output.textContent = value;
-    strength.textContent = mode === 'password' ? `${settings.length} caracteres, força: ${passwordStrength(value).label.toLowerCase()}` : '';
+    output.replaceChildren(colorize(value));
+    const rated = mode === 'password';
+    const { score, label } = passwordStrength(value);
+    meter.hidden = !rated;
+    paintMeter(meterFill, score, rated);
+    strength.textContent = rated ? `${settings.length} caracteres, força: ${label.toLowerCase()}` : '';
     modes.password.setAttribute('aria-pressed', String(mode === 'password'));
     modes.username.setAttribute('aria-pressed', String(mode === 'username'));
     passwordOptions.hidden = mode !== 'password';
   };
 
+  const paintRange = () => range.style.setProperty('--pct', `${((Number(range.value) - 8) / 56) * 100}%`);
+
   const onChange = async () => {
     settings = readSettings();
+    paintRange();
     lengthValue.textContent = `Tamanho: ${settings.length}`;
     boxes.forEach((box, key) => { box.checked = !!(settings as any)[key]; });
     await saveGeneratorSettings(settings);
@@ -82,6 +112,7 @@ export function initGeneratorView(ctx: AppContext) {
     async show() {
       settings = await loadGeneratorSettings();
       range.value = String(settings.length);
+      paintRange();
       lengthValue.textContent = `Tamanho: ${settings.length}`;
       boxes.forEach((box, key) => { box.checked = !!(settings as any)[key]; });
       generate();

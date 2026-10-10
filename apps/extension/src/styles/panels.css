@@ -1,0 +1,42 @@
+/* Vault health and settings: grouped cards on the dark canvas. */
+.score { display: flex; align-items: center; gap: 16px; padding: 16px; border: 1px solid var(--line); border-radius: var(--radius-l); background: var(--card); box-shadow: var(--shadow-card); }
+.score-ring { --gauge: var(--accent); position: relative; flex: none; width: 88px; height: 88px; }
+.score-ring.good { --gauge: var(--ok); }
+.score-ring.bad { --gauge: var(--danger); }
+.score-ring svg { width: 100%; height: 100%; overflow: visible; transform: rotate(-90deg); }
+.score-ring .ring-track { fill: none; stroke: var(--surface-3); stroke-width: 7; }
+.score-ring .ring { fill: none; stroke: var(--gauge); stroke-width: 7; stroke-linecap: round; filter: drop-shadow(0 0 6px color-mix(in srgb, var(--gauge) 65%, transparent)); transition: stroke-dashoffset .7s var(--ease); }
+.score-num { position: absolute; inset: 0; display: grid; place-items: center; font: 700 var(--step-3)/1 var(--font); font-variant-numeric: tabular-nums; }
+.score-text { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.score-title { font: 650 var(--step-1)/1.25 var(--font); }
+
+.issues { display: flex; flex-direction: column; border: 1px solid var(--line); border-radius: var(--radius-l); background: var(--card); box-shadow: var(--shadow-card); overflow: hidden; }
+.issue + .issue { border-top: 1px solid var(--line); }
+.issue summary { display: flex; align-items: center; gap: 12px; padding: 13px 14px; cursor: pointer; list-style: none; transition: background .15s; }
+.issue summary:hover { background: var(--glass); }
+.issue summary::-webkit-details-marker { display: none; }
+.issue summary > .icon { color: var(--muted); }
+.issue .count { margin-left: auto; min-width: 28px; padding: 3px 9px; border-radius: 999px; background: var(--glass-2); text-align: center; font-variant-numeric: tabular-nums; font-weight: 700; }
+.issue .count.bad { color: var(--danger); background: rgb(255 107 122 / .13); }
+.issue .count.good { color: var(--ok); background: rgb(74 222 158 / .13); }
+.issue ul { list-style: none; margin: 0; padding: 0 14px 12px 46px; }
+.issue li button { padding: 4px 0; border: 0; background: none; color: var(--accent); font: inherit; cursor: pointer; text-align: left; }
+.issue li button:hover { text-decoration: underline; }
+
+.settings { padding: 2px 0 22px; }
+.settings-group { padding: 14px var(--gutter) 0; }
+.settings-group h3 { margin: 0 4px 8px; }
+.settings-card { border: 1px solid var(--line); border-radius: var(--radius-l); background: var(--card); box-shadow: var(--shadow-card); overflow: hidden; }
+.settings-row { display: flex; align-items: center; gap: 12px; width: 100%; padding: 11px 12px; border: 0; border-top: 1px solid var(--line); background: none; color: var(--text); font: inherit; text-align: left; cursor: pointer; transition: background .15s; }
+.settings-card .settings-row:first-child { border-top: 0; }
+.settings-row:hover { background: var(--glass-2); }
+.settings-row:focus-visible { box-shadow: inset 0 0 0 2px var(--accent); }
+.settings-ico { flex: none; display: grid; place-items: center; width: 34px; height: 34px; border-radius: 10px; color: var(--accent); background: var(--tint); box-shadow: inset 0 0 0 1px rgb(243 188 78 / .2); }
+.settings-ico .icon { width: 17px; height: 17px; }
+.settings-row .settings-text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+.settings-label { font-weight: 550; }
+.settings-row .settings-hint { color: var(--muted); font-size: var(--step--1); }
+.settings-row > .icon:last-child { width: 16px; height: 16px; color: var(--faint); }
+.settings-row.danger { color: var(--danger); }
+.settings-row.danger .settings-ico { color: var(--danger); background: rgb(255 107 122 / .1); box-shadow: inset 0 0 0 1px rgb(255 107 122 / .22); }
+.file-input { display: none; }

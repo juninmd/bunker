@@ -1,6 +1,16 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, Switch, StyleSheet, TouchableOpacity } from 'react-native';
+import { KeyboardAvoidingView, ScrollView, StyleSheet, Text, View } from 'react-native';
 import * as Crypto from 'expo-crypto';
+import { Card } from './components/Card';
+import { GhostButton } from './components/GhostButton';
+import { Icon } from './components/Icon';
+import { LengthStepper } from './components/LengthStepper';
+import { PasswordOutput } from './components/PasswordOutput';
+import { PrimaryButton } from './components/PrimaryButton';
+import { ScrollEdge, useScrolled } from './components/ScrollEdge';
+import { ToggleRow } from './components/ToggleRow';
+import { useScreenInsets } from './components/insets';
+import { alpha, colors, fills, fontSize, fontWeight, radius, spacing } from './theme';
 
 export function PasswordGenerator({ onClose }: { onClose: () => void }) {
   const [password, setPassword] = useState('');
@@ -35,106 +45,72 @@ export function PasswordGenerator({ onClose }: { onClose: () => void }) {
     setPassword(newPassword);
   };
 
+  const insets = useScreenInsets();
+  const { scrolled, onScroll } = useScrolled();
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Gerador de Senhas</Text>
+    <KeyboardAvoidingView behavior="padding" style={styles.flex}>
+      <ScrollView
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+        onScroll={onScroll}
+        scrollEventThrottle={32}
+        contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + spacing.xxxl }]}
+      >
+        <Card style={styles.card}>
+          <View style={styles.head}>
+            <View style={styles.badge}>
+              <Icon name="dice" size={20} color={colors.accent} />
+            </View>
+            <Text accessibilityRole="header" style={styles.title}>
+              Gerador de Senhas
+            </Text>
+          </View>
 
-      <TextInput
-        style={styles.resultInput}
-        value={password}
-        editable={false}
-        placeholder="Senha gerada..."
-      />
+          <PasswordOutput value={password} placeholder="Senha gerada..." />
 
-      <View style={styles.inputContainer}>
-        <Text>Tamanho:</Text>
-        <TextInput
-          style={styles.lengthInput}
-          keyboardType="numeric"
-          value={length}
-          onChangeText={setLength}
-        />
-      </View>
+          <LengthStepper value={length} onChange={setLength} />
 
-      <View style={styles.switchRow}>
-        <Text>Letras Maiúsculas</Text>
-        <Switch value={includeUppercase} onValueChange={setIncludeUppercase} />
-      </View>
+          <View style={styles.group}>
+            <ToggleRow label="Letras maiúsculas" value={includeUppercase} onValueChange={setIncludeUppercase} />
+            <ToggleRow divider label="Letras minúsculas" value={includeLowercase} onValueChange={setIncludeLowercase} />
+            <ToggleRow divider label="Números" value={includeNumbers} onValueChange={setIncludeNumbers} />
+            <ToggleRow divider label="Símbolos" value={includeSymbols} onValueChange={setIncludeSymbols} />
+          </View>
 
-      <View style={styles.switchRow}>
-        <Text>Letras Minúsculas</Text>
-        <Switch value={includeLowercase} onValueChange={setIncludeLowercase} />
-      </View>
-
-      <View style={styles.switchRow}>
-        <Text>Números</Text>
-        <Switch value={includeNumbers} onValueChange={setIncludeNumbers} />
-      </View>
-
-      <View style={styles.switchRow}>
-        <Text>Símbolos</Text>
-        <Switch value={includeSymbols} onValueChange={setIncludeSymbols} />
-      </View>
-
-      <View style={styles.buttonContainer}>
-        <Button title="Gerar Senha" onPress={generatePassword} color="#fbbc05" />
-      </View>
-
-      <View style={styles.buttonContainer}>
-        <Button title="Voltar" onPress={onClose} color="#666" />
-      </View>
-    </View>
+          <View style={styles.actions}>
+            <PrimaryButton title="Gerar Senha" icon="key" onPress={generatePassword} />
+            <GhostButton title="Voltar" icon="chevron-left" iconColor={colors.muted} onPress={onClose} />
+          </View>
+        </Card>
+      </ScrollView>
+      <ScrollEdge visible={scrolled} />
+    </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    padding: 20,
-    backgroundColor: '#fff',
-    borderRadius: 8,
-    marginVertical: 10,
-    shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginBottom: 15,
-    textAlign: 'center',
-  },
-  resultInput: {
-    borderWidth: 1,
-    borderColor: '#ddd',
-    padding: 10,
-    fontSize: 18,
-    borderRadius: 4,
-    marginBottom: 20,
-    backgroundColor: '#f9f9f9',
-    color: '#333',
-  },
-  inputContainer: {
-    flexDirection: 'row',
+  flex: { flex: 1 },
+  content: { paddingHorizontal: spacing.xl },
+  card: { padding: spacing.xl, gap: spacing.xl },
+  head: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
+  badge: {
+    width: 36,
+    height: 36,
+    borderRadius: radius.md,
     alignItems: 'center',
-    marginBottom: 15,
-  },
-  lengthInput: {
+    justifyContent: 'center',
+    backgroundColor: alpha(colors.accent, 0.14),
     borderWidth: 1,
-    borderColor: '#ddd',
-    padding: 5,
-    marginLeft: 10,
-    width: 60,
-    textAlign: 'center',
-    borderRadius: 4,
+    borderColor: alpha(colors.accent, 0.3),
   },
-  switchRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 10,
+  title: { color: colors.text, fontSize: fontSize.heading, fontWeight: fontWeight.bold, letterSpacing: -0.22 },
+  group: {
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: colors.line,
+    backgroundColor: fills.field,
+    overflow: 'hidden',
   },
-  buttonContainer: {
-    marginTop: 10,
-  }
+  actions: { gap: spacing.sm },
 });

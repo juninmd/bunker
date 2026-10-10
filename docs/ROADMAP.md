@@ -46,6 +46,7 @@ Foco em igualar as funcionalidades de conveniência e organização.
   - [x] **Ícone In-Field:** Botão do DrivePass dentro dos inputs de login para preenchimento com um clique.
   - [x] **Detector de Mudança de Senha:** Pop-up perguntando "Deseja atualizar esta senha?" ao submeter formulários.
   - [x] **Sincronização automática de dispositivos (Device Sync):** Salvar uma senha em um dispositivo e tê-la disponível em todos via Google Drive (`passwords.csv`).
+  - [x] **Identidade visual escura (Bunker Midnight):** Interface escura e moderna, com a mesma linguagem na extensão, no desktop e no mobile ([DESIGN.md](DESIGN.md)).
 - [x] **Segurança Avançada:**
   - [x] **Logout Automático:** Configuração de timeout por inatividade.
   - [x] **Desbloqueio com PIN/Biometria:** Opção de PIN curto para acesso rápido.
