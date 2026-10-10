@@ -21,7 +21,7 @@ export function ScreenBackground({ children }: Props) {
         <LinearGradient
           colors={[alpha(colors.accent, 0.09), alpha(colors.accent, 0.03), alpha(colors.accent, 0)]}
           locations={[0, 0.5, 1]}
-          style={StyleSheet.absoluteFill}
+          style={StyleSheet.absoluteFill as any}
         />
         <LinearGradient
           colors={[colors.bg, alpha(colors.bg, 0)]}

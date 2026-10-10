@@ -31,7 +31,7 @@ export function PrimaryButton({
       onPress={onPress}
       style={({ pressed }) => [
         styles.outer,
-        !disabled && !pressed && { boxShadow: shadows.glow },
+        !disabled && !pressed && { shadowColor: colors.accent, shadowOffset: { width: 0, height: 10 }, shadowOpacity: 0.55, shadowRadius: 18, elevation: 10 },
         pressed && styles.pressed,
         style,
       ]}
@@ -41,7 +41,7 @@ export function PrimaryButton({
           {disabled ? null : (
             <LinearGradient
               colors={pressed ? gradients.primaryPressed : gradients.primary}
-              style={StyleSheet.absoluteFill}
+              style={StyleSheet.absoluteFill as any}
             />
           )}
           {disabled ? null : <View pointerEvents="none" style={styles.edge} />}
