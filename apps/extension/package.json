@@ -14,7 +14,7 @@
     "build:edge": "tsc -p tsconfig.json && node scripts/build-edge.mjs"
   },
   "devDependencies": {
-    "@types/chrome": "^0.2.6",
+    "@types/chrome": "^0.2.9",
     "playwright": "1.62.1",
     "typescript": "^5.9.3"
   }
