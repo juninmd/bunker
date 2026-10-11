@@ -45,4 +45,4 @@ GOOGLE_CLIENT_ID="seu-client-id.apps.googleusercontent.com" npm start
 - [x] Portar lógica de Criptografia (`crypto.js`) para Node.js (WebCrypto é suportado no Node 20+).
 - [x] Implementar Camada de Armazenamento Local (substituindo `chrome.storage.local` usando custom filesystem JSON via IPC).
 - [x] Implementar Autenticação Google Drive (substituindo `chrome.identity` por fluxo OAuth2 Node.js).
-- [ ] Reutilizar componentes de UI da extensão (React/HTML).
+- [x] Reutilizar componentes de UI da extensão (React/HTML).

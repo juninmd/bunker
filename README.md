@@ -112,7 +112,7 @@ This project follows the **Antigravity** code standards:
 - None explicitly identified currently.
 
 **Next Tasks**:
-- Build upon the new monorepo structure to implement missing features from the Phase 5 Multiplatform expansion.
+- Explore the Phase 5 roadmap and other Android features or potentially UI refinements.
 
 ---
 
