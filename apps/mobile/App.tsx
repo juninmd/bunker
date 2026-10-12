@@ -101,89 +101,7 @@ export default function App() {
   };
 
   const performSilentSync = useCallback(async () => {
-    if (!isUnlocked) return;
-    try {
-      const data = await SyncService.syncWithGoogleDrive(false);
-      if (data && (data as any[]).length > 0) {
-        setVaultData(data as any[]);
-        if (AutofillModule) {
-          AutofillModule.saveCredentials(JSON.stringify(data));
-        }
-        console.log('Silent sync with Google Drive completed successfully.');
-      }
-    } catch (e) {
-      console.log('Silent sync failed:', e);
-    }
-  }, [isUnlocked]);
-
-  useEffect(() => {
-    if (!isUnlocked) return;
-
-    // Initial background sync after unlock
-    performSync(false);
-
-    // Setup AppState listener for returning to foreground
-    const subscription = AppState.addEventListener('change', (nextAppState: AppStateStatus) => {
-      if (
-        appState.current.match(/inactive|background/) &&
-        nextAppState === 'active'
-      ) {
-        console.log('App has come to the foreground, triggering background sync...');
-        performSync(false);
-      }
-      appState.current = nextAppState;
-    });
-
-    // Setup interval for periodic background sync while active (e.g., every 15 mins)
-    const intervalId = setInterval(() => {
-      if (appState.current === 'active') {
-        console.log('Triggering periodic background sync...');
-        performSync(false);
-      }
-    }, 15 * 60 * 1000);
-
-    return () => {
-      subscription.remove();
-      clearInterval(intervalId);
-    };
-  }, [isUnlocked, performSync]);
-
-  useEffect(() => {
-    const subscription = AppState.addEventListener('change', nextAppState => {
-      if (
-        appState.current.match(/inactive|background/) &&
-        nextAppState === 'active'
-      ) {
-        // App has come to the foreground
-        if (isUnlocked) {
-          performSilentSync();
-        }
-      }
-      appState.current = nextAppState;
-    });
-
-    return () => {
-      subscription.remove();
-    };
-  }, [isUnlocked, performSilentSync]);
-
-  useEffect(() => {
-    let interval: NodeJS.Timeout;
-    if (isUnlocked) {
-      // Background sync every 5 minutes while active
-      interval = setInterval(() => {
-        if (appState.current === 'active') {
-          performSilentSync();
-        }
-      }, 5 * 60 * 1000);
-    }
-    return () => {
-      if (interval) clearInterval(interval);
-    };
-  }, [isUnlocked, performSilentSync]);
-
-  const performSilentSync2 = useCallback(async () => {
-    if (!isUnlocked) return;
+    if (!isUnlocked || isSyncing) return;
     try {
       const data = await SyncService.syncWithGoogleDrive(false);
       if (data) {
@@ -191,35 +109,39 @@ export default function App() {
         if (AutofillModule) {
           AutofillModule.saveCredentials(JSON.stringify(data));
         }
-        console.log('Sincronização silenciosa bem-sucedida!'); // NOSONAR
+        console.log('Background silent sync complete.');
+        await processPendingSaves(data as any[]);
       }
-    } catch (error) {
-      console.log('Sincronização silenciosa falhou', error); // NOSONAR
+    } catch (e) {
+      console.log('Silent sync failed or skipped:', e);
     }
-  }, [isUnlocked]);
+  }, [isUnlocked, isSyncing]);
 
   useEffect(() => {
-    let interval: NodeJS.Timeout;
+    if (!isUnlocked) return;
 
-    if (isUnlocked) {
-      // Sync immediately when unlocked if silent sync is available
-      performSilentSync();
+    // Initial sync on unlock
+    performSilentSync();
 
-      // Setup periodic sync every 60 seconds
-      interval = setInterval(performSilentSync, 60000);
+    // Sync when app comes to foreground
+    const subscription = AppState.addEventListener('change', nextAppState => {
+      if (appState.current.match(/inactive|background/) && nextAppState === 'active') {
+        performSilentSync();
+      }
+      appState.current = nextAppState;
+    });
 
-      // Listen for app coming to foreground
-      const subscription = AppState.addEventListener('change', nextAppState => {
-        if (nextAppState === 'active') {
-          performSilentSync();
-        }
-      });
+    // Periodic sync while active (15 minutes)
+    const interval = setInterval(() => {
+      if (appState.current === 'active') {
+        performSilentSync();
+      }
+    }, 15 * 60 * 1000);
 
-      return () => {
-        clearInterval(interval);
-        subscription.remove();
-      };
-    }
+    return () => {
+      subscription.remove();
+      clearInterval(interval);
+    };
   }, [isUnlocked, performSilentSync]);
 
   const handleRequestAutofill = () => {
@@ -227,55 +149,6 @@ export default function App() {
       AutofillModule.requestAutofillSetting();
     }
   };
-
-  const performSilentSync3 = async () => {
-    if (!isUnlocked || isSyncing) return;
-    setIsSyncing(true);
-    try {
-        const data = await SyncService.syncWithGoogleDrive(false);
-        if (data) {
-            setVaultData(data as any[]);
-            if (AutofillModule) {
-              AutofillModule.saveCredentials(JSON.stringify(data));
-            }
-            console.log('Silent background sync completed.'); // NOSONAR
-            await processPendingSaves(data as any[]);
-        }
-    } catch (e) {
-        console.log('Silent sync error', e);
-    } finally {
-        setIsSyncing(false);
-    }
-  };
-
-  useEffect(() => {
-    const subscription = AppState.addEventListener('change', nextAppState => {
-      if (
-        appState.current.match(/inactive|background/) &&
-        nextAppState === 'active'
-      ) {
-        if (isUnlocked) {
-            performSilentSync();
-        }
-      }
-      appState.current = nextAppState;
-    });
-
-    let syncInterval: NodeJS.Timeout;
-    if (isUnlocked) {
-        // Sync every 5 minutes while active
-        syncInterval = setInterval(() => {
-            if (AppState.currentState === 'active') {
-                performSilentSync();
-            }
-        }, 300000);
-    }
-
-    return () => {
-      subscription.remove();
-      if (syncInterval) clearInterval(syncInterval);
-    };
-  }, [isUnlocked, isSyncing]);
 
   const handleUnlock = async () => {
     if (masterPassword.length > 0) {
@@ -317,44 +190,6 @@ export default function App() {
       console.warn('Erro ao autenticar com biometria', error);
     }
   };
-
-  useEffect(() => {
-    if (!isUnlocked) return;
-
-    const performSilentSync4 = async () => {
-      try {
-        const data = await SyncService.syncWithGoogleDrive(false);
-        setVaultData(data as any[]);
-        if (AutofillModule) {
-          AutofillModule.saveCredentials(JSON.stringify(data));
-        }
-        console.log('Background silent sync complete.');
-        await processPendingSaves(data as any[]);
-      } catch (e) {
-        console.log('Silent sync failed or skipped', e);
-      }
-    };
-
-    // Sync when app comes to foreground
-    const subscription = AppState.addEventListener('change', nextAppState => {
-      if (appState.current.match(/inactive|background/) && nextAppState === 'active') {
-        performSilentSync();
-      }
-      appState.current = nextAppState;
-    });
-
-    // Periodic sync while active (15 minutes)
-    const interval = setInterval(() => {
-      if (appState.current === 'active') {
-        performSilentSync();
-      }
-    }, 15 * 60 * 1000);
-
-    return () => {
-      subscription.remove();
-      clearInterval(interval);
-    };
-  }, [isUnlocked]);
 
   const handleManualSync = async () => {
     setIsSyncing(true);
