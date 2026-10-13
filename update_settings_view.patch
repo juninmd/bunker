@@ -1,0 +1,24 @@
+--- apps/extension/src/ui/settings-view.ts
++++ apps/extension/src/ui/settings-view.ts
+@@ -7,6 +7,7 @@
+ import { hasPin } from '../services/pin-lock.js';
+ import { hasPasswordless } from '../services/passwordless.js';
+ import { hasRecoveryCode } from '../services/recovery-key.js';
++import { getLocal } from '../utils/local-storage.js';
+
+ interface Row {
+   icon: IconName;
+@@ -46,11 +47,12 @@
+   });
+
+   const render = async () => {
+-    const [pinOn, bioOn, recoveryOn, lastSync] = await Promise.all([hasPin(), hasPasswordless(), hasRecoveryCode(), actions.lastSyncLabel()]);
++    const [pinOn, bioOn, recoveryOn, lastSync, encryptCsv] = await Promise.all([hasPin(), hasPasswordless(), hasRecoveryCode(), actions.lastSyncLabel(), getLocal('bunkerpass.encrypt_csv')]);
+     byId('settingsBody').replaceChildren(file,
+       section('Sincronização', [
+-        { icon: 'cloud', label: 'Sincronizar com o Google Drive', hint: actions.driveConfigured() ? lastSync : 'Precisa configurar o Client ID', run: () => actions.syncNow(ctx) }
++        { icon: 'cloud', label: 'Sincronizar com o Google Drive', hint: actions.driveConfigured() ? lastSync : 'Precisa configurar o Client ID', run: () => actions.syncNow(ctx) },
++        { icon: 'lock', label: 'Criptografar CSV', hint: encryptCsv ? 'Ativado: Ocultar dados sensíveis' : 'Desativado: Senhas visíveis em texto plano', run: () => actions.toggleEncryptCsv(ctx).then(render) }
+       ]),
+       section('Migrar do LastPass', [
+         { icon: 'upload', label: 'Importar CSV do LastPass', hint: 'Inclui códigos 2FA, notas e pastas', run: () => file.click() },

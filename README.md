@@ -107,12 +107,13 @@ This project follows the **Antigravity** code standards:
 - Added support for packaging the extension for Microsoft Edge by creating an Edge-specific build script to strip `browser_specific_settings` and update the packaging pipeline.
 - Verified Android Autofill completion and updated project roadmap.
 - Fixed TypeScript compilation issues in the extension and configured root TypeScript workspace dependencies.
+- Implemented the "Criptografar CSV" setting in the extension to encrypt sensitive fields (`password`, `totp`, `notes`/`extra`) with AES-256-GCM.
 
 **Known Bugs**:
 - None explicitly identified currently.
 
 **Next Tasks**:
-- Explore the Phase 5 roadmap and other Android features or potentially UI refinements.
+- Explore the Phase 5 roadmap and other Android features or potentially UI refinements, and address cross-app CSV encryption parity across the desktop and mobile apps to handle the new `ENC:` prefix.
 
 ---
 

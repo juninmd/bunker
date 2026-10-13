@@ -1,8 +1,9 @@
 import { GoogleDriveService } from './google-drive.js';
 import { generateCSV, parseCSV, mapCSVRowToVaultItem, mapVaultItemToCSVRow } from '../utils/csv-utils.js';
 import { parseRemoteEnvelope, sameKdf, sealRemoteVault } from '../utils/vault-envelope.js';
-import { decryptPayload, decryptWithKey } from '../utils/crypto.js';
+import { decryptPayload, decryptWithKey, encryptWithKey } from '../utils/crypto.js';
 import { rekeyVault } from './master-password.js';
+import { getLocal } from '../utils/local-storage.js';
 
 export class SyncService {
   vaultService: any;
@@ -77,12 +78,25 @@ export class SyncService {
       const content = await this.driveService.getFileContent(csvFile.id);
       const parsed = parseCSV(content);
 
-      const imported = parsed.map(row => {
-          const item = mapCSVRowToVaultItem(row);
-          if (item.type === 'note' && !row.grouping) item.grouping = 'Secure Notes';
-          if (item.type === 'address' && !row.grouping) item.grouping = 'Endereços';
-          return item;
-      }).filter(i => (i.type === 'note' && i.site) || (i.type === 'card' && i.site) || (i.type === 'address' && i.site) || (i.site && (i.username || i.password)) || (i.grouping === 'Deleted' && i.site));
+      const rawItems: any[] = [];
+      for (const row of parsed) {
+        if (row.password?.startsWith('ENC:')) {
+          try { row.password = await decryptWithKey(row.password.substring(4), this.vaultService.key); } catch (e) { row.password = ''; }
+        }
+        if (row.extra?.startsWith('ENC:')) {
+          try { row.extra = await decryptWithKey(row.extra.substring(4), this.vaultService.key); } catch (e) { row.extra = ''; }
+        }
+        if (row.totp?.startsWith('ENC:')) {
+          try { row.totp = await decryptWithKey(row.totp.substring(4), this.vaultService.key); } catch (e) { row.totp = ''; }
+        }
+        const item = mapCSVRowToVaultItem(row);
+        if (item.type === 'note' && !row.grouping) item.grouping = 'Secure Notes';
+        if (item.type === 'address' && !row.grouping) item.grouping = 'Endereços';
+        if ((item.type === 'note' && item.site) || (item.type === 'card' && item.site) || (item.type === 'address' && item.site) || (item.site && (item.username || item.password)) || (item.grouping === 'Deleted' && item.site)) {
+            rawItems.push(item);
+        }
+      }
+      const imported = rawItems;
 
       const localVault = this.vaultService.getVault();
       const { merged, added, updated } = this.mergeCSV(localVault, imported);
@@ -159,10 +173,24 @@ export class SyncService {
     return { vault: Array.from(map.values()), stats: { added, updated } };
   }
 
-  generateCSVContent(vault: any[]) {
-      // LastPass CSV format: url,username,password,totp,extra,name,grouping,fav
-      const headers = ['url', 'username', 'password', 'totp', 'extra', 'name', 'grouping', 'fav'];
-      const data = vault.map(mapVaultItemToCSVRow);
-      return generateCSV(data, headers);
+  async generateCSVContent(vault: any[]) {
+    const encryptCsv = await getLocal('bunkerpass.encrypt_csv');
+    const headers = ['url', 'username', 'password', 'totp', 'extra', 'name', 'grouping', 'fav'];
+    const data = vault.map(mapVaultItemToCSVRow);
+
+    if (encryptCsv && this.vaultService.key) {
+      for (const row of data) {
+        if (row.password) {
+          row.password = `ENC:${await encryptWithKey(row.password, this.vaultService.key)}`;
+        }
+        if (row.extra) {
+          row.extra = `ENC:${await encryptWithKey(row.extra, this.vaultService.key)}`;
+        }
+        if (row.totp) {
+          row.totp = `ENC:${await encryptWithKey(row.totp, this.vaultService.key)}`;
+        }
+      }
+    }
+    return generateCSV(data, headers);
   }
 }
