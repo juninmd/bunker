@@ -1,0 +1,11 @@
+--- apps/extension/tests/test_security.mjs
++++ apps/extension/tests/test_security.mjs
+@@ -66,7 +66,7 @@
+   syncA.driveService = drive;
+   await syncA.sync();
+
+-  assert.deepStrictEqual(drive.uploads.map(u => u.name), ['vault.enc', 'passwords.csv'], 'only the encrypted vault may be uploaded');
++  assert.deepStrictEqual(drive.uploads.map(u => u.name), ['vault.enc'], 'only the encrypted vault may be uploaded');
+   assert.ok(!drive.uploads[0].content.includes(SECRET), 'uploaded file must not contain plaintext');
+
+   resetStorage();

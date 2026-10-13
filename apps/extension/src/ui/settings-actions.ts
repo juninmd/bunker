@@ -55,7 +55,8 @@ export async function importLastPassFile(ctx: AppContext, file: File) {
 export async function exportCsv(ctx: AppContext) {
   const ok = await confirmAction({ title: 'Exportar sem criptografia?', message: 'O arquivo CSV terá todas as senhas legíveis. Use só para migrar e apague depois.', confirmLabel: 'Continuar', danger: true });
   if (!ok || !(await ctx.ensureMasterPassword('Confirme a senha mestra para exportar.'))) return;
-  const blob = new Blob([ctx.sync.generateCSVContent(visibleItems(ctx.vault.getVault()))], { type: 'text/csv;charset=utf-8' });
+  const content = await ctx.sync.generateCSVContent(visibleItems(ctx.vault.getVault()));
+  const blob = new Blob([content], { type: 'text/csv;charset=utf-8' });
   const link = Object.assign(document.createElement('a'), { href: URL.createObjectURL(blob), download: 'bunker-export.csv' });
   link.click();
   setTimeout(() => URL.revokeObjectURL(link.href), 1000);
@@ -101,6 +102,12 @@ export async function changeMasterPassword(ctx: AppContext) {
   } catch (e: any) {
     ctx.notify(e?.message === 'WEAK_MASTER_PASSWORD' ? `Use pelo menos ${MIN_MASTER_PASSWORD_LENGTH} caracteres.` : 'Senha mestra atual incorreta.', 'error');
   }
+}
+
+export async function toggleEncryptCsv(ctx: AppContext) {
+  const isEncrypted = await getLocal('bunkerpass.encrypt_csv');
+  await setLocalMany({ 'bunkerpass.encrypt_csv': !isEncrypted });
+  ctx.notify(!isEncrypted ? 'Criptografia do CSV ativada.' : 'Criptografia do CSV desativada.');
 }
 
 export async function exportEmergency(ctx: AppContext) {

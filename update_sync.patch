@@ -1,0 +1,23 @@
+--- apps/extension/src/services/sync-service.ts
++++ apps/extension/src/services/sync-service.ts
+@@ -53,6 +53,7 @@
+
+     const payload = { schemaVersion: this.VAULT_SCHEMA_VERSION, credentials: mergedVault };
+     const encrypted = await sealRemoteVault(payload, vault.key, vault.salt, vault.iterations);
++    const csvContent = await this.generateCSVContent(mergedVault);
+
+     try { // NOSONAR
+       if (vaultFile) {
+@@ -60,6 +61,12 @@
+       } else {
+         await this.driveService.createFile(this.VAULT_FILE, encrypted, 'application/json');
+       }
++      const csvFile = await this.driveService.findFile(this.CSV_FILE);
++      if (csvFile) {
++        await this.driveService.updateFile(csvFile.id, csvContent, 'text/csv');
++      } else {
++        await this.driveService.createFile(this.CSV_FILE, csvContent, 'text/csv');
++      }
+     } catch (e: any) {
+       throw new Error('Failed to sync encrypted vault to Drive: ' + e.message); // NOSONAR
+     }
