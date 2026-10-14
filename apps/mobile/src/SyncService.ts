@@ -2,6 +2,7 @@ import * as Crypto from 'expo-crypto';
 import { parseCSV } from '../../extension/src/utils/csv-utils.js';
 import * as AuthSession from 'expo-auth-session';
 import * as SecureStore from 'expo-secure-store';
+import { deriveKey, decryptWithKey, base64ToBytes } from './core/crypto';
 
 let cachedAccessToken: string | null = null;
 
@@ -97,18 +98,61 @@ export class SyncService {
             const parsed = parseCSV(csvText);
             const vaultItems: any[] = [];
 
-            parsed.forEach((obj: any) => {
+            let vaultKey: any | null = null;
+            const hasEncryptedFields = parsed.some(obj => obj['password']?.startsWith('ENC:') || obj['extra']?.startsWith('ENC:') || obj['totp']?.startsWith('ENC:'));
+
+            if (hasEncryptedFields) {
+                try {
+                    const masterPassword = await SecureStore.getItemAsync('masterPassword');
+                    if (masterPassword) {
+                        const vaultFileSearch = await fetch('https://www.googleapis.com/drive/v3/files?q=' + encodeURIComponent('name="vault.enc" and trashed=false'), {
+                            headers: { Authorization: `Bearer ${accessToken}` }
+                        });
+                        if (vaultFileSearch.ok) {
+                            const vaultSearchData = await vaultFileSearch.json();
+                            if (vaultSearchData.files && vaultSearchData.files.length > 0) {
+                                const vaultFileId = vaultSearchData.files[0].id;
+                                const vaultDownloadResponse = await fetch(`https://www.googleapis.com/drive/v3/files/${vaultFileId}?alt=media`, {
+                                    headers: { Authorization: `Bearer ${accessToken}` }
+                                });
+                                if (vaultDownloadResponse.ok) {
+                                    const envelope = await vaultDownloadResponse.json();
+                                    if (envelope.salt && envelope.iterations) {
+                                        vaultKey = await deriveKey(masterPassword, base64ToBytes(envelope.salt), envelope.iterations);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                } catch (e) {
+                    console.log('Failed to fetch or derive key from vault.enc', e);
+                }
+            }
+
+            for (const obj of parsed) {
                 if (obj['grouping'] !== 'Deleted') {
                     const randomId = Crypto.randomUUID();
+                    let password = obj['password'] || '';
+                    let extra = obj['extra'] || '';
+
+                    if (vaultKey) {
+                        if (password.startsWith('ENC:')) {
+                            try { password = await decryptWithKey(password.substring(4), vaultKey); } catch (e) { console.warn('Failed to decrypt password', e); }
+                        }
+                        if (extra.startsWith('ENC:')) {
+                            try { extra = await decryptWithKey(extra.substring(4), vaultKey); } catch (e) { console.warn('Failed to decrypt extra', e); }
+                        }
+                    }
 
                     vaultItems.push({
                         id: randomId,
                         title: obj['url'] || 'Unnamed',
                         username: obj['username'] || '',
-                        password: obj['password'] || ''
+                        password: password,
+                        extra: extra
                     });
                 }
-            });
+            }
 
             return vaultItems;
 

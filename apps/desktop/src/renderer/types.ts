@@ -31,10 +31,17 @@ namespace Bunker {
     openId: string | null;
     sync: SyncStatus;
     syncedAt: Date | null;
+    masterPassword?: string;
+    key?: CryptoKey;
   }
 }
 
 // Exposto pelo preload (contextBridge). Em um navegador comum a API não existe.
 interface Window {
-  electronAPI?: { syncGoogleDrive?: () => Promise<string> };
+  electronAPI?: {
+    syncGoogleDrive?: () => Promise<any>;
+    storageGet?: (key: string) => Promise<any>;
+    storageSet?: (values: Record<string, any>) => Promise<void>;
+    storageRemove?: (keys: string[]) => Promise<void>;
+  };
 }

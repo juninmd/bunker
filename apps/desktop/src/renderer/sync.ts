@@ -23,8 +23,18 @@ namespace Bunker {
   }
 
   // Troca os itens pelo conteúdo do CSV. Se o arquivo não tiver itens, o cofre atual é mantido.
-  function applyCsv(text: string, source: Source): boolean {
-    const items = toItems(parseFullCSV(text));
+  async function applyCsv(text: string, source: Source, envelope?: any): Promise<boolean> {
+    if (!state.key && state.masterPassword) {
+      if (envelope && envelope.salt && envelope.iterations) {
+         state.key = await deriveKey(state.masterPassword, base64ToBytes(envelope.salt), envelope.iterations);
+      } else if (window.electronAPI?.storageGet) {
+         const saltB64 = await window.electronAPI.storageGet('bunkerpass.salt.v1');
+         if (saltB64) {
+            state.key = await deriveKey(state.masterPassword, base64ToBytes(saltB64));
+         }
+      }
+    }
+    const items = await toItems(parseFullCSV(text), state.key);
     if (items.length === 0) {
       toast('error', 'Nenhum item encontrado. Confira se o arquivo é o passwords.csv.');
       return false;
@@ -39,7 +49,7 @@ namespace Bunker {
 
   export async function importFile(file: File): Promise<void> {
     try {
-      if (applyCsv(await file.text(), 'file')) markSynced();
+      if (await applyCsv(await file.text(), 'file')) markSynced();
     } catch {
       toast('error', 'Não foi possível ler o arquivo.');
     }
@@ -66,7 +76,10 @@ namespace Bunker {
     setSyncChip();
     setBusy(true);
     try {
-      if (applyCsv(await api.syncGoogleDrive(), 'drive')) markSynced();
+      const result: any = await api.syncGoogleDrive();
+      const csvText = result.csvText || result;
+      const envelope = result.envelope;
+      if (await applyCsv(csvText, 'drive', envelope)) markSynced();
       else state.sync = 'error';
     } catch (error) {
       state.sync = 'error';

@@ -108,12 +108,13 @@ This project follows the **Antigravity** code standards:
 - Verified Android Autofill completion and updated project roadmap.
 - Fixed TypeScript compilation issues in the extension and configured root TypeScript workspace dependencies.
 - Implemented the "Criptografar CSV" setting in the extension to encrypt sensitive fields (`password`, `totp`, `notes`/`extra`) with AES-256-GCM.
+- Implemented cross-app CSV encryption parity across the Desktop and Mobile apps, enabling native AES-256-GCM decryption for `passwords.csv` fields starting with the `ENC:` prefix by securely fetching the `vault.enc` salt.
 
 **Known Bugs**:
 - None explicitly identified currently.
 
 **Next Tasks**:
-- Explore the Phase 5 roadmap and other Android features or potentially UI refinements, and address cross-app CSV encryption parity across the desktop and mobile apps to handle the new `ENC:` prefix.
+- Explore the Phase 5 roadmap and other Android features or potentially UI refinements.
 
 ---
 

@@ -86,8 +86,26 @@ ipcMain.handle('sync-google-drive', async () => {
 
           if (!accessToken) throw new Error('No access_token found in response');
 
+          // Fetch vault.enc to get the salt and iterations
+          let envelope = null;
+          const vaultFileSearch = await fetch('https://www.googleapis.com/drive/v3/files?q=' + encodeURIComponent('name="vault.enc" and trashed=false'), {
+            headers: { Authorization: `Bearer ${accessToken}` }
+          });
+          if (vaultFileSearch.ok) {
+            const vaultSearchData = await vaultFileSearch.json();
+            if (vaultSearchData.files && vaultSearchData.files.length > 0) {
+              const vaultFileId = vaultSearchData.files[0].id;
+              const vaultDownloadResponse = await fetch(`https://www.googleapis.com/drive/v3/files/${vaultFileId}?alt=media`, {
+                headers: { Authorization: `Bearer ${accessToken}` }
+              });
+              if (vaultDownloadResponse.ok) {
+                envelope = await vaultDownloadResponse.json();
+              }
+            }
+          }
+
           // Find file ID
-          const searchResponse = await fetch('https://www.googleapis.com/drive/v3/files?q=name="passwords.csv" and trashed=false', {
+          const searchResponse = await fetch('https://www.googleapis.com/drive/v3/files?q=' + encodeURIComponent('name="passwords.csv" and trashed=false'), {
             headers: { Authorization: `Bearer ${accessToken}` }
           });
           const searchData = await searchResponse.json();
@@ -107,7 +125,7 @@ ipcMain.handle('sync-google-drive', async () => {
           }
 
           const csvText = await downloadResponse.text();
-          resolve(csvText);
+          resolve({ csvText, envelope });
         } catch (e: any) {
           reject(e.message);
         }

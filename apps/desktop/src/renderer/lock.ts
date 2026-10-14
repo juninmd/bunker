@@ -41,6 +41,7 @@ namespace Bunker {
         input.focus();
         return;
       }
+      state.masterPassword = input.value;
       input.value = '';
       setRevealed(false);
       onUnlock();

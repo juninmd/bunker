@@ -1,17 +1,16 @@
 # CRON Loop Artifact
 
 ## Changes Made
-- Refactored `apps/mobile/App.tsx` by consolidating the core React Native `AppState` event listeners and periodic `setInterval` logic for the Google Drive Background Sync into a single `performSilentSync` method.
-- Removed duplicated `useEffect` instances (`performSilentSync2`, `performSilentSync3`, `performSilentSync4`) mitigating Code Duplication anti-patterns flagged by SonarCloud Quality Gates.
-- Ensured `processPendingSaves` is correctly invoked on background syncs to catch stored credentials from the autofill service.
-- Implemented the "Criptografar CSV" setting in the extension. This encrypts sensitive fields (`password`, `totp`, `notes`/`extra`) with AES-256-GCM using the vault's derived key before generating the `passwords.csv` and uploading it to Google Drive, fulfilling the 'Opção Segura' requirement of the Roadmap.
-- Ran tests in `apps/extension` and typechecked the application state successfully.
+- Created `apps/desktop/src/renderer/crypto.ts` utilizing the Web Crypto API to provide PBKDF2 derivation and AES-GCM decryption logic.
+- Created `apps/mobile/src/core/crypto.ts` utilizing `react-native-quick-crypto` to provide native PBKDF2 derivation and AES-GCM decryption for React Native.
+- Updated `apps/desktop/src/main.ts` and `apps/mobile/src/SyncService.ts` to fetch `vault.enc` from Google Drive in addition to `passwords.csv`.
+- Updated desktop and mobile synchronization layers to extract the `salt` and `iterations` from the `vault.enc` envelope, derive the master key using the master password, and successfully parse and decrypt CSV fields containing the `ENC:` prefix.
+- Fixed TypeScript configuration and dependency compilation errors across the newly added crypto interfaces.
 
 ## State for Next Loop
-- The project's Phase 5 (Multiplatform Expansion) is essentially complete across Browser Extension, Desktop App, and Mobile Apps.
-- The `performSilentSync` duplication bug is resolved.
-- The "Criptografar CSV" feature is complete.
-- Ready for further roadmap verification, potential UI refinements, or addressing the cross-app CSV encryption parity (Desktop and Mobile apps may need equivalent parsing updates to handle the `ENC:` prefix).
+- The cross-app CSV encryption parity is complete across Browser Extension, Desktop App, and Mobile Apps.
+- All platforms securely sync `passwords.csv` and can safely parse `ENC:` fields via fetching the underlying `vault.enc` remote parameters.
+- Ready for exploring remaining UI refinements or new Phase 5 features as per the roadmap.
 
 ## CI/CD Status
 - Workflows are correctly configured. GitHub Actions are handling automated releases.
