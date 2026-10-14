@@ -32,28 +32,42 @@ namespace Bunker {
   }
 
   // Linhas do CSV viram itens. Sem url, ou na pasta "Deleted", o item fica oculto.
-  export function toItems(rows: CsvRow[]): Item[] {
+  export async function toItems(rows: CsvRow[], key?: CryptoKey): Promise<Item[]> {
     const items: Item[] = [];
-    rows.forEach((row, index) => {
+    for (let index = 0; index < rows.length; index++) {
+      const row = rows[index];
       const url = row.url ?? '';
-      if (!url || row.grouping === 'Deleted') return;
+      if (!url || row.grouping === 'Deleted') continue;
       const kind = kindOf(url);
       const name = row.name ?? '';
       const username = row.username ?? '';
       const group = row.grouping || DEFAULT_GROUP;
+
+      let password = row.password ?? '';
+      let notes = row.extra ?? '';
+
+      if (key) {
+        if (password.startsWith('ENC:')) {
+          try { password = await decryptWithKey(password.substring(4), key); } catch (e) { console.warn('Failed to decrypt password', e); }
+        }
+        if (notes.startsWith('ENC:')) {
+          try { notes = await decryptWithKey(notes.substring(4), key); } catch (e) { console.warn('Failed to decrypt notes', e); }
+        }
+      }
+
       items.push({
         id: String(index),
         kind,
         url,
         name,
         username,
-        password: row.password ?? '',
-        notes: row.extra ?? '',
+        password,
+        notes,
         group,
         title: name || (kind === 'password' ? hostOf(url) : KIND_LABEL[kind]),
         haystack: fold([url, username, name, group].join('\u0000'))
       });
-    });
+    }
     return items;
   }
 
