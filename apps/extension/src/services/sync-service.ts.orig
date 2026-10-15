@@ -54,7 +54,7 @@ export class SyncService {
 
     const payload = { schemaVersion: this.VAULT_SCHEMA_VERSION, credentials: mergedVault };
     const encrypted = await sealRemoteVault(payload, vault.key, vault.salt, vault.iterations);
-    const csvContent = await this.generateCSVContent(mergedVault);
+
 
     try { // NOSONAR
       if (vaultFile) {
