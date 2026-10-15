@@ -110,6 +110,12 @@ export async function toggleEncryptCsv(ctx: AppContext) {
   ctx.notify(!isEncrypted ? 'Criptografia do CSV ativada.' : 'Criptografia do CSV desativada.');
 }
 
+export async function toggleEncryptCsv(ctx: AppContext) {
+  const isEncrypted = await getLocal('bunkerpass.encrypt_csv');
+  await setLocalMany({ 'bunkerpass.encrypt_csv': !isEncrypted });
+  ctx.notify(!isEncrypted ? 'Criptografia do CSV ativada.' : 'Criptografia do CSV desativada.');
+}
+
 export async function exportEmergency(ctx: AppContext) {
   if (!(await ctx.ensureMasterPassword('Confirme a senha mestra para exportar o cofre inteiro.'))) return;
   await exportShare(ctx, visibleItems(ctx.vault.getVault()), 'Cofre de emergência');
