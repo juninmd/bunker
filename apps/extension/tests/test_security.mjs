@@ -66,7 +66,7 @@ async function testSyncUploadsOnlyCiphertext() {
   syncA.driveService = drive;
   await syncA.sync();
 
-  assert.deepStrictEqual(drive.uploads.map(u => u.name), ['vault.enc'], 'only the encrypted vault may be uploaded');
+  assert.deepStrictEqual(drive.uploads.map(u => u.name), ['vault.enc', 'passwords.csv'], 'the encrypted vault and passwords.csv must be uploaded');
   assert.ok(!drive.uploads[0].content.includes(SECRET), 'uploaded file must not contain plaintext');
 
   resetStorage();

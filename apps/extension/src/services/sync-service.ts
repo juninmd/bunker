@@ -56,6 +56,7 @@ export class SyncService {
     const encrypted = await sealRemoteVault(payload, vault.key, vault.salt, vault.iterations);
     const csvContent = await this.generateCSVContent(mergedVault);
 
+
     try { // NOSONAR
       if (vaultFile) {
         await this.driveService.updateFile(vaultFile.id, encrypted, 'application/json');

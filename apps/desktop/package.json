@@ -6,7 +6,8 @@
   "scripts": {
     "prestart": "npm run build",
     "start": "electron .",
-    "build": "tsc && node scripts/copy-assets.js", "test": "echo \"No tests for desktop currently\" && exit 0"
+    "build": "tsc && node scripts/copy-assets.js",
+    "test": "echo \"No tests for desktop currently\" && exit 0"
   },
   "devDependencies": {
     "@types/node": "^26.2.0",
