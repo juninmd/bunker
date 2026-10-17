@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Bunker - Painel de Segurança</title>
+  <style>
+    body { background: #0f172a; color: #f8fafc; font-family: sans-serif; padding: 20px; }
+    h1 { color: #fbbf24; }
+    .card { background: #1e293b; padding: 15px; border-radius: 8px; margin-bottom: 10px; }
+  </style>
+</head>
+<body>
+  <h1>Painel de Segurança</h1>
+  <p>Bem-vindo ao dashboard de análise de senhas fracas, repetidas e antigas.</p>
+  <div class="card" id="weak-passwords-card">
+    <h3>Senhas Fracas</h3>
+    <ul id="weak-list">Carregando...</ul>
+  </div>
+  <script src="security.js" type="module"></script>
+</body>
+</html>
