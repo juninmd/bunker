@@ -4,6 +4,7 @@ import * as Crypto from 'expo-crypto';
 import { useCallback, useState, useEffect, useRef } from 'react';
 import { SyncService } from './src/SyncService';
 import { PasswordGenerator } from './src/PasswordGenerator';
+import { SecurityPanel } from './src/SecurityPanel';
 import * as LocalAuthentication from 'expo-local-authentication';
 import * as SecureStore from 'expo-secure-store';
 import AutofillModule from './src/native/AutofillModule';
@@ -58,6 +59,7 @@ export default function App() {
     }
   };
     const [showGenerator, setShowGenerator] = useState(false);
+  const [showSecurityPanel, setShowSecurityPanel] = useState(false);
   const [isAutofillEnabled, setIsAutofillEnabled] = useState(false);
   const [hasAutofillSupport, setHasAutofillSupport] = useState(false);
     const syncInProgress = useRef(false);
@@ -223,7 +225,9 @@ export default function App() {
     <ScreenBackground>
       <VaultHeader count={vaultData.length} isSyncing={isSyncing} onSync={handleManualSync} />
 
-      {showGenerator ? (
+      {showSecurityPanel ? (
+        <SecurityPanel data={vaultData} onClose={() => setShowSecurityPanel(false)} />
+      ) : showGenerator ? (
         <PasswordGenerator onClose={() => setShowGenerator(false)} />
       ) : (
         <VaultList
@@ -231,6 +235,7 @@ export default function App() {
           isSyncing={isSyncing}
           onSync={handleManualSync}
           onOpenGenerator={() => setShowGenerator(true)}
+          onOpenSecurity={() => setShowSecurityPanel(true)}
           hasAutofillSupport={hasAutofillSupport}
           isAutofillEnabled={isAutofillEnabled}
           onRequestAutofill={handleRequestAutofill}

@@ -15,7 +15,7 @@ O objetivo do DrivePass é ser um substituto completo, open-source e auto-hosped
 - [x] Criptografia de ponta a ponta nativa usando AES-256-GCM.
 
 #### Fase 2: Paridade com o LastPass (Em Andamento)
-- [ ] **Painel de Segurança**:
+- [x] **Painel de Segurança**:
   - Análise de senhas fracas, reutilizadas ou antigas.
   - Verificação de vazamentos (integração com HIBP - Have I Been Pwned).
 - [ ] **Passkeys**:

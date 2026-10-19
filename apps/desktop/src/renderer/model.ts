@@ -72,7 +72,7 @@ namespace Bunker {
   }
 
   export function countKinds(items: Item[]): Record<Filter, number> {
-    const counts: Record<Filter, number> = { all: items.length, password: 0, note: 0, card: 0, address: 0, passkey: 0 };
+    const counts: Record<Filter, number> = { all: items.length, password: 0, note: 0, card: 0, address: 0, passkey: 0, security: 0 };
     for (const item of items) counts[item.kind]++;
     return counts;
   }

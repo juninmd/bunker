@@ -16,6 +16,7 @@ type Props = {
   /** Same handler the old "Sincronizar com Google Drive (CSV)" button used. */
   onSync: () => void;
   onOpenGenerator: () => void;
+  onOpenSecurity: () => void;
   hasAutofillSupport: boolean;
   isAutofillEnabled: boolean;
   onRequestAutofill: () => void;
@@ -40,6 +41,7 @@ export function VaultList({
   isSyncing,
   onSync,
   onOpenGenerator,
+  onOpenSecurity,
   hasAutofillSupport,
   isAutofillEnabled,
   onRequestAutofill,
@@ -62,6 +64,13 @@ export function VaultList({
           icon="dice"
           onPress={onOpenGenerator}
           accessibilityLabel="Abrir gerador de senhas"
+          style={styles.secondary}
+        />
+        <SecondaryButton
+          title="Saúde"
+          icon="warning"
+          onPress={onOpenSecurity}
+          accessibilityLabel="Abrir painel de segurança"
           style={styles.secondary}
         />
       </View>
