@@ -10,9 +10,13 @@ namespace Bunker {
   function updateStates(total: number, shown: number): void {
     const query = state.query.trim();
     const none = total > 0 && shown === 0;
-    byId('emptyState').hidden = total > 0;
-    byId('noResults').hidden = !none;
-    byId('vaultList').hidden = shown === 0;
+    const isSecurity = state.filter === 'security';
+    byId('emptyState').hidden = total > 0 || isSecurity;
+    byId('noResults').hidden = !none || isSecurity;
+    byId('vaultList').hidden = shown === 0 || isSecurity;
+    const secView = byId('securityView');
+    if (secView) secView.hidden = !isSecurity;
+
     byId('noText').textContent = query
       ? `Não encontramos itens para “${query}”. Tente outro nome, usuário ou pasta.`
       : 'Não há itens nesta categoria.';
@@ -25,6 +29,10 @@ namespace Bunker {
     updateNav(countKinds(state.items), state.filter);
     updateHeader(shown.length);
     updateStates(state.items.length, shown.length);
-    renderList(groupItems(shown), animate);
+    if (state.filter === 'security') {
+      renderSecurityView(state.items);
+    } else {
+      renderList(groupItems(shown), animate);
+    }
   }
 }

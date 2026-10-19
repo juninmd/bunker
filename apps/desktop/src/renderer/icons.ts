@@ -24,6 +24,7 @@ namespace Bunker {
     check: 'M5 12.5l4.5 4.5L19 7.5',
     chevron: 'M6 9l6 6 6-6',
     x: 'M6 6l12 12 M18 6L6 18',
+    clock: 'M12 3a9 9 0 1 0 0 18a9 9 0 1 0 0-18z M12 7.5v5l3 3',
     alert: 'M12 3a9 9 0 1 0 0 18a9 9 0 1 0 0-18z M12 7.5v5 M12 16.2v.1',
     lock: 'M7 11h10a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-6a2 2 0 0 1 2-2z M8 11V8a4 4 0 0 1 8 0v3'
   } as const;
