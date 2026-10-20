@@ -1,7 +1,7 @@
 import type { VaultService } from '../services/vault-service.js';
 import type { SyncService } from '../services/sync-service.js';
 
-export type ViewName = 'lock' | 'vault' | 'editor' | 'generator' | 'security' | 'settings' | 'panel';
+export type ViewName = 'lock' | 'vault' | 'editor' | 'generator' | 'security' | 'saas' | 'settings' | 'panel';
 export type Tone = 'info' | 'error';
 
 // Explicit wiring passed to every view module, so no module reaches into another's DOM or globals.

@@ -2,8 +2,8 @@ import type { ViewName } from './context.js';
 import { byId } from './dom.js';
 import { icon, type IconName } from './icons.js';
 
-const TAB_ICONS: Record<string, IconName> = { vault: 'vault', generator: 'sliders', security: 'shield', settings: 'gear' };
-const TABBED: ViewName[] = ['vault', 'generator', 'security', 'settings'];
+const TAB_ICONS: Record<string, IconName> = { vault: 'vault', generator: 'sliders', security: 'shield', saas: 'shield', settings: 'gear' };
+const TABBED: ViewName[] = ['vault', 'generator', 'security', 'saas', 'settings'];
 let history: ViewName[] = [];
 
 export function initNav(onTab: (view: ViewName) => void, onBack: () => void) {

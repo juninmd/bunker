@@ -1,11 +1,9 @@
 namespace Bunker {
   // Funcionalidades ainda não implementadas: aparecem desabilitadas, sob o grupo "Em breve".
   const SOON: ReadonlyArray<{ label: string; icon: IconName }> = [
-    { label: 'Painel de Segurança', icon: 'shield' },
     { label: 'Gerador de Senhas', icon: 'sparkles' },
     { label: 'Compartilhamento', icon: 'share' },
     { label: 'Dark Web', icon: 'globe' },
-    { label: 'SaaS Protect', icon: 'cloud' },
     { label: 'Testamento Digital', icon: 'hourglass' }
   ];
 
@@ -24,7 +22,21 @@ namespace Bunker {
         button.dataset.filter = category.id;
         button.addEventListener('click', () => onFilter(category.id));
         return button;
-      })
+      }),
+      ((): HTMLButtonElement => {
+        const button = el('button', 'nav-item', icon('shield'), el('span', 'nav-label', 'Painel de Segurança'));
+        button.type = 'button';
+        button.dataset.filter = 'security';
+        button.addEventListener('click', () => onFilter('security'));
+        return button as HTMLButtonElement;
+      })(),
+      ((): HTMLButtonElement => {
+        const button = el('button', 'nav-item', icon('shield'), el('span', 'nav-label', 'SaaS Protect'));
+        button.type = 'button';
+        button.dataset.filter = 'saas';
+        button.addEventListener('click', () => onFilter('saas'));
+        return button as HTMLButtonElement;
+      })()
     );
     byId('soonGroup').append(
       ...SOON.map(entry => {

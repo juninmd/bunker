@@ -11,11 +11,17 @@ namespace Bunker {
     const query = state.query.trim();
     const none = total > 0 && shown === 0;
     const isSecurity = state.filter === 'security';
-    byId('emptyState').hidden = total > 0 || isSecurity;
-    byId('noResults').hidden = !none || isSecurity;
-    byId('vaultList').hidden = shown === 0 || isSecurity;
+    const isSaas = state.filter === 'saas';
+    const isSpecialView = isSecurity || isSaas;
+    byId('emptyState').hidden = total > 0 || isSpecialView;
+    byId('noResults').hidden = !none || isSpecialView;
+    byId('vaultList').hidden = shown === 0 || isSpecialView;
+
     const secView = byId('securityView');
     if (secView) secView.hidden = !isSecurity;
+
+    const saasView = byId('saasView');
+    if (saasView) saasView.hidden = !isSaas;
 
     byId('noText').textContent = query
       ? `Não encontramos itens para “${query}”. Tente outro nome, usuário ou pasta.`
@@ -31,6 +37,8 @@ namespace Bunker {
     updateStates(state.items.length, shown.length);
     if (state.filter === 'security') {
       renderSecurityView(state.items);
+    } else if (state.filter === 'saas') {
+      renderSaasView();
     } else {
       renderList(groupItems(shown), animate);
     }

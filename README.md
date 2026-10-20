@@ -69,17 +69,14 @@ This project follows the **Antigravity** code standards:
 ## 🔄 Current Progress & Next Steps (CRON Loop)
 
 **Progress**:
-- Criada a estrutura do documento ROADMAP.md para mapear as funcionalidades e o planejamento do DrivePass (Fases 1, 2 e 3).
-- Arquitetura inicial do monorepo validada (Extensão Web, App Desktop e App Mobile via npm workspaces).
-- Testes locais restabelecidos após correção de paths.
-- Ciclo de CRON Loop inicializado.
-- **Painel de Segurança**: Adicionados os scaffolds iniciais (HTML, TS, e React Native) para a nova funcionalidade de Painel de Segurança nas plataformas (Desktop, Extensão e Mobile).
+- Implementação inicial da feature de **Painel de Segurança** em todas as três plataformas (Web Extension, App Desktop e App Mobile).
+- Criação dos scaffolds da funcionalidade **SaaS Protect** (dashboard simulado de monitoramento de credenciais corporativas) no Desktop, Mobile e Extension.
 
 **Known Bugs**:
 - Nenhum bug funcional conhecido. Os testes estão passando em todos os apps integrados.
 
 **Next Tasks**:
-- Continuar o desenvolvimento da lógica de análise de senhas fracas, reutilizadas e vazadas (HIBP) para o Painel de Segurança (Fase 2).
+- Avançar com a implementação completa das funcionalidades faltantes na Fase 2: **Passkeys** e **Login sem senha**.
 - Manutenção periódica de dependências npm.
 
 ---
