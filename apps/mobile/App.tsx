@@ -5,6 +5,7 @@ import { useCallback, useState, useEffect, useRef } from 'react';
 import { SyncService } from './src/SyncService';
 import { PasswordGenerator } from './src/PasswordGenerator';
 import { SecurityPanel } from './src/SecurityPanel';
+import { SaasProtectPanel } from './src/SaasProtectPanel';
 import * as LocalAuthentication from 'expo-local-authentication';
 import * as SecureStore from 'expo-secure-store';
 import AutofillModule from './src/native/AutofillModule';
@@ -60,6 +61,7 @@ export default function App() {
   };
     const [showGenerator, setShowGenerator] = useState(false);
   const [showSecurityPanel, setShowSecurityPanel] = useState(false);
+  const [showSaasProtectPanel, setShowSaasProtectPanel] = useState(false);
   const [isAutofillEnabled, setIsAutofillEnabled] = useState(false);
   const [hasAutofillSupport, setHasAutofillSupport] = useState(false);
     const syncInProgress = useRef(false);
@@ -225,7 +227,9 @@ export default function App() {
     <ScreenBackground>
       <VaultHeader count={vaultData.length} isSyncing={isSyncing} onSync={handleManualSync} />
 
-      {showSecurityPanel ? (
+      {showSaasProtectPanel ? (
+        <SaasProtectPanel onClose={() => setShowSaasProtectPanel(false)} />
+      ) : showSecurityPanel ? (
         <SecurityPanel data={vaultData} onClose={() => setShowSecurityPanel(false)} />
       ) : showGenerator ? (
         <PasswordGenerator onClose={() => setShowGenerator(false)} />
@@ -236,6 +240,7 @@ export default function App() {
           onSync={handleManualSync}
           onOpenGenerator={() => setShowGenerator(true)}
           onOpenSecurity={() => setShowSecurityPanel(true)}
+          onOpenSaasProtect={() => setShowSaasProtectPanel(true)}
           hasAutofillSupport={hasAutofillSupport}
           isAutofillEnabled={isAutofillEnabled}
           onRequestAutofill={handleRequestAutofill}

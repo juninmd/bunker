@@ -17,6 +17,7 @@ type Props = {
   onSync: () => void;
   onOpenGenerator: () => void;
   onOpenSecurity: () => void;
+  onOpenSaasProtect?: () => void;
   hasAutofillSupport: boolean;
   isAutofillEnabled: boolean;
   onRequestAutofill: () => void;
@@ -42,6 +43,7 @@ export function VaultList({
   onSync,
   onOpenGenerator,
   onOpenSecurity,
+  onOpenSaasProtect,
   hasAutofillSupport,
   isAutofillEnabled,
   onRequestAutofill,
@@ -73,6 +75,15 @@ export function VaultList({
           accessibilityLabel="Abrir painel de segurança"
           style={styles.secondary}
         />
+        {onOpenSaasProtect && (
+          <SecondaryButton
+            title="SaaS"
+            icon="warning"
+            onPress={onOpenSaasProtect}
+            accessibilityLabel="Abrir SaaS Protect"
+            style={styles.secondary}
+          />
+        )}
       </View>
       {hasAutofillSupport ? (
         <StatusCard enabled={isAutofillEnabled} onPress={onRequestAutofill} />

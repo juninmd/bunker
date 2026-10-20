@@ -2,7 +2,7 @@
 // (o sandbox do Electron não carrega módulos via file://) e todos compartilham o namespace Bunker.
 namespace Bunker {
   export type Kind = 'password' | 'note' | 'card' | 'address' | 'passkey';
-  export type Filter = 'all' | Kind | 'security';
+  export type Filter = 'all' | Kind | 'security' | 'saas';
   export type SyncStatus = 'idle' | 'busy' | 'ok' | 'error';
   export type CsvRow = Record<string, string>;
 

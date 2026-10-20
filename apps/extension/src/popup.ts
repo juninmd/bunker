@@ -9,6 +9,7 @@ import { initVaultList, renderVaultList } from './ui/vault-list.js';
 import { initEditor } from './ui/item-editor.js';
 import { initGeneratorView } from './ui/generator-view.js';
 import { initSecurityView } from './ui/security-view.js';
+import { initSaasView } from './ui/saas-view.js';
 import { initSettingsView } from './ui/settings-view.js';
 
 const vault = new VaultService();
@@ -86,11 +87,13 @@ const ctx: AppContext = {
 const editor = initEditor(ctx);
 const generator = initGeneratorView(ctx);
 const security = initSecurityView(ctx);
+const saas = initSaasView(ctx);
 const settings = initSettingsView(ctx);
 onShow.lock = () => { prepareLockView(ctx); };
 onShow.vault = () => renderVaultList(ctx);
 onShow.generator = () => { generator.show(); };
 onShow.security = security.show;
+onShow.saas = saas.show;
 onShow.settings = () => { settings.show(); };
 
 async function enterVault() {

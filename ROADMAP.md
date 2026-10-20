@@ -24,6 +24,7 @@ O objetivo do DrivePass é ser um substituto completo, open-source e auto-hosped
   - Capacidade de desbloquear o cofre utilizando biometria, passkeys ou chaves de hardware.
 - [ ] **SaaS Protect**:
   - Monitoramento avançado e proteções específicas para aplicações web corporativas (SSO e IAM leves locais).
+  - *Status:* UI inicial scaffoldada em todas as plataformas, aguardando implementação da lógica de monitoramento real.
 
 #### Fase 3: Aprimoramentos Contínuos e Refinamentos
 - [ ] Melhorias no Autofill de Android e iOS.
