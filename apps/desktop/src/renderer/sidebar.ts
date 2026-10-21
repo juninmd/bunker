@@ -15,6 +15,20 @@ namespace Bunker {
   };
 
   export function buildSidebar(onFilter: (filter: Filter) => void): void {
+    const setupBiometricsBtn = byId<HTMLButtonElement>('setupBiometricsBtn');
+    setupBiometricsBtn.addEventListener('click', async () => {
+      try {
+        if (!state.masterPassword) throw new Error('Cofre bloqueado.');
+        setupBiometricsBtn.disabled = true;
+        await setupPasswordless(state.masterPassword);
+        toast('ok', 'Biometria configurada com sucesso.');
+      } catch (error) {
+        toast('error', error instanceof Error ? error.message : 'Falha ao configurar biometria.');
+      } finally {
+        setupBiometricsBtn.disabled = false;
+      }
+    });
+
     byId('nav').replaceChildren(
       ...CATEGORIES.map(category => {
         const button = el('button', 'nav-item', icon(category.icon), el('span', 'nav-label', category.label), el('span', 'nav-count', '0'));

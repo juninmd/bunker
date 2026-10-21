@@ -71,12 +71,13 @@ This project follows the **Antigravity** code standards:
 **Progress**:
 - Implementação inicial da feature de **Painel de Segurança** em todas as três plataformas (Web Extension, App Desktop e App Mobile).
 - Criação dos scaffolds da funcionalidade **SaaS Protect** (dashboard simulado de monitoramento de credenciais corporativas) no Desktop, Mobile e Extension.
+- Adicionado **Login sem senha** ao Desktop via biometria/WebAuthn PRF.
 
 **Known Bugs**:
 - Nenhum bug funcional conhecido. Os testes estão passando em todos os apps integrados.
 
 **Next Tasks**:
-- Avançar com a implementação completa das funcionalidades faltantes na Fase 2: **Passkeys** e **Login sem senha**.
+- Avançar com a implementação completa das funcionalidades faltantes na Fase 2: **Passkeys**.
 - Manutenção periódica de dependências npm.
 
 ---
