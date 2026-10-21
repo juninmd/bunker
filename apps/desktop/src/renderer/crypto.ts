@@ -28,6 +28,13 @@ namespace Bunker {
     );
   }
 
+  export async function encryptWithKey(data: any, key: CryptoKey): Promise<string> {
+    const iv = crypto.getRandomValues(new Uint8Array(12));
+    const plaintext = new TextEncoder().encode(JSON.stringify(data));
+    const ciphertext = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, plaintext);
+    return `${bytesToBase64(iv)}.${bytesToBase64(new Uint8Array(ciphertext))}`;
+  }
+
   export async function decryptWithKey(payload: string, key: CryptoKey): Promise<any> {
     const parts = payload.split('.');
     if (parts.length !== 2) throw new Error('Invalid payload format');

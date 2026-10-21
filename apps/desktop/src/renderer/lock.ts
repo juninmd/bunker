@@ -7,6 +7,27 @@ namespace Bunker {
     const card = byId('lockCard');
     const error = byId('lockError');
     const reveal = byId<HTMLButtonElement>('revealLock');
+    const unlockBiometricsBtn = byId<HTMLButtonElement>('unlockBiometricsBtn');
+
+    hasPasswordless().then(has => {
+      unlockBiometricsBtn.hidden = !has;
+    }).catch(() => {
+      unlockBiometricsBtn.hidden = true;
+    });
+
+    unlockBiometricsBtn.addEventListener('click', async () => {
+      try {
+        unlockBiometricsBtn.disabled = true;
+        const password = await recoverWithPasswordless();
+        state.masterPassword = password;
+        onUnlock();
+      } catch (err) {
+        setError('Falha ao desbloquear com biometria.');
+        shake();
+      } finally {
+        unlockBiometricsBtn.disabled = false;
+      }
+    });
 
     const setError = (message: string): void => {
       error.replaceChildren(...(message ? [icon('alert'), message] : []));
