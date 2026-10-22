@@ -38,7 +38,7 @@ namespace Bunker {
     if (state.filter === 'security') {
       renderSecurityView(state.items);
     } else if (state.filter === 'saas') {
-      renderSaasView();
+      renderSaasView(state.items);
     } else {
       renderList(groupItems(shown), animate);
     }
