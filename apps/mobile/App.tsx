@@ -228,7 +228,7 @@ export default function App() {
       <VaultHeader count={vaultData.length} isSyncing={isSyncing} onSync={handleManualSync} />
 
       {showSaasProtectPanel ? (
-        <SaasProtectPanel onClose={() => setShowSaasProtectPanel(false)} />
+        <SaasProtectPanel data={vaultData} onClose={() => setShowSaasProtectPanel(false)} />
       ) : showSecurityPanel ? (
         <SecurityPanel data={vaultData} onClose={() => setShowSecurityPanel(false)} />
       ) : showGenerator ? (

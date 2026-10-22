@@ -4,10 +4,21 @@ import { IconButton } from './components/IconButton';
 import { colors, spacing, fontSize, fontWeight, radius } from './theme';
 
 interface Props {
+  data: any[];
   onClose: () => void;
 }
 
-export function SaasProtectPanel({ onClose }: Props) {
+const CORPORATE_DOMAINS = ['slack', 'google', 'aws', 'microsoft', 'okta', 'github'];
+
+export function SaasProtectPanel({ data, onClose }: Props) {
+  const corporateApps = Array.from(
+    new Set(
+      data
+        .filter(item => item.site && CORPORATE_DOMAINS.some(domain => item.site.toLowerCase().includes(domain)))
+        .map(item => item.site)
+    )
+  ).slice(0, 10); // Limit display to avoid massive lists
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -24,11 +35,15 @@ export function SaasProtectPanel({ onClose }: Props) {
         </View>
 
         <View style={styles.issuesCard}>
-          <Issue label="Aplicações Monitoradas" count={3} />
+          <Issue label="Aplicações Monitoradas" count={corporateApps.length} />
           <View style={styles.appList}>
-             <Text style={styles.appItem}>Slack Workspace</Text>
-             <Text style={styles.appItem}>Google Workspace</Text>
-             <Text style={styles.appItem}>AWS SSO</Text>
+            {corporateApps.length > 0 ? (
+              corporateApps.map(app => (
+                <Text key={app} style={styles.appItem}>{app}</Text>
+              ))
+            ) : (
+              <Text style={styles.appItem}>Nenhuma aplicação corporativa detectada.</Text>
+            )}
           </View>
         </View>
 

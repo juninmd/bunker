@@ -1,9 +1,12 @@
 import { byId, el, button } from './dom.js';
 import { icon } from './icons.js';
 import type { AppContext } from './context.js';
+import { getSaasApps } from '../services/saas-analyzer.js';
 
 export function initSaasView(ctx: AppContext) {
   const render = () => {
+    const corporateApps = getSaasApps(ctx.vault.getVault());
+
     const header = el('div', 'score');
     const ring = el('div', 'score-ring good');
 
@@ -24,16 +27,24 @@ export function initSaasView(ctx: AppContext) {
 
     const issues = el('div', 'issues');
 
-    // Mock issue details
-    const box = el('details', 'issue');
+    const box = el('details', 'issue') as HTMLDetailsElement;
+    box.open = true;
     const summary = el('summary');
-    summary.append(icon('shield'), el('span', '', 'Aplicações Monitoradas'), el('span', 'count good', '3'));
+    summary.append(icon('shield'), el('span', '', 'Aplicações Monitoradas'), el('span', 'count good', String(corporateApps.length)));
     const list = el('ul');
-    ['Slack Workspace', 'Google Workspace', 'AWS SSO'].forEach(appName => {
+
+    if (corporateApps.length > 0) {
+      corporateApps.forEach(appName => {
+        const li = el('li');
+        li.append(el('span', '', appName));
+        list.append(li);
+      });
+    } else {
       const li = el('li');
-      li.append(el('span', '', appName));
+      li.append(el('span', '', 'Nenhuma aplicação corporativa detectada.'));
       list.append(li);
-    });
+    }
+
     box.append(summary, list);
     issues.append(box);
 

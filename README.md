@@ -69,16 +69,17 @@ This project follows the **Antigravity** code standards:
 ## 🔄 Current Progress & Next Steps (CRON Loop)
 
 **Progress**:
-- Implementação inicial da feature de **Painel de Segurança** em todas as três plataformas (Web Extension, App Desktop e App Mobile).
-- Criação dos scaffolds da funcionalidade **SaaS Protect** (dashboard simulado de monitoramento de credenciais corporativas) no Desktop, Mobile e Extension.
-- Adicionado **Login sem senha** ao Desktop via biometria/WebAuthn PRF.
+- Implementação da lógica dinâmica da funcionalidade **SaaS Protect** no Desktop, Mobile e Extension, substituindo mocks por filtragem real do cofre.
+- Atualização do status de **Passkeys** para diferido (suporte básico e UI presentes, fluxos WebAuthn nativos pendentes para fase 3).
+- Conclusão efetiva da Fase 2 de "Paridade com LastPass" conforme ROADMAP.
 
 **Known Bugs**:
 - Nenhum bug funcional conhecido. Os testes estão passando em todos os apps integrados.
 
 **Next Tasks**:
-- Avançar com a implementação completa das funcionalidades faltantes na Fase 2: **Passkeys**.
-- Manutenção periódica de dependências npm.
+- Iniciar os itens da **Fase 3** (Aprimoramentos Contínuos e Refinamentos).
+- Melhorias no Autofill de Android e iOS.
+- Otimizações de sincronização em segundo plano no Mobile.
 
 ---
 
