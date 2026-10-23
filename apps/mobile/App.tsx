@@ -8,12 +8,46 @@ import { SecurityPanel } from './src/SecurityPanel';
 import { SaasProtectPanel } from './src/SaasProtectPanel';
 import * as LocalAuthentication from 'expo-local-authentication';
 import * as SecureStore from 'expo-secure-store';
+import * as TaskManager from 'expo-task-manager';
+import * as BackgroundFetch from 'expo-background-fetch';
 import AutofillModule from './src/native/AutofillModule';
 import { LockScreen } from './src/components/LockScreen';
 import { ScreenBackground } from './src/components/ScreenBackground';
 import { VaultHeader } from './src/components/VaultHeader';
 import { VaultList } from './src/components/VaultList';
 import type { VaultRowItem } from './src/components/vaultItem';
+
+const BACKGROUND_SYNC_TASK = 'BACKGROUND_SYNC_TASK';
+
+TaskManager.defineTask(BACKGROUND_SYNC_TASK, async () => {
+  try {
+    console.log('Running background sync task...');
+    const data = await SyncService.syncWithGoogleDrive(false);
+    if (data && (data as any[]).length > 0) {
+      if (AutofillModule) {
+        AutofillModule.saveCredentials(JSON.stringify(data));
+      }
+      return BackgroundFetch.BackgroundFetchResult.NewData;
+    }
+    return BackgroundFetch.BackgroundFetchResult.NoData;
+  } catch (err) {
+    console.error('Background sync failed:', err);
+    return BackgroundFetch.BackgroundFetchResult.Failed;
+  }
+});
+
+async function registerBackgroundFetchAsync() {
+  try {
+    await BackgroundFetch.registerTaskAsync(BACKGROUND_SYNC_TASK, {
+      minimumInterval: 15 * 60, // 15 minutes
+      stopOnTerminate: false,
+      startOnBoot: true,
+    });
+    console.log('Background fetch task registered');
+  } catch (err) {
+    console.error('Failed to register background fetch task:', err);
+  }
+}
 
 export default function App() {
   const [isUnlocked, setIsUnlocked] = useState(false);
@@ -126,6 +160,7 @@ export default function App() {
 
     // Initial sync on unlock
     performSilentSync();
+    registerBackgroundFetchAsync();
 
     // Sync when app comes to foreground
     const subscription = AppState.addEventListener('change', nextAppState => {
