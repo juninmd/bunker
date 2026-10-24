@@ -230,8 +230,7 @@ This project follows the **Antigravity** code standards:
 - Nenhum bug funcional conhecido. Os testes estão passando em todos os apps integrados.
 
 **Next Tasks**:
-- Melhorias no Autofill de Android e iOS.
-- Melhorias na interface de usuário (Bunker Midnight).
+- Manutenção de dependências e monitoramento de saúde do código.
 
 ## ⚖️ Licença
 

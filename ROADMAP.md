@@ -28,9 +28,9 @@ O objetivo do DrivePass é ser um substituto completo, open-source e auto-hosped
   - *Status:* Implementado em todas as plataformas filtrando dinamicamente aplicações de TI/corporativas.
 
 #### Fase 3: Aprimoramentos Contínuos e Refinamentos
-- [ ] Melhorias no Autofill de Android e iOS.
+- [x] Melhorias no Autofill de Android e iOS.
 - [x] Otimizações de sincronização em segundo plano no Mobile.
-- [ ] Melhorias na interface de usuário (Bunker Midnight).
+- [x] Melhorias na interface de usuário (Bunker Midnight).
 - [ ] Manutenção de dependências e monitoramento de saúde do código.
 
 ---

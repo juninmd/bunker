@@ -42,10 +42,10 @@ const styles = StyleSheet.create({
     gap: spacing.md,
     paddingHorizontal: spacing.xl,
     paddingTop: spacing.md,
-    paddingBottom: spacing.lg,
+    paddingBottom: spacing.md,
   },
   mark: { width: 44, height: 44 },
   texts: { flex: 1 },
   title: { color: colors.text, fontSize: fontSize.heading, fontWeight: fontWeight.bold, letterSpacing: -0.22 },
-  subtitle: { marginTop: 1, color: colors.muted, fontSize: fontSize.label, fontVariant: tabular },
+  subtitle: { marginTop: 1, color: colors.faint, fontSize: fontSize.label, fontVariant: tabular },
 });

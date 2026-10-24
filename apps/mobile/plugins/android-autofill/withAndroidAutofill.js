@@ -138,6 +138,10 @@ public class DrivePassAutofillService extends AutofillService {
                 if (!currentPackage.isEmpty() && (lowerTitle.equals(currentPackage) || currentPackage.equals(lowerTitle))) {
                     match = true;
                 }
+                // Partial matching fallback for Android apps
+                if (!currentPackage.isEmpty() && (currentPackage.contains(lowerTitle) || lowerTitle.contains(currentPackage))) {
+                    match = true;
+                }
                 // Strip protocols and paths for exact domain matching
                 if (!currentWebDomain.isEmpty()) {
                     String cleanDomain = currentWebDomain.replaceFirst("^(https?://)?(www\\\\.)?", "").split("/")[0].toLowerCase();

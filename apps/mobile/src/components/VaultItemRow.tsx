@@ -53,6 +53,7 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.md,
     paddingLeft: spacing.md,
     paddingRight: spacing.lg,
+    backgroundColor: colors.surface2,
   },
   rowPressed: { backgroundColor: fills.pressed },
   texts: { flex: 1, gap: 2 },
