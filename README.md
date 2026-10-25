@@ -225,12 +225,13 @@ This project follows the **Antigravity** code standards:
 **Progress**:
 - Início da **Fase 3**: Aprimoramentos Contínuos e Refinamentos.
 - Implementação de Otimizações de Sincronização em Segundo Plano no Mobile usando `expo-task-manager` e `expo-background-fetch`. O cofre agora continua sendo atualizado de forma silenciosa.
+- Concluída a "Manutenção de dependências e monitoramento de saúde do código". Atualizações de segurança aplicadas via `npm audit fix --legacy-peer-deps` preservando a compatibilidade da workspace com Expo e QuickCrypto no mobile.
 
 **Known Bugs**:
 - Nenhum bug funcional conhecido. Os testes estão passando em todos os apps integrados.
 
 **Next Tasks**:
-- Manutenção de dependências e monitoramento de saúde do código.
+- Passkeys: Suporte completo a autenticação nativa sem senha (WebAuthn).
 
 ## ⚖️ Licença
 

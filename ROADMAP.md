@@ -31,7 +31,7 @@ O objetivo do DrivePass é ser um substituto completo, open-source e auto-hosped
 - [x] Melhorias no Autofill de Android e iOS.
 - [x] Otimizações de sincronização em segundo plano no Mobile.
 - [x] Melhorias na interface de usuário (Bunker Midnight).
-- [ ] Manutenção de dependências e monitoramento de saúde do código.
+- [x] Manutenção de dependências e monitoramento de saúde do código.
 
 ---
 *Este documento é mantido automaticamente e será atualizado em cada ciclo do loop CRON.*
