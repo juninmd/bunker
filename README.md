@@ -201,7 +201,7 @@ Commits seguem Conventional Commits (`feat:`, `fix:`, `docs:`, `chore:`), como n
 
 ## 🚧 Limitações conhecidas
 
-- **Passkeys**: suporte básico e UI presentes; fluxos WebAuthn nativos pendentes para a fase 3.
+- **Passkeys**: suporte básico, scaffolding e interceptadores WebAuthn presentes; fluxos criptográficos nativos pendentes para a fase 4.
 - **Google Drive**: exige OAuth Client ID próprio. No mobile o ID está fixo como placeholder em `apps/mobile/src/SyncService.ts`.
 - **Autofill**: melhorias de Android e iOS ainda em andamento.
 - **Capturas**: só as da extensão são regeneradas pelo `npm run e2e`; as de desktop e mobile não têm script de regeneração.
@@ -230,8 +230,8 @@ This project follows the **Antigravity** code standards:
 **Known Bugs**:
 - Nenhum bug funcional conhecido. Os testes estão passando em todos os apps integrados.
 
-**Next Tasks**:
-- Passkeys: Suporte completo a autenticação nativa sem senha (WebAuthn).
+### Next Tasks (Fase 3 & 4)
+- WebAuthn nativo: Implementar fluxos criptográficos complexos (Phase 4).
 
 ## ⚖️ Licença
 
