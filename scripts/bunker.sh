@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 
 # Bunker Orchestration CLI
-# Manages the monorepo apps: extension, desktop, android
+# Manages the monorepo apps: extension, desktop, mobile (android alias)
 
 if [ -z "$1" ]; then
-  echo "Usage: $0 {extension|desktop|android} [start|build]"
+  echo "Usage: $0 {extension|desktop|mobile} [start|build]"
   exit 1
 fi
 
@@ -34,20 +34,20 @@ case "$APP" in
       echo "Unknown command for desktop: $CMD"
     fi
     ;;
-  android)
-    echo "Managing Android App..."
-    cd "$(dirname "$0")/../apps/android" || exit
+  mobile|android)
+    echo "Managing Mobile App..."
+    cd "$(dirname "$0")/../apps/mobile" || { echo "ERROR: apps/mobile not found" >&2; exit 1; }
     if [ "$CMD" = "start" ]; then
       npm start
     elif [ "$CMD" = "build" ]; then
       npm run build:apk
     else
-      echo "Unknown command for android: $CMD"
+      echo "Unknown command for mobile: $CMD"
     fi
     ;;
   *)
     echo "Unknown app: $APP"
-    echo "Valid apps: extension, desktop, android"
+    echo "Valid apps: extension, desktop, mobile (android is an alias)"
     exit 1
     ;;
 esac
