@@ -20,7 +20,7 @@ O objetivo do DrivePass é ser um substituto completo, open-source e auto-hosped
   - Verificação de vazamentos (integração com HIBP - Have I Been Pwned).
 - [ ] **Passkeys**:
   - Suporte completo a autenticação nativa sem senha (WebAuthn) nas extensões, desktop e mobile.
-  - *Status:* Interface de usuário básica e suporte no data model implementados. Fluxos criptográficos nativos (WebAuthn) diferidos para futuras fases devido à complexidade arquitetural.
+  - *Status:* Interface de usuário básica e suporte no data model implementados. Scaffolding (interceptadores WebAuthn e PasskeyService) preparado na extensão. Fluxos criptográficos nativos (WebAuthn) diferidos para a Fase 4 devido à complexidade arquitetural.
 - [x] **Login sem senha**:
   - Capacidade de desbloquear o cofre utilizando biometria, passkeys ou chaves de hardware.
 - [x] **SaaS Protect**:

@@ -17,6 +17,17 @@ async function init() {
   } catch {
     // No worker, no autofill; the page keeps working.
   }
+
+  // Inject WebAuthn Interceptor (Passkeys Phase 4 Scaffolding)
+  injectPasskeyInterceptor();
+}
+
+// Inject Passkey Interceptor directly into the page's execution environment
+function injectPasskeyInterceptor() {
+  const script = document.createElement('script');
+  script.src = chrome.runtime.getURL('src/passkey-interceptor.js');
+  script.onload = () => script.remove();
+  (document.head || document.documentElement).appendChild(script);
 }
 
 // SaaS Protect: fixed text only; nothing from the policy reaches the DOM.
