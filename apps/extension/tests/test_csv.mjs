@@ -103,3 +103,18 @@ console.log('Running CSV Utils Tests...');
 }
 
 console.log('All CSV tests passed!');
+
+// Test 8: Formula-neutralized fields round-trip through export -> import unchanged
+{
+  const { mapCSVRowToVaultItem, mapVaultItemToCSVRow } = await import('../src/utils/csv-utils.js');
+  const values = ['+5511900000000', '-admin', '=1', '@alias', '\tx', 'normal', "'+ja-tem-apostrofo", "'abc"];
+  for (const value of values) {
+    const item = { id: '1', type: 'password', site: 'https://example.test', username: value, password: 'p', notes: '', grouping: '' };
+    const headers = ['url', 'username', 'password', 'totp', 'extra', 'name', 'grouping', 'fav'];
+    const csv = generateCSV([mapVaultItemToCSVRow(item)], headers);
+    const [row] = parseCSV(csv);
+    const back = mapCSVRowToVaultItem(row);
+    assert.strictEqual(back.username, value, `round trip failed for ${JSON.stringify(value)}`);
+  }
+  console.log('Test 8 Passed: Formula Round Trip');
+}

@@ -1,6 +1,19 @@
 // Spreadsheets run cells starting with these as formulas; secrets stay verbatim so a migration stays exact.
-const FORMULA_START = /^[=+\-@\t\r]/;
+// A leading apostrophe is also neutralized, so a value that already starts with one survives the round trip.
+const FORMULA_START = /^[=+\-@\t\r']/;
+const NEUTRALIZED = /^'(?=[=+\-@\t\r'])/;
 const VERBATIM_COLUMNS = new Set(['password', 'totp']);
+
+/**
+ * Inverse of escapeCSVField's neutralization: strips the apostrophe added before a formula trigger.
+ */
+function unneutralizeRow(row: Record<string, any>): Record<string, any> {
+  const out: Record<string, any> = { ...row };
+  for (const [key, value] of Object.entries(out)) {
+    if (typeof value === 'string' && !VERBATIM_COLUMNS.has(key)) out[key] = value.replace(NEUTRALIZED, '');
+  }
+  return out;
+}
 
 /**
  * Escapes a CSV field: neutralizes formula triggers, then quotes on comma, quote or newline.
@@ -129,7 +142,8 @@ export function parseCSV(content: string): Record<string, any>[] {
  * @param {Object} row
  * @returns {Object} A formatted vault item.
  */
-export function mapCSVRowToVaultItem(row: Record<string, any>): Record<string, any> {
+export function mapCSVRowToVaultItem(raw: Record<string, any>): Record<string, any> {
+    const row = unneutralizeRow(raw);
     const url = row.url || row.site || row.name || '';
     const isNote = url === ('http' + '://sn');
     const isCard = url === ('http' + '://cc');
