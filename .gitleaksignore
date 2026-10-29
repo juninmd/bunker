@@ -1,0 +1,14 @@
+# Supressoes por fingerprint - triagem manual registrada no PR de seguranca.
+
+# Falsos positivos: STORAGE_KEY de localStorage e placeholders de UI
+# ("Site ou app") capturados pela regra de senha/chave. Nenhuma credencial real.
+
+3195932584daa15102530e5424ee4651db001f02:apps/extension/src/popup.js:generic-api-key:1
+47063ec830adf1a2eafaac10d61a0f2f9a6a60ac:apps/extension/src/popup.js:generic-api-key:1
+602b3f7c18f2d81e7ddfed5ff1f47eb7b9bf50cb:apps/extension/src/services/vault-service.ts:generic-api-key:4
+95d4d84991a1bc8fa0f38faf3f459607d78f6e1d:apps/extension/src/background.ts:generic-api-key:5
+a2570122ab4c57627abbb5653f23e4c5269339cd:apps/extension/src/services/credential-service.ts:generic-api-key:4
+a487e35a6bd39200c3c03ce37cc0fe3d54a7c10b:apps/extension/src/services/vault-service.ts:generic-api-key:9
+ba0b204de84c76234061a397472fa2173f5e943c:apps/extension/src/background.js:generic-api-key:5
+d790e211204d135e7b1c5d798163d48ff45ca72f:apps/extension/src/services/vault-service.js:generic-api-key:3
+eb7e0e0034f0b10c5dfa3f55a03e9ee8a527e130:apps/extension/src/popup.js:juninmd-hardcoded-password:166
