@@ -8,10 +8,11 @@
     "ios": "expo run:ios",
     "web": "expo start --web",
     "build:apk": "mkdir -p dist && npx expo prebuild --clean && cd android && ./gradlew assembleRelease && cp app/build/outputs/apk/release/app-release.apk ../dist/bunkerpass-mobile-1.0.0.apk",
-    "test": "npx tsc --noEmit",
+    "test": "tsc --noEmit",
     "build": "echo \"No build for mobile needed for test\" && exit 0"
   },
   "dependencies": {
+    "@craftzdog/react-native-buffer": "^6.1.2",
     "@expo/config-plugins": "^57.0.9",
     "expo": "~55.0.6",
     "expo-auth-session": "^55.0.15",
@@ -33,6 +34,7 @@
   },
   "private": true,
   "devDependencies": {
+    "@types/node": "^26.6.6",
     "@types/react": "^19.3.0",
     "@types/react-native": "^0.73.0",
     "typescript": "^5.9.3"

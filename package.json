@@ -2,12 +2,9 @@
   "name": "drivepass-monorepo",
   "version": "1.0.0",
   "description": "DrivePass - Cross-platform password manager",
-  "workspaces": [
-    "apps/*"
-  ],
   "scripts": {
-    "test": "npm run test --workspaces --if-present",
-    "build": "npm run build --workspaces --if-present"
+    "test": "pnpm -r --if-present run test",
+    "build": "pnpm -r --if-present run build"
   },
   "keywords": [],
   "author": "",
@@ -15,13 +12,20 @@
   "pnpm": {
     "overrides": {
       "@xmldom/xmldom": ">=0.8.15 <1.0.0",
-      "brace-expansion": ">=5.0.8, 3.0.3, 2.1.3, 1.1.17 <6.0.0",
+      "brace-expansion@<1.1.17": "^1.1.17",
+      "brace-expansion@>=2.0.0 <2.1.3": "^2.1.3",
+      "brace-expansion@>=3.0.0 <3.0.3": "^3.0.3",
+      "brace-expansion@>=4.0.0 <5.0.8": "^5.0.8",
       "browserslist": ">=4.28.7 <5.0.0",
       "compression": ">=1.8.2 <2.0.0",
-      "js-yaml": ">=4.3.1, 3.15.1 <5.0.0",
-      "nanoid": ">=3.3.12 <7.0.0",
+      "js-yaml@<3.15.1": "^3.15.1",
+      "js-yaml@>=4.0.0 <4.3.1": "^4.3.1",
+      "nanoid@<3.3.12": "^3.3.12",
+      "nanoid@>=4.0.0 <5.1.11": "^5.1.11",
       "node-forge": ">=1.4.1 <2.0.0",
-      "picomatch": ">=4.0.4, 3.0.2, 2.3.2 <5.0.0",
+      "picomatch@<2.3.2": "^2.3.2",
+      "picomatch@>=3.0.0 <3.0.2": "^3.0.2",
+      "picomatch@>=4.0.0 <4.0.4": "^4.0.4",
       "postcss": ">=8.5.18 <9.0.0",
       "shell-quote": ">=1.9.0 <2.0.0",
       "source-map-js": ">=1.2.2 <2.0.0"
