@@ -14,7 +14,7 @@
   "dependencies": {
     "@craftzdog/react-native-buffer": "^6.1.2",
     "@expo/config-plugins": "^57.0.9",
-    "expo": "~55.0.6",
+    "expo": "~55.0.32",
     "expo-auth-session": "^55.0.15",
     "expo-background-fetch": "~55.0.20",
     "expo-crypto": "^55.0.14",
