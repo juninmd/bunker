@@ -3,8 +3,6 @@
 # Falsos positivos: STORAGE_KEY de localStorage e placeholders de UI
 # ("Site ou app") capturados pela regra de senha/chave. Nenhuma credencial real.
 
-# Falsos positivos recorrentes de generic-api-key nos arquivos TS da extensao.
-apps/extension/src/**/*.ts
 
 3195932584daa15102530e5424ee4651db001f02:apps/extension/src/popup.js:generic-api-key:1
 47063ec830adf1a2eafaac10d61a0f2f9a6a60ac:apps/extension/src/popup.js:generic-api-key:1
