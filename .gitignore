@@ -11,3 +11,9 @@ apps/extension/src/**/*.js
 docs/screenshots/results.json
 docs/screenshots/security-results.json
 docs/screenshots/firefox-results.json
+
+# Artefatos locais e segredos: nunca versionar (smoke test de seguranca)
+*.log
+.env
+.env.*
+!.env.example
