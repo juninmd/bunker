@@ -8,7 +8,7 @@
     "ios": "expo run:ios",
     "web": "expo start --web",
     "build:apk": "mkdir -p dist && npx expo prebuild --clean && cd android && ./gradlew assembleRelease && cp app/build/outputs/apk/release/app-release.apk ../dist/bunkerpass-mobile-1.0.0.apk",
-    "test": "npx tsc --noEmit",
+    "test": "tsc --noEmit",
     "build": "echo \"No build for mobile needed for test\" && exit 0"
   },
   "dependencies": {
@@ -29,10 +29,28 @@
     "react-native-keychain": "^10.0.0",
     "react-native-quick-base64": "^3.0.1",
     "react-native-quick-crypto": "^1.1.9",
+    "@craftzdog/react-native-buffer": "^6.1.2",
+    "expo": "~58.0.23",
+    "expo-auth-session": "^55.0.15",
+    "expo-background-fetch": "~55.0.20",
+    "expo-crypto": "^55.0.14",
+    "expo-intent-launcher": "^57.0.1",
+    "expo-linear-gradient": "~55.0.18",
+    "expo-local-authentication": "^57.0.2",
+    "expo-secure-store": "^57.0.1",
+    "expo-status-bar": "~55.0.4",
+    "expo-task-manager": "~55.0.20",
+    "expo-web-browser": "^55.0.15",
+    "react": "19.2.0",
+    "react-native": "0.83.2",
+    "react-native-keychain": "^10.0.0",
+    "react-native-quick-base64": "^3.0.1",
+    "react-native-quick-crypto": "^1.1.8",
     "xcode": "^4.0.0"
   },
   "private": true,
   "devDependencies": {
+    "@types/node": "^26.6.6",
     "@types/react": "^19.3.0",
     "@types/react-native": "^0.73.0",
     "typescript": "^7.0.2"
