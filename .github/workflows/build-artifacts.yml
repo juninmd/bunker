@@ -47,7 +47,7 @@ jobs:
           mv dist/bunkerpass-mobile-1.0.0.apk ../../dist/bunkerpass-mobile-${{ github.ref_name }}.apk
 
       - name: Upload Release Artifacts
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           files: |
             dist/*.zip
