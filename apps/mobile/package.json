@@ -13,18 +13,18 @@
   },
   "dependencies": {
     "@craftzdog/react-native-buffer": "^6.1.2",
-    "@expo/config-plugins": "^58.0.12",
-    "expo": "~58.0.23",
-    "expo-auth-session": "^58.0.17",
-    "expo-background-fetch": "~58.0.12",
-    "expo-crypto": "^58.0.7",
+    "@expo/config-plugins": "^58.0.13",
+    "expo": "~58.0.24",
+    "expo-auth-session": "^58.0.18",
+    "expo-background-fetch": "~58.0.13",
+    "expo-crypto": "^58.0.8",
     "expo-intent-launcher": "^58.0.3",
-    "expo-linear-gradient": "~58.0.3",
-    "expo-local-authentication": "^58.0.2",
-    "expo-secure-store": "^58.0.2",
-    "expo-status-bar": "~58.0.4",
-    "expo-task-manager": "~58.0.13",
-    "expo-web-browser": "^58.0.7",
+    "expo-linear-gradient": "~58.0.4",
+    "expo-local-authentication": "^58.0.3",
+    "expo-secure-store": "^58.0.3",
+    "expo-status-bar": "~58.0.5",
+    "expo-task-manager": "~58.0.14",
+    "expo-web-browser": "^58.0.8",
     "react": "19.3.1",
     "react-native": "0.88.1",
     "react-native-keychain": "^11.0.0",
@@ -37,6 +37,6 @@
     "@types/node": "^26.6.6",
     "@types/react": "^19.3.0",
     "@types/react-native": "^0.73.0",
-    "typescript": "^5.9.3"
+    "typescript": "^7.0.2"
   }
 }
