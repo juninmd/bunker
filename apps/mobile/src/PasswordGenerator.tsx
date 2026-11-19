@@ -10,6 +10,7 @@ import { PrimaryButton } from './components/PrimaryButton';
 import { ScrollEdge, useScrolled } from './components/ScrollEdge';
 import { ToggleRow } from './components/ToggleRow';
 import { useScreenInsets } from './components/insets';
+import { clampLength, generatePassword } from './core/password-generator';
 import { alpha, colors, fills, fontSize, fontWeight, radius, spacing } from './theme';
 
 export function PasswordGenerator({ onClose }: { onClose: () => void }) {
@@ -20,29 +21,24 @@ export function PasswordGenerator({ onClose }: { onClose: () => void }) {
   const [includeNumbers, setIncludeNumbers] = useState(true);
   const [includeSymbols, setIncludeSymbols] = useState(true);
 
-  const generatePassword = () => {
-    let charset = '';
-    if (includeUppercase) charset += 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-    if (includeLowercase) charset += 'abcdefghijklmnopqrstuvwxyz';
-    if (includeNumbers) charset += '0123456789';
-    if (includeSymbols) charset += '!@#$%^&*()_+~`|}{[]:;?><,./-=';
-
-    if (charset === '') {
-      setPassword('');
-      return;
-    }
-
-    let newPassword = '';
-    const passLength = parseInt(length, 10) || 16;
-
-    // Generate an array of secure random values
-    const randomValues = Crypto.getRandomValues(new Uint32Array(passLength));
-
-    for (let i = 0; i < passLength; i++) {
-      const randomIndex = randomValues[i] % charset.length;
-      newPassword += charset[randomIndex];
-    }
-    setPassword(newPassword);
+  const generate = () => {
+    // Secure random values in batches; generatePassword asks for more only when it rejects a biased one.
+    let pool = new Uint32Array(0);
+    let next = 0;
+    const random = () => {
+      if (next >= pool.length) {
+        pool = Crypto.getRandomValues(new Uint32Array(256));
+        next = 0;
+      }
+      return pool[next++];
+    };
+    setPassword(
+      generatePassword(
+        clampLength(length),
+        { uppercase: includeUppercase, lowercase: includeLowercase, numbers: includeNumbers, symbols: includeSymbols },
+        random,
+      ),
+    );
   };
 
   const insets = useScreenInsets();
@@ -79,7 +75,7 @@ export function PasswordGenerator({ onClose }: { onClose: () => void }) {
           </View>
 
           <View style={styles.actions}>
-            <PrimaryButton title="Gerar Senha" icon="key" onPress={generatePassword} />
+            <PrimaryButton title="Gerar Senha" icon="key" onPress={generate} />
             <GhostButton title="Voltar" icon="chevron-left" iconColor={colors.muted} onPress={onClose} />
           </View>
         </Card>
