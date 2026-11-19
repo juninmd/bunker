@@ -1,4 +1,7 @@
 namespace Bunker {
+  // Senha e TOTP são segredos: espaços nas pontas fazem parte do valor e não podem ser aparados.
+  const VERBATIM_COLUMNS = new Set(['password', 'totp']);
+
   // Lê o CSV inteiro (RFC 4180): aspas duplas, vírgulas e quebras de linha dentro de campos, CRLF ou LF.
   // Devolve um objeto por linha, indexado pelo cabeçalho da primeira linha.
   export function parseFullCSV(text: string): CsvRow[] {
@@ -49,7 +52,8 @@ namespace Bunker {
       if (line.length === 1 && line[0].trim() === '') continue;
       const obj: CsvRow = {};
       for (let k = 0; k < headers.length; k++) {
-        obj[headers[k]] = line[k] ? line[k].trim() : '';
+        const value = line[k] ?? '';
+        obj[headers[k]] = VERBATIM_COLUMNS.has(headers[k]) ? value : value.trim();
       }
       objects.push(obj);
     }
