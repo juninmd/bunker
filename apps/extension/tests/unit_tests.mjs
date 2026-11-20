@@ -43,6 +43,12 @@ async function testCrypto() {
     const decrypted = await decryptWithKey(encrypted, key);
 
     assert.deepStrictEqual(decrypted, payload);
+
+    // A vault of ~1.500 logins with notes is several hundred KB; spreading its bytes into one call overflowed the stack.
+    const big = { schemaVersion: 1, credentials: Array.from({ length: 1500 }, (_, i) => ({ id: i, site: `site${i}.example`, password: 'x'.repeat(32), notes: 'n'.repeat(200) })) };
+    assert.deepStrictEqual(await decryptWithKey(await encryptWithKey(big, key), key), big);
+    const bytes = Uint8Array.from({ length: 300000 }, (_, i) => (i * 7919) & 255);
+    assert.deepStrictEqual(base64ToBytes(bytesToBase64(bytes)), bytes);
     console.log('Crypto (Key-based) Test Passed ✅');
 }
 

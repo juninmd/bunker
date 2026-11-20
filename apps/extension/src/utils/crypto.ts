@@ -1,6 +1,9 @@
 // NOSONAR: We safely use btoa with bytes conversion for crypto payloads.
 export function bytesToBase64(bytes: Uint8Array): string {
-  return btoa(String.fromCharCode(...bytes));
+  // Spreading a whole vault into one call overflows the stack past ~120 KB: convert in chunks.
+  let binary = '';
+  for (let i = 0; i < bytes.length; i += 0x8000) binary += String.fromCharCode(...bytes.subarray(i, i + 0x8000));
+  return btoa(binary);
 }
 
 // NOSONAR: We safely use atob with bytes conversion for crypto payloads.
