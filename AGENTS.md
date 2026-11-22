@@ -1,41 +1,53 @@
-# 🧠 AGENTS.md - Bunker Intelligence System
+# AGENTS.md
 
-## 👤 AI Personas
+Bunker: a password manager monorepo (pnpm workspace) with a browser extension (Chrome, Firefox, Edge), an Electron desktop app and an Expo / React Native mobile app. Vault encryption and secret handling are the highest-risk code: review them first.
 
-### 1. Jules-Architect (System Architect)
-- **Role**: Designing the monorepo structure and orchestration.
-- **Focus**: Integrity, isolation, and scalable management.
-- **Vibe**: Direct, secure-first, and strategic.
+## Stack
 
-### 2. Sentinel (The Guard)
-- **Role**: Code auditing and Antigravity compliance check.
-- **Focus**: Verification scripts, dependency safety, and line count enforcement.
-- **Vibe**: Rigid, precise, and protective.
+- pnpm workspace (`apps/*`), TypeScript, Electron (desktop), Expo / React Native (mobile), Manifest V3 extension built with `tsc`.
+- Versions and changelogs are managed by Release Please.
 
-### 3. Bolt-Automation (Orchestrator)
-- **Role**: Developing build and release scripts.
-- **Focus**: `release-please` integration, shell automation, and deployment efficiency.
-- **Vibe**: Fast, technical, and "CI/CD-obsessed".
+## Commands
 
-## 📜 Development Rules (Antigravity)
+```bash
+pnpm install
+pnpm run build                                          # root: build every app that has a build script
+pnpm run test                                           # root: test every app that has a test script
+pnpm --filter ./apps/extension run test                 # unit suite (node tests/*.mjs)
+pnpm --filter ./apps/extension run typecheck
+pnpm --filter ./apps/extension run build:firefox        # also: build:edge
+pnpm --filter ./apps/extension run e2e                  # homologation e2e (tests/e2e/homologation.mjs)
+pnpm --filter ./apps/mobile run test                    # tsc --noEmit
+python3 verification/verify_popup_layout.py             # required for every change; run from repo root
+```
 
-1. **Size Limit**: **Max 150 lines per file**. Core scripts must be modularized.
-2. **Isolation**: Applications must not have cross-dependencies unless strictly documented.
-3. **No 'any'**: Strictly enforced for all TypeScript-based apps within the bunker.
-4. **Validation**: All changes require a successful run of the `verification/` suite.
+`apps/desktop` has no tests yet; its `test` script is a placeholder.
 
-## 🤝 Interaction Protocol
-- Follow the **Plan -> Act -> Validate** cycle for every new sub-application.
-- Use the **Release Please** protocol for all version bumps.
+## Structure
 
-<!-- base-actions-main-policy -->
-## GitHub Actions — padrão obrigatório (@main)
+- `apps/extension/`: MV3 extension. `src/background.ts`, `content*.ts`, `services/` (vault, sync, passkeys, PIN lock, recovery, Google Drive), `ui/`, `utils/` (crypto, TOTP, CSV). Tests in `tests/`.
+- `apps/desktop/`: Electron app (`src/main.ts`, `preload.ts`, `renderer/`).
+- `apps/mobile/`: Expo app (`App.tsx`, `src/` components, `src/core/`, `plugins/` for autofill).
+- `verification/`: the popup layout verification suite that every change must pass.
+- `scripts/`: packaging (`package-extension.sh`, `bunker.sh`), README updater, Drive OAuth setup.
+- `docs/`: `SECURITY.md`, `SETUP.md`, `DESIGN.md`, `ROADMAP.md`.
 
-- Referencie as actions internas sempre pelo branch, nunca por SHA:
-  - `uses: juninmd/base-actions/<action>@main`
-  - `uses: juninmd/base-actions/.github/workflows/<arquivo>.yml@main`
-- Não fixe `@<sha>` em `juninmd/base-actions`: a atualização é centralizada no
-  `main` e passa a valer no próximo run.
-- PRs cujos checks não iniciam por billing/spending limit são mesclados pelo bot central
-  `juninmd/base-actions/.github/workflows/auto-merge-billing-blocked.yml`.
-  Para impedir o merge automático de um PR, aplique a label `do-not-merge`.
+## Conventions
+
+- Max 150 lines per file. Split core scripts into modules.
+- No cross-app dependencies unless they are documented.
+- No `any` in TypeScript apps.
+- Every change passes the `verification/` suite. Each new sub-application follows Plan, then Act, then Validate.
+- Version bumps only through Release Please. Do not hand-edit versions or `CHANGELOG.md`.
+- Review lenses: architecture (structure and boundaries), audit (line limits, dependency safety), release (build and release scripts).
+- GitHub Actions: <!-- base-actions-main-policy -->
+  - Reference internal actions by branch, never by SHA: `uses: juninmd/base-actions/<action>@main` and `uses: juninmd/base-actions/.github/workflows/<file>.yml@main`.
+  - Do not pin `@<sha>` for `juninmd/base-actions`; updates are centralized on `main`.
+  - PRs whose checks do not start because of billing or spending limits are auto-merged by `juninmd/base-actions/.github/workflows/auto-merge-billing-blocked.yml`. Apply the `do-not-merge` label to block that.
+
+## Gotchas
+
+- Keep secrets out of commits. `.env*` is git-ignored except `.env.example`. Never paste credentials into logs or PRs.
+- `apps/extension/src/**/*.js` is git-ignored build output. Edit the `.ts` source.
+- Homologation results (`results.json`, `security-results.json`, `firefox-results.json` under `docs/screenshots/`) are git-ignored. Do not commit them.
+- The root `build` and `test` scripts run over every app with `--if-present`, so a missing script in an app is skipped silently.
