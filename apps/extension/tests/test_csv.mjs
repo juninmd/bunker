@@ -118,3 +118,16 @@ console.log('All CSV tests passed!');
   }
   console.log('Test 8 Passed: Formula Round Trip');
 }
+
+// Test 9: CR and CRLF inside quoted fields are kept verbatim (secrets must not change on import)
+{
+  const csv = 'name,password,notes\r\nsite,"ab\rcd","line1\r\nline2"\r\nother,p2,n2';
+  const rows = parseCSV(csv);
+  assert.strictEqual(rows.length, 2, 'CRLF row split failed');
+  assert.strictEqual(rows[0].password, 'ab\rcd', 'CR inside quotes was altered');
+  assert.strictEqual(rows[0].notes, 'line1\r\nline2', 'CRLF inside quotes was altered');
+  assert.strictEqual(rows[1].name, 'other');
+  const old = parseCSV('a,b\rx,y');
+  assert.strictEqual(old[0].a, 'x', 'bare CR row separator failed');
+  console.log('Test 9 Passed: CR inside quotes');
+}
