@@ -59,9 +59,6 @@ function parseCSVLines(str: string): string[][] {
     let row: string[] = [];
     let col = '';
 
-    // Normalize newlines to simplify parsing
-    str = str.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
-
     for (let cIndex = 0; cIndex < str.length; cIndex++) {
         let c = str[cIndex];
         let cc = str[cIndex + 1];
@@ -79,8 +76,9 @@ function parseCSVLines(str: string): string[][] {
             // End of field
             row.push(col);
             col = '';
-        } else if (c === '\n' && !quote) {
-            // End of row
+        } else if ((c === '\n' || c === '\r') && !quote) {
+            // End of row (LF, CRLF or bare CR). CR/LF inside quotes stay verbatim.
+            if (c === '\r' && cc === '\n') cIndex++;
             row.push(col);
             col = '';
             arr.push(row);
